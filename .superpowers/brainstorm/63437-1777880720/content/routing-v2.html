@@ -1,0 +1,118 @@
+<h2>Seitenstruktur v2 + Header</h2>
+<p class="subtitle">6 Seiten, Header mit +Bewertung überall, Schnellsuche ohne Label</p>
+
+<!-- Routing -->
+<div class="section">
+  <h3>/// Routing — 6 Seiten</h3>
+  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:#050505;margin-top:10px;">
+    <div style="background:#E61919;padding:10px 12px;">
+      <div style="font-family:monospace;font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:3px;">/</div>
+      <div style="font-size:11px;font-weight:900;color:#fff;text-transform:uppercase;">START</div>
+    </div>
+    <div style="background:#F4F4F0;padding:10px 12px;">
+      <div style="font-family:monospace;font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:3px;">/berichte</div>
+      <div style="font-size:11px;font-weight:900;color:#050505;text-transform:uppercase;">BERICHTE</div>
+    </div>
+    <div style="background:#F4F4F0;padding:10px 12px;">
+      <div style="font-family:monospace;font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:3px;">/karte</div>
+      <div style="font-size:11px;font-weight:900;color:#050505;text-transform:uppercase;">KARTE</div>
+    </div>
+    <div style="background:#F4F4F0;padding:10px 12px;">
+      <div style="font-family:monospace;font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:3px;">/ranking</div>
+      <div style="font-size:11px;font-weight:900;color:#050505;text-transform:uppercase;">RANKING</div>
+    </div>
+    <div style="background:#F4F4F0;padding:10px 12px;">
+      <div style="font-family:monospace;font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:3px;">/vergleich</div>
+      <div style="font-size:11px;font-weight:900;color:#050505;text-transform:uppercase;">VERGLEICH</div>
+    </div>
+    <div style="background:#F4F4F0;padding:10px 12px;">
+      <div style="font-family:monospace;font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:3px;">/bewerten</div>
+      <div style="font-size:11px;font-weight:900;color:#050505;text-transform:uppercase;">BEWERTEN</div>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
+<div class="section">
+  <h3>/// Header — auf jeder Seite</h3>
+  <div style="background:#F4F4F0;border:1px solid #050505;font-family:Inter,sans-serif;">
+    <!-- Register strip -->
+    <div style="background:#050505;display:flex;justify-content:space-between;padding:3px 20px;">
+      <span style="font-family:monospace;font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:#F4F4F0;">ASSISTENZARZT-RANKING /// DE · AT · CH</span>
+      <span style="font-family:monospace;font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:#888;">ANONYME BEWERTUNGSPLATTFORM</span>
+    </div>
+    <!-- Main header -->
+    <div style="border-bottom:1px solid #050505;display:flex;align-items:stretch;">
+      <div style="border-right:1px solid #050505;padding:14px 20px;display:flex;align-items:center;gap:10px;">
+        <div style="width:32px;height:32px;background:#050505;display:flex;align-items:center;justify-content:center;font-size:16px;">🏥</div>
+        <div>
+          <div style="font-size:15px;font-weight:900;color:#050505;letter-spacing:-0.04em;text-transform:uppercase;line-height:1;">AssistenzDoc</div>
+          <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-top:2px;">Ranking-Plattform</div>
+        </div>
+      </div>
+      <!-- Nav links -->
+      <div style="display:flex;align-items:stretch;flex:1;">
+        <div style="display:flex;align-items:center;padding:0 16px;border-right:1px solid #eee;">
+          <span style="font-family:monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:#888;cursor:pointer;">BERICHTE</span>
+        </div>
+        <div style="display:flex;align-items:center;padding:0 16px;border-right:1px solid #eee;">
+          <span style="font-family:monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:#888;cursor:pointer;">KARTE</span>
+        </div>
+        <div style="display:flex;align-items:center;padding:0 16px;border-right:1px solid #eee;">
+          <span style="font-family:monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:#888;cursor:pointer;">RANKING</span>
+        </div>
+        <div style="display:flex;align-items:center;padding:0 16px;">
+          <span style="font-family:monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:#888;cursor:pointer;">VERGLEICH</span>
+        </div>
+      </div>
+      <!-- CTA — always red, top right -->
+      <div style="border-left:1px solid #050505;display:flex;align-items:center;padding:0 20px;background:#E61919;">
+        <span style="font-family:monospace;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#fff;white-space:nowrap;">[ + BEWERTUNG ]</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Updated Search Widget -->
+<div class="section">
+  <h3>/// Startseite — Suchwidget (kein Label, Land als Freitext)</h3>
+  <div style="background:#F4F4F0;border:1px solid #050505;font-family:Inter,sans-serif;max-width:560px;">
+
+    <!-- Mode toggle -->
+    <div style="display:flex;gap:1px;background:#050505;">
+      <div style="flex:1;background:#E61919;color:#fff;font-family:monospace;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:10px 0;text-align:center;cursor:pointer;">>>> BERICHTE LESEN</div>
+      <div style="flex:1;background:#F4F4F0;color:#888;font-family:monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;padding:10px 0;text-align:center;cursor:pointer;">[ BEWERTEN ]</div>
+    </div>
+
+    <!-- Search row — no label above input -->
+    <div style="display:flex;gap:1px;background:#050505;padding:1px;">
+      <input
+        placeholder="Klinik, Stadt, Bundesland, Deutschland…"
+        style="flex:1;border:none;background:#fff;font-size:13px;padding:11px 14px;font-family:Inter,sans-serif;outline:none;"
+      />
+      <div style="background:#E61919;display:flex;align-items:center;padding:0 18px;cursor:pointer;">
+        <span style="color:#fff;font-family:monospace;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;">SUCHEN >>></span>
+      </div>
+    </div>
+
+    <!-- Live dropdown -->
+    <div style="border-top:1px solid #050505;background:#fff;">
+      <div style="display:flex;align-items:center;gap:10px;padding:7px 14px;border-bottom:1px solid #f0f0f0;background:#F4F4F0;">
+        <span style="font-family:monospace;font-size:8px;color:#E61919;text-transform:uppercase;letter-spacing:0.1em;min-width:56px;">KLINIK</span>
+        <span style="font-size:12px;font-weight:700;color:#050505;">Charité – Universitätsmedizin Berlin</span>
+        <span style="font-family:monospace;font-size:8px;color:#888;margin-left:auto;white-space:nowrap;">🇩🇪 BERLIN</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:7px 14px;border-bottom:1px solid #f0f0f0;">
+        <span style="font-family:monospace;font-size:8px;color:#888;text-transform:uppercase;letter-spacing:0.1em;min-width:56px;">STADT</span>
+        <span style="font-size:12px;color:#050505;">Berlin</span>
+        <span style="font-family:monospace;font-size:8px;color:#888;margin-left:auto;white-space:nowrap;">🇩🇪 12 KLINIKEN</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:7px 14px;">
+        <span style="font-family:monospace;font-size:8px;color:#888;text-transform:uppercase;letter-spacing:0.1em;min-width:56px;">BUNDESLAND</span>
+        <span style="font-size:12px;color:#050505;">Brandenburg</span>
+        <span style="font-family:monospace;font-size:8px;color:#888;margin-left:auto;white-space:nowrap;">🇩🇪 8 KLINIKEN</span>
+      </div>
+    </div>
+
+  </div>
+</div>

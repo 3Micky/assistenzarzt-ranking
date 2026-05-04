@@ -1,0 +1,227 @@
+<h2>RatingForm — 4 Schritte</h2>
+<p class="subtitle">Abschnitt 4/4 — Klinik-Suche, Pflicht-Kriterien, Nice-to-have, Bestätigung</p>
+
+<div class="split" style="gap:12px;align-items:flex-start;">
+
+  <!-- SCHRITT 1a: Schnellsuche -->
+  <div class="mockup">
+    <div class="mockup-header">Schritt 1a — Schnellsuche</div>
+    <div class="mockup-body" style="padding:0;background:#F4F4F0;font-family:Inter,sans-serif;">
+      <div style="background:#050505;padding:4px 16px;">
+        <span style="font-family:monospace;font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:#F4F4F0;">SCHRITT 1 VON 4 /// KLINIK WÄHLEN</span>
+      </div>
+      <div style="padding:16px;">
+        <div style="font-size:16px;font-weight:900;color:#050505;letter-spacing:-0.03em;text-transform:uppercase;margin-bottom:12px;">Klinik suchen</div>
+
+        <!-- Toggle -->
+        <div style="display:flex;gap:1px;background:#050505;margin-bottom:14px;">
+          <div style="flex:1;background:#E61919;color:#fff;font-family:monospace;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:7px 10px;text-align:center;">SCHNELLSUCHE</div>
+          <div style="flex:1;background:#F4F4F0;color:#888;font-family:monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:7px 10px;text-align:center;">GENAUE SUCHE</div>
+        </div>
+
+        <!-- Search input -->
+        <div style="position:relative;">
+          <input style="width:100%;border:1px solid #050505;background:#fff;font-size:13px;padding:10px 12px;font-family:Inter,sans-serif;outline:none;box-sizing:border-box;" placeholder="Klinik, Stadt oder Bundesland…" />
+          <div style="border:1px solid #050505;border-top:none;background:#fff;">
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #eee;cursor:pointer;background:#F4F4F0;">
+              <span style="font-family:monospace;font-size:9px;color:#888;text-transform:uppercase;letter-spacing:0.08em;min-width:60px;">KLINIK</span>
+              <span style="font-size:12px;font-weight:700;color:#050505;">Charité – Universitätsmedizin Berlin</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #eee;cursor:pointer;">
+              <span style="font-family:monospace;font-size:9px;color:#888;text-transform:uppercase;letter-spacing:0.08em;min-width:60px;">STADT</span>
+              <span style="font-size:12px;color:#050505;">Berlin</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;">
+              <span style="font-family:monospace;font-size:9px;color:#888;text-transform:uppercase;letter-spacing:0.08em;min-width:60px;">LAND</span>
+              <span style="font-size:12px;color:#050505;">Brandenburg</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCHRITT 1b: Genaue Suche -->
+  <div class="mockup">
+    <div class="mockup-header">Schritt 1b — Genaue Suche</div>
+    <div class="mockup-body" style="padding:0;background:#F4F4F0;font-family:Inter,sans-serif;">
+      <div style="background:#050505;padding:4px 16px;">
+        <span style="font-family:monospace;font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:#F4F4F0;">SCHRITT 1 VON 4 /// KLINIK WÄHLEN</span>
+      </div>
+      <div style="padding:16px;">
+        <div style="font-size:16px;font-weight:900;color:#050505;letter-spacing:-0.03em;text-transform:uppercase;margin-bottom:12px;">Klinik suchen</div>
+        <div style="display:flex;gap:1px;background:#050505;margin-bottom:14px;">
+          <div style="flex:1;background:#F4F4F0;color:#888;font-family:monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:7px 10px;text-align:center;">SCHNELLSUCHE</div>
+          <div style="flex:1;background:#E61919;color:#fff;font-family:monospace;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:7px 10px;text-align:center;">GENAUE SUCHE</div>
+        </div>
+        <!-- Cascading -->
+        <div style="display:flex;flex-direction:column;gap:1px;background:#050505;">
+          <div style="background:#F4F4F0;padding:8px 12px;">
+            <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:4px;">01 /// BUNDESLAND</div>
+            <select style="width:100%;border:1px solid #050505;background:#fff;font-size:12px;padding:7px 10px;font-family:Inter,sans-serif;outline:none;">
+              <option>Bayern</option>
+            </select>
+          </div>
+          <div style="background:#F4F4F0;padding:8px 12px;">
+            <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:4px;">02 /// STADT</div>
+            <select style="width:100%;border:1px solid #050505;background:#fff;font-size:12px;padding:7px 10px;font-family:Inter,sans-serif;outline:none;">
+              <option>München</option>
+            </select>
+          </div>
+          <div style="background:#F4F4F0;padding:8px 12px;">
+            <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:4px;">03 /// KLINIK</div>
+            <select style="width:100%;border:1px solid #050505;background:#fff;font-size:12px;padding:7px 10px;font-family:Inter,sans-serif;outline:none;">
+              <option>LMU Klinikum München</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SCHRITT 2: Pflicht-Kriterien -->
+<div class="mockup" style="margin-top:12px;">
+  <div class="mockup-header">Schritt 2 — Pflicht-Kriterien</div>
+  <div class="mockup-body" style="padding:0;background:#F4F4F0;font-family:Inter,sans-serif;">
+    <div style="background:#050505;padding:4px 16px;">
+      <span style="font-family:monospace;font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:#F4F4F0;">SCHRITT 2 VON 4 /// PFLICHT-KRITERIEN</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#050505;">
+
+      <!-- Arbeitszeiten -->
+      <div style="background:#F4F4F0;padding:12px 14px;">
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:6px;">ARBEITSZEITEN</div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <input type="time" value="07:00" style="border:1px solid #050505;background:#fff;font-size:12px;padding:5px 8px;font-family:monospace;outline:none;flex:1;" />
+          <span style="font-family:monospace;font-size:10px;color:#888;">—</span>
+          <input type="time" value="16:00" style="border:1px solid #050505;background:#fff;font-size:12px;padding:5px 8px;font-family:monospace;outline:none;flex:1;" />
+        </div>
+      </div>
+
+      <!-- Dienste/Monat -->
+      <div style="background:#F4F4F0;padding:12px 14px;">
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:6px;">DIENSTE / MONAT</div>
+        <input type="number" value="4" min="0" max="15" style="border:1px solid #050505;background:#fff;font-size:16px;font-weight:900;padding:5px 10px;font-family:monospace;outline:none;width:80px;" />
+      </div>
+
+      <!-- OPs/Monat -->
+      <div style="background:#F4F4F0;padding:12px 14px;">
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:6px;">OPS / MONAT</div>
+        <input type="number" value="12" min="0" max="50" style="border:1px solid #050505;background:#fff;font-size:16px;font-weight:900;padding:5px 10px;font-family:monospace;outline:none;width:80px;" />
+      </div>
+
+      <!-- Dienstsystem -->
+      <div style="background:#F4F4F0;padding:12px 14px;">
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:6px;">DIENSTSYSTEM</div>
+        <div style="display:flex;gap:1px;background:#050505;">
+          <div style="flex:1;background:#E61919;color:#fff;font-family:monospace;font-size:9px;font-weight:700;text-transform:uppercase;padding:6px 8px;text-align:center;">12H</div>
+          <div style="flex:1;background:#fff;color:#888;font-family:monospace;font-size:9px;text-transform:uppercase;padding:6px 8px;text-align:center;">24H</div>
+        </div>
+      </div>
+
+      <!-- Überstunden -->
+      <div style="background:#F4F4F0;padding:12px 14px;">
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:6px;">ÜBERSTUNDEN AUFSCHREIBEN</div>
+        <div style="display:flex;gap:1px;background:#050505;">
+          <div style="flex:1;background:#22C55E;color:#fff;font-family:monospace;font-size:9px;font-weight:700;text-transform:uppercase;padding:6px 8px;text-align:center;">JA</div>
+          <div style="flex:1;background:#fff;color:#888;font-family:monospace;font-size:9px;text-transform:uppercase;padding:6px 8px;text-align:center;">NEIN</div>
+        </div>
+      </div>
+
+      <!-- Rotationspläne -->
+      <div style="background:#F4F4F0;padding:12px 14px;">
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:6px;">ROTATIONSPLÄNE</div>
+        <div style="display:flex;gap:1px;background:#050505;margin-bottom:6px;">
+          <div style="flex:1;background:#22C55E;color:#fff;font-family:monospace;font-size:9px;font-weight:700;text-transform:uppercase;padding:6px 8px;text-align:center;">JA</div>
+          <div style="flex:1;background:#fff;color:#888;font-family:monospace;font-size:9px;text-transform:uppercase;padding:6px 8px;text-align:center;">NEIN</div>
+        </div>
+        <input placeholder="Details…" style="width:100%;border:1px solid #ccc;background:#fff;font-size:11px;padding:5px 8px;font-family:Inter,sans-serif;outline:none;box-sizing:border-box;" />
+      </div>
+
+      <!-- Fortbildung -->
+      <div style="background:#F4F4F0;padding:12px 14px;">
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:6px;">FORTBILDUNG</div>
+        <div style="display:flex;gap:8px;flex-direction:column;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:monospace;font-size:8px;letter-spacing:0.08em;text-transform:uppercase;color:#555;">FREISTELLUNG</span>
+            <div style="display:flex;gap:1px;background:#050505;">
+              <div style="background:#22C55E;color:#fff;font-family:monospace;font-size:8px;font-weight:700;text-transform:uppercase;padding:4px 8px;">JA</div>
+              <div style="background:#fff;color:#888;font-family:monospace;font-size:8px;text-transform:uppercase;padding:4px 8px;">NEIN</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:monospace;font-size:8px;letter-spacing:0.08em;text-transform:uppercase;color:#555;">BEZAHLT</span>
+            <div style="display:flex;gap:1px;background:#050505;">
+              <div style="background:#fff;color:#888;font-family:monospace;font-size:8px;text-transform:uppercase;padding:4px 8px;">JA</div>
+              <div style="background:#EF4444;color:#fff;font-family:monospace;font-size:8px;font-weight:700;text-transform:uppercase;padding:4px 8px;">NEIN</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Abteilungsgröße -->
+      <div style="background:#F4F4F0;padding:12px 14px;">
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:6px;">ABTEILUNGSGRÖSSE (ÄRZTE)</div>
+        <input type="number" value="24" min="1" style="border:1px solid #050505;background:#fff;font-size:16px;font-weight:900;padding:5px 10px;font-family:monospace;outline:none;width:80px;" />
+      </div>
+
+      <!-- Mitarbeitergespräche -->
+      <div style="background:#F4F4F0;padding:12px 14px;">
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:6px;">MITARBEITERGESPRÄCHE / JAHR</div>
+        <input type="number" value="1" min="0" max="12" style="border:1px solid #050505;background:#fff;font-size:16px;font-weight:900;padding:5px 10px;font-family:monospace;outline:none;width:80px;" />
+      </div>
+
+    </div>
+
+    <div style="padding:12px 14px;border-top:1px solid #050505;display:flex;justify-content:flex-end;gap:1px;background:#050505;">
+      <div style="background:#F4F4F0;color:#888;font-family:monospace;font-size:9px;text-transform:uppercase;padding:9px 16px;cursor:pointer;"><<< ZURÜCK</div>
+      <div style="background:#E61919;color:#fff;font-family:monospace;font-size:9px;font-weight:700;text-transform:uppercase;padding:9px 20px;cursor:pointer;">WEITER >>></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCHRITT 3: Nice-to-have -->
+<div class="mockup" style="margin-top:12px;">
+  <div class="mockup-header">Schritt 3 — Nice-to-have + Kommentar</div>
+  <div class="mockup-body" style="padding:0;background:#F4F4F0;font-family:Inter,sans-serif;">
+    <div style="background:#050505;padding:4px 16px;">
+      <span style="font-family:monospace;font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:#F4F4F0;">SCHRITT 3 VON 4 /// NICE-TO-HAVE</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:#050505;">
+      <!-- Parkplatz -->
+      <div style="background:#F4F4F0;padding:12px 14px;">
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:6px;">PARKPLATZ</div>
+        <div style="display:flex;gap:1px;background:#050505;">
+          <div style="flex:1;background:#fff;color:#888;font-family:monospace;font-size:9px;text-transform:uppercase;padding:6px 8px;text-align:center;">JA</div>
+          <div style="flex:1;background:#fff;color:#888;font-family:monospace;font-size:9px;text-transform:uppercase;padding:6px 8px;text-align:center;">NEIN</div>
+        </div>
+      </div>
+      <!-- Work-Life-Balance -->
+      <div style="background:#F4F4F0;padding:12px 14px;">
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:6px;">WORK-LIFE-BALANCE <span style="color:#E61919;">7</span>/10</div>
+        <input type="range" min="1" max="10" value="7" style="width:100%;accent-color:#E61919;" />
+      </div>
+      <!-- Team Atmosphäre -->
+      <div style="background:#F4F4F0;padding:12px 14px;">
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:6px;">TEAM-ATMOSPHÄRE <span style="color:#E61919;">8</span>/10</div>
+        <input type="range" min="1" max="10" value="8" style="width:100%;accent-color:#E61919;" />
+      </div>
+      <!-- Benefits -->
+      <div style="background:#F4F4F0;padding:12px 14px;grid-column:1/-1;">
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:6px;">BENEFITS (OPTIONAL)</div>
+        <input placeholder="z.B. Jobticket, Kantine, Kinderbetreuung…" style="width:100%;border:1px solid #ccc;background:#fff;font-size:11px;padding:7px 10px;font-family:Inter,sans-serif;outline:none;box-sizing:border-box;" />
+      </div>
+      <!-- Kommentar -->
+      <div style="background:#F4F4F0;padding:12px 14px;grid-column:1/-1;">
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:6px;">KOMMENTAR (OPTIONAL)</div>
+        <textarea rows="3" placeholder="Freier Text…" style="width:100%;border:1px solid #ccc;background:#fff;font-size:11px;padding:7px 10px;font-family:Inter,sans-serif;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+      </div>
+    </div>
+    <div style="padding:12px 14px;border-top:1px solid #050505;display:flex;justify-content:flex-end;gap:1px;background:#050505;">
+      <div style="background:#F4F4F0;color:#888;font-family:monospace;font-size:9px;text-transform:uppercase;padding:9px 16px;cursor:pointer;"><<< ZURÜCK</div>
+      <div style="background:#E61919;color:#fff;font-family:monospace;font-size:9px;font-weight:700;text-transform:uppercase;padding:9px 20px;cursor:pointer;">ABSENDEN >>></div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-score-low:  #EF4444;
+    --color-score-mid:  #F59E0B;
+    --color-score-high: #22C55E;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    @apply bg-canvas text-ink font-sans antialiased;
+  }
+
+  * { @apply box-border; }
+
+  ::-webkit-scrollbar       { @apply w-1.5 h-1.5; }
+  ::-webkit-scrollbar-track { @apply bg-canvas-alt; }
+  ::-webkit-scrollbar-thumb { @apply bg-ink/30; }
+}
+
+@layer components {
+  /* ── Ink Grid (1px dividers via gap on ink background) ── */
+  .ink-grid {
+    @apply grid gap-px bg-ink;
+  }
+  .ink-grid > * {
+    @apply bg-canvas;
+  }
+  .ink-grid-alt > *:nth-child(even) {
+    @apply bg-canvas-alt;
+  }
+
+  /* ── Buttons ── */
+  .btn-hazard {
+    @apply inline-flex items-center justify-center
+           bg-hazard text-white
+           font-mono text-[10px] tracking-wider uppercase
+           px-5 py-2.5
+           transition-opacity duration-100
+           hover:opacity-90 active:opacity-80
+           focus:outline-none;
+  }
+  .btn-ink {
+    @apply inline-flex items-center justify-center
+           bg-ink text-canvas
+           font-mono text-[10px] tracking-wider uppercase
+           px-5 py-2.5
+           transition-opacity duration-100
+           hover:opacity-80
+           focus:outline-none;
+  }
+  .btn-ghost-ink {
+    @apply inline-flex items-center justify-center
+           bg-canvas text-ink/50 border border-ink/20
+           font-mono text-[10px] tracking-wider uppercase
+           px-5 py-2.5
+           transition-colors duration-100
+           hover:text-ink hover:border-ink
+           focus:outline-none;
+  }
+
+  /* ── Tabs ── */
+  .tab-active {
+    @apply bg-hazard text-white font-mono text-[10px] tracking-wider uppercase px-5 py-2.5 cursor-pointer;
+  }
+  .tab-inactive {
+    @apply bg-canvas text-ink/40 font-mono text-[10px] tracking-wider uppercase px-5 py-2.5 cursor-pointer
+           hover:text-ink transition-colors;
+  }
+
+  /* ── Form Elements ── */
+  .input-brutalist {
+    @apply w-full bg-white border border-ink text-ink
+           px-3 py-2 font-sans text-sm
+           focus:outline-none focus:ring-1 focus:ring-hazard
+           placeholder-ink/30;
+  }
+  .select-brutalist {
+    @apply input-brutalist appearance-none cursor-pointer;
+  }
+
+  /* ── Mono Label ── */
+  .mono-label {
+    @apply font-mono text-[8px] tracking-widest uppercase text-ink/50;
+  }
+  .mono-label-red {
+    @apply font-mono text-[8px] tracking-widest uppercase text-hazard;
+  }
+
+  /* ── Register Strip ── */
+  .register-strip {
+    @apply bg-ink text-canvas/80 font-mono text-[8px] tracking-widest uppercase
+           flex items-center justify-between px-5 py-1;
+  }
+
+  /* ── Section heading ── */
+  .section-heading {
+    @apply font-display text-ink uppercase tracking-tight leading-none;
+  }
+
+  /* ── Score colors ── */
+  .score-high { @apply text-score-high font-mono font-bold; }
+  .score-mid  { @apply text-score-mid  font-mono font-bold; }
+  .score-low  { @apply text-score-low  font-mono font-bold; }
+
+  /* ── Range Slider ── */
+  .slider-brutalist {
+    @apply w-full h-0.5 appearance-none cursor-pointer bg-ink/20 outline-none;
+    accent-color: #E61919;
+  }
+  .slider-brutalist::-webkit-slider-thumb {
+    @apply appearance-none w-4 h-4 bg-hazard border-2 border-canvas cursor-pointer;
+  }
+
+  /* ── Yes/No Toggle ── */
+  .toggle-group {
+    @apply ink-grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .toggle-yes-active   { @apply bg-score-high text-white font-mono text-[9px] tracking-wider uppercase py-1.5 text-center cursor-pointer; }
+  .toggle-no-active    { @apply bg-score-low  text-white font-mono text-[9px] tracking-wider uppercase py-1.5 text-center cursor-pointer; }
+  .toggle-inactive     { @apply bg-canvas text-ink/40 font-mono text-[9px] tracking-wider uppercase py-1.5 text-center cursor-pointer hover:text-ink; }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-hazard to-red-700 bg-clip-text text-transparent;
+  }
+}

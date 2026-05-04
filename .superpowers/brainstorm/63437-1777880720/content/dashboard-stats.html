@@ -1,0 +1,94 @@
+<h2>Dashboard — StatsBar & Layout</h2>
+<p class="subtitle">Abschnitt 3/4 — Statistik-Raster, Hero-Zeile, Inhaltsbereich</p>
+
+<div class="mockup">
+  <div class="mockup-header">Dashboard — nach den Tabs</div>
+  <div class="mockup-body" style="padding:0;background:#F4F4F0;font-family:Inter,sans-serif;">
+
+    <!-- Hero row -->
+    <div style="border-bottom:1px solid #050505;padding:28px 24px 20px;">
+      <div style="font-family:monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#E61919;margin-bottom:6px;">[ ÜBERSICHT ]</div>
+      <div style="font-size:32px;font-weight:900;color:#050505;letter-spacing:-0.04em;line-height:0.92;text-transform:uppercase;">Assistenzarztstellen<br>im Vergleich</div>
+      <div style="font-size:12px;color:#555;margin-top:10px;max-width:480px;line-height:1.5;">Anonyme Bewertungen von Assistenzärzten aus Deutschland, Österreich und der Schweiz.</div>
+    </div>
+
+    <!-- StatsBar — grid-gap 1px ink divider -->
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:#050505;border-bottom:1px solid #050505;">
+
+      <div style="background:#F4F4F0;padding:14px 12px;">
+        <div style="font-size:22px;font-weight:900;color:#E61919;letter-spacing:-0.04em;line-height:1;font-family:monospace;">124</div>
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-top:3px;">BEWERTUNGEN</div>
+      </div>
+
+      <div style="background:#F4F4F0;padding:14px 12px;">
+        <div style="font-size:22px;font-weight:900;color:#050505;letter-spacing:-0.04em;line-height:1;font-family:monospace;">7.4</div>
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-top:3px;">⌀ SCORE</div>
+      </div>
+
+      <div style="background:#F4F4F0;padding:14px 12px;">
+        <div style="font-size:13px;font-weight:900;color:#050505;letter-spacing:-0.02em;line-height:1.1;text-transform:uppercase;">Charité Berlin</div>
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-top:3px;">TOP-KLINIK</div>
+      </div>
+
+      <div style="background:#F4F4F0;padding:14px 12px;">
+        <div style="font-size:22px;font-weight:900;color:#050505;letter-spacing:-0.04em;line-height:1;font-family:monospace;">84</div>
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-top:3px;">🇩🇪 DEUTSCHLAND</div>
+      </div>
+
+      <div style="background:#F4F4F0;padding:14px 12px;">
+        <div style="font-size:22px;font-weight:900;color:#050505;letter-spacing:-0.04em;line-height:1;font-family:monospace;">22</div>
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-top:3px;">🇦🇹 ÖSTERREICH</div>
+      </div>
+
+      <div style="background:#F4F4F0;padding:14px 12px;">
+        <div style="font-size:22px;font-weight:900;color:#050505;letter-spacing:-0.04em;line-height:1;font-family:monospace;">18</div>
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-top:3px;">🇨🇭 SCHWEIZ</div>
+      </div>
+    </div>
+
+    <!-- Content area placeholder -->
+    <div style="padding:24px;display:flex;gap:1px;background:#050505;">
+      <!-- Map area -->
+      <div style="flex:2;background:#F4F4F0;padding:20px;">
+        <div style="font-family:monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#888;margin-bottom:12px;">/// DACH-KARTE</div>
+        <div style="height:180px;border:1px solid #050505;display:flex;align-items:center;justify-content:center;">
+          <div style="text-align:center;">
+            <div style="font-size:32px;margin-bottom:6px;">🗺️</div>
+            <div style="font-family:monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:#888;">LÄNDERGRENZEN SCHWARZ<br>HOVER → #E61919<br>FÜLLUNG = NEWSPRINT</div>
+          </div>
+        </div>
+      </div>
+      <!-- Side panel -->
+      <div style="flex:1;background:#F4F4F0;padding:20px;">
+        <div style="font-family:monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#888;margin-bottom:12px;">[ TOP 5 ]</div>
+        <div style="display:flex;flex-direction:column;gap:1px;background:#050505;">
+          <div style="background:#F4F4F0;display:flex;justify-content:space-between;align-items:center;padding:8px 10px;">
+            <span style="font-size:11px;font-weight:700;color:#050505;text-transform:uppercase;letter-spacing:-0.01em;">01. Charité Berlin</span>
+            <span style="font-family:monospace;font-size:11px;font-weight:700;color:#22C55E;">8.9</span>
+          </div>
+          <div style="background:#F4F4F0;display:flex;justify-content:space-between;align-items:center;padding:8px 10px;">
+            <span style="font-size:11px;font-weight:700;color:#050505;text-transform:uppercase;letter-spacing:-0.01em;">02. AKH Wien</span>
+            <span style="font-family:monospace;font-size:11px;font-weight:700;color:#22C55E;">8.4</span>
+          </div>
+          <div style="background:#F4F4F0;display:flex;justify-content:space-between;align-items:center;padding:8px 10px;">
+            <span style="font-size:11px;font-weight:700;color:#050505;text-transform:uppercase;letter-spacing:-0.01em;">03. USZ Zürich</span>
+            <span style="font-family:monospace;font-size:11px;font-weight:700;color:#F59E0B;">7.8</span>
+          </div>
+          <div style="background:#F4F4F0;display:flex;justify-content:space-between;align-items:center;padding:8px 10px;">
+            <span style="font-size:11px;font-weight:700;color:#050505;text-transform:uppercase;letter-spacing:-0.01em;">04. LMU München</span>
+            <span style="font-family:monospace;font-size:11px;font-weight:700;color:#F59E0B;">7.5</span>
+          </div>
+          <div style="background:#F4F4F0;display:flex;justify-content:space-between;align-items:center;padding:8px 10px;">
+            <span style="font-size:11px;font-weight:700;color:#050505;text-transform:uppercase;letter-spacing:-0.01em;">05. MHH Hannover</span>
+            <span style="font-family:monospace;font-size:11px;font-weight:700;color:#EF4444;">5.2</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div style="margin-top:12px;padding:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:6px;">
+  <p style="margin:0;font-size:12px;color:#aaa;">StatsBar: 6 Zellen, <code>grid-gap:1px</code> auf Ink-Hintergrund. Score-Zahlen in Score-Farben (grün/amber/rot). Zahlen in Monospace. Karte und Ranking-Liste nebeneinander auf Desktop, gestapelt auf Mobile.</p>
+</div>

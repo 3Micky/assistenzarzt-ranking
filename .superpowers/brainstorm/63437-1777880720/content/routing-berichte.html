@@ -1,0 +1,199 @@
+<h2>Neue Seitenstruktur + Berichte-Tabelle</h2>
+<p class="subtitle">Routing, Homepage-Suche und Berichte-lesen-Ansicht</p>
+
+<!-- Routing Overview -->
+<div class="section">
+  <h3>/// Seitenstruktur (Routing)</h3>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#050505;margin-top:10px;">
+    <div style="background:#E61919;padding:12px 14px;">
+      <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:4px;">ROUTE /</div>
+      <div style="font-size:13px;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:-0.02em;">Startseite</div>
+      <div style="font-family:monospace;font-size:9px;color:rgba(255,255,255,0.6);margin-top:6px;line-height:1.5;">Heatmap (DACH)<br>+ Suchwidget</div>
+    </div>
+    <div style="background:#F4F4F0;padding:12px 14px;">
+      <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:4px;">ROUTE /berichte</div>
+      <div style="font-size:13px;font-weight:900;color:#050505;text-transform:uppercase;letter-spacing:-0.02em;">Berichte lesen</div>
+      <div style="font-family:monospace;font-size:9px;color:#888;margin-top:6px;line-height:1.5;">Gefilterte Tabelle<br>aller Bewertungen</div>
+    </div>
+    <div style="background:#F4F4F0;padding:12px 14px;">
+      <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:4px;">ROUTE /bewerten</div>
+      <div style="font-size:13px;font-weight:900;color:#050505;text-transform:uppercase;letter-spacing:-0.02em;">Neu schreiben</div>
+      <div style="font-family:monospace;font-size:9px;color:#888;margin-top:6px;line-height:1.5;">4-Schritt-Formular<br>+ Genaue Suche</div>
+    </div>
+    <div style="background:#F4F4F0;padding:12px 14px;">
+      <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:4px;">ROUTE /ranking</div>
+      <div style="font-size:13px;font-weight:900;color:#050505;text-transform:uppercase;letter-spacing:-0.02em;">Ranking</div>
+      <div style="font-family:monospace;font-size:9px;color:#888;margin-top:6px;line-height:1.5;">Bar-Chart<br>+ Radar-Vergleich</div>
+    </div>
+  </div>
+</div>
+
+<!-- Homepage Search Widget -->
+<div class="section">
+  <h3>/// Startseite — Suchwidget über der Heatmap</h3>
+  <div style="background:#F4F4F0;border:1px solid #050505;font-family:Inter,sans-serif;">
+
+    <!-- Mode toggle -->
+    <div style="display:flex;gap:1px;background:#050505;">
+      <div style="flex:1;background:#E61919;color:#fff;font-family:monospace;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:10px 16px;text-align:center;cursor:pointer;">>>> BERICHTE LESEN</div>
+      <div style="flex:1;background:#F4F4F0;color:#888;font-family:monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;padding:10px 16px;text-align:center;cursor:pointer;">[ NEU SCHREIBEN ]</div>
+    </div>
+
+    <div style="padding:14px;display:flex;gap:1px;background:#050505;">
+      <!-- Land -->
+      <div style="background:#F4F4F0;padding:8px 10px;display:flex;flex-direction:column;gap:4px;min-width:90px;">
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;">LAND</div>
+        <select style="border:1px solid #050505;background:#fff;font-family:monospace;font-size:11px;padding:5px 6px;outline:none;">
+          <option>🇩🇪 DE</option>
+          <option>🇦🇹 AT</option>
+          <option>🇨🇭 CH</option>
+        </select>
+      </div>
+      <!-- Freitext -->
+      <div style="background:#F4F4F0;padding:8px 10px;flex:1;display:flex;flex-direction:column;gap:4px;">
+        <div style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;">KLINIK, STADT ODER BUNDESLAND</div>
+        <input placeholder="Charité, München, Bayern…" style="border:1px solid #050505;background:#fff;font-size:13px;padding:6px 10px;font-family:Inter,sans-serif;outline:none;width:100%;box-sizing:border-box;" />
+      </div>
+      <!-- Submit -->
+      <div style="background:#E61919;display:flex;align-items:flex-end;padding:8px 10px;">
+        <div style="color:#fff;font-family:monospace;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:6px 16px;border:1px solid rgba(255,255,255,0.3);cursor:pointer;white-space:nowrap;">SUCHEN >>></div>
+      </div>
+    </div>
+
+    <!-- Dropdown suggestion -->
+    <div style="border-top:1px solid #050505;background:#fff;">
+      <div style="display:flex;align-items:center;gap:8px;padding:7px 14px;border-bottom:1px solid #eee;background:#F4F4F0;">
+        <span style="font-family:monospace;font-size:8px;color:#E61919;text-transform:uppercase;letter-spacing:0.1em;min-width:52px;">KLINIK</span>
+        <span style="font-size:12px;font-weight:700;color:#050505;">Charité – Universitätsmedizin Berlin</span>
+        <span style="font-family:monospace;font-size:8px;color:#888;margin-left:auto;">🇩🇪 BERLIN</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:7px 14px;border-bottom:1px solid #eee;">
+        <span style="font-family:monospace;font-size:8px;color:#888;text-transform:uppercase;letter-spacing:0.1em;min-width:52px;">STADT</span>
+        <span style="font-size:12px;color:#050505;">Berlin</span>
+        <span style="font-family:monospace;font-size:8px;color:#888;margin-left:auto;">🇩🇪 12 KLINIKEN</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:7px 14px;">
+        <span style="font-family:monospace;font-size:8px;color:#888;text-transform:uppercase;letter-spacing:0.1em;min-width:52px;">LAND</span>
+        <span style="font-size:12px;color:#050505;">Brandenburg</span>
+        <span style="font-family:monospace;font-size:8px;color:#888;margin-left:auto;">🇩🇪 8 KLINIKEN</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Berichte Tabelle -->
+<div class="section">
+  <h3>/// /berichte — Gefilterte Tabelle</h3>
+  <div style="background:#F4F4F0;border:1px solid #050505;font-family:Inter,sans-serif;">
+
+    <!-- Filter bar -->
+    <div style="background:#050505;padding:4px 14px;">
+      <span style="font-family:monospace;font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:#F4F4F0;">/// FILTER</span>
+    </div>
+    <div style="display:flex;gap:1px;background:#050505;border-bottom:1px solid #050505;">
+      <div style="background:#F4F4F0;padding:8px 10px;flex:0 0 auto;">
+        <div style="font-family:monospace;font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:3px;">LAND</div>
+        <select style="border:1px solid #ccc;background:#fff;font-family:monospace;font-size:10px;padding:4px 6px;outline:none;">
+          <option>ALLE</option><option>🇩🇪 DE</option><option>🇦🇹 AT</option><option>🇨🇭 CH</option>
+        </select>
+      </div>
+      <div style="background:#F4F4F0;padding:8px 10px;flex:0 0 auto;">
+        <div style="font-family:monospace;font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:3px;">BUNDESLAND</div>
+        <select style="border:1px solid #ccc;background:#fff;font-family:monospace;font-size:10px;padding:4px 6px;outline:none;">
+          <option>ALLE</option><option>BAYERN</option><option>BERLIN</option>
+        </select>
+      </div>
+      <div style="background:#F4F4F0;padding:8px 10px;flex:0 0 auto;">
+        <div style="font-family:monospace;font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:3px;">STADT</div>
+        <select style="border:1px solid #ccc;background:#fff;font-family:monospace;font-size:10px;padding:4px 6px;outline:none;">
+          <option>ALLE</option><option>MÜNCHEN</option><option>BERLIN</option>
+        </select>
+      </div>
+      <div style="background:#F4F4F0;padding:8px 10px;flex:1;">
+        <div style="font-family:monospace;font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:3px;">KLINIK</div>
+        <input placeholder="Name…" style="border:1px solid #ccc;background:#fff;font-size:11px;padding:4px 8px;font-family:Inter,sans-serif;outline:none;width:100%;box-sizing:border-box;" />
+      </div>
+      <div style="background:#F4F4F0;padding:8px 10px;flex:0 0 auto;">
+        <div style="font-family:monospace;font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:3px;">FACHRICHTUNG</div>
+        <select style="border:1px solid #ccc;background:#fff;font-family:monospace;font-size:10px;padding:4px 6px;outline:none;">
+          <option>ALLE</option><option>CHIRURGIE</option><option>INNERE</option><option>PÄDIATRIE</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:11px;">
+        <!-- Header -->
+        <thead>
+          <tr style="background:#050505;">
+            <th style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#F4F4F0;padding:8px 10px;text-align:left;font-weight:400;border-right:1px solid #333;white-space:nowrap;">KLINIK</th>
+            <th style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#F4F4F0;padding:8px 8px;text-align:center;font-weight:400;border-right:1px solid #333;white-space:nowrap;">LAND</th>
+            <th style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#F4F4F0;padding:8px 8px;text-align:left;font-weight:400;border-right:1px solid #333;white-space:nowrap;">FACH</th>
+            <th style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#F4F4F0;padding:8px 8px;text-align:center;font-weight:400;border-right:1px solid #333;white-space:nowrap;">ZEITEN</th>
+            <th style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#F4F4F0;padding:8px 8px;text-align:center;font-weight:400;border-right:1px solid #333;white-space:nowrap;">DIENSTE</th>
+            <th style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#F4F4F0;padding:8px 8px;text-align:center;font-weight:400;border-right:1px solid #333;white-space:nowrap;">ÜB.</th>
+            <th style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#F4F4F0;padding:8px 8px;text-align:center;font-weight:400;border-right:1px solid #333;white-space:nowrap;">WLB</th>
+            <th style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#F4F4F0;padding:8px 8px;text-align:center;font-weight:400;white-space:nowrap;">TEAM</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px 10px;font-weight:700;color:#050505;border-right:1px solid #eee;">Charité Berlin</td>
+            <td style="padding:8px 8px;text-align:center;border-right:1px solid #eee;font-family:monospace;font-size:10px;">🇩🇪</td>
+            <td style="padding:8px 8px;border-right:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;color:#555;">CHIRURGIE</td>
+            <td style="padding:8px 8px;text-align:center;border-right:1px solid #eee;font-family:monospace;font-size:10px;">07–16</td>
+            <td style="padding:8px 8px;text-align:center;border-right:1px solid #eee;font-family:monospace;font-size:10px;font-weight:700;">4/mo</td>
+            <td style="padding:8px 8px;text-align:center;border-right:1px solid #eee;font-size:10px;color:#22C55E;font-weight:700;">✓</td>
+            <td style="padding:8px 8px;text-align:center;border-right:1px solid #eee;font-family:monospace;font-size:11px;font-weight:700;color:#22C55E;">8</td>
+            <td style="padding:8px 8px;text-align:center;font-family:monospace;font-size:11px;font-weight:700;color:#22C55E;">9</td>
+          </tr>
+          <tr style="border-bottom:1px solid #ddd;background:rgba(0,0,0,0.02);">
+            <td style="padding:8px 10px;font-weight:700;color:#050505;border-right:1px solid #eee;">AKH Wien</td>
+            <td style="padding:8px 8px;text-align:center;border-right:1px solid #eee;font-family:monospace;font-size:10px;">🇦🇹</td>
+            <td style="padding:8px 8px;border-right:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;color:#555;">INNERE</td>
+            <td style="padding:8px 8px;text-align:center;border-right:1px solid #eee;font-family:monospace;font-size:10px;">08–17</td>
+            <td style="padding:8px 8px;text-align:center;border-right:1px solid #eee;font-family:monospace;font-size:10px;font-weight:700;">6/mo</td>
+            <td style="padding:8px 8px;text-align:center;border-right:1px solid #eee;font-size:10px;color:#EF4444;font-weight:700;">✗</td>
+            <td style="padding:8px 8px;text-align:center;border-right:1px solid #eee;font-family:monospace;font-size:11px;font-weight:700;color:#F59E0B;">6</td>
+            <td style="padding:8px 8px;text-align:center;font-family:monospace;font-size:11px;font-weight:700;color:#22C55E;">8</td>
+          </tr>
+          <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:8px 10px;font-weight:700;color:#050505;border-right:1px solid #eee;">USZ Zürich</td>
+            <td style="padding:8px 8px;text-align:center;border-right:1px solid #eee;font-family:monospace;font-size:10px;">🇨🇭</td>
+            <td style="padding:8px 8px;border-right:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;color:#555;">PÄDIATRIE</td>
+            <td style="padding:8px 8px;text-align:center;border-right:1px solid #eee;font-family:monospace;font-size:10px;">07–17</td>
+            <td style="padding:8px 8px;text-align:center;border-right:1px solid #eee;font-family:monospace;font-size:10px;font-weight:700;">5/mo</td>
+            <td style="padding:8px 8px;text-align:center;border-right:1px solid #eee;font-size:10px;color:#22C55E;font-weight:700;">✓</td>
+            <td style="padding:8px 8px;text-align:center;border-right:1px solid #eee;font-family:monospace;font-size:11px;font-weight:700;color:#F59E0B;">7</td>
+            <td style="padding:8px 8px;text-align:center;font-family:monospace;font-size:11px;font-weight:700;color:#F59E0B;">7</td>
+          </tr>
+          <tr style="border-bottom:1px solid #ddd;background:rgba(0,0,0,0.02);">
+            <td style="padding:8px 10px;font-weight:700;color:#050505;border-right:1px solid #eee;">LMU München</td>
+            <td style="padding:8px 8px;text-align:center;border-right:1px solid #eee;font-family:monospace;font-size:10px;">🇩🇪</td>
+            <td style="padding:8px 8px;border-right:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;color:#555;">NEUROLOGIE</td>
+            <td style="padding:8px 8px;text-align:center;border-right:1px solid #eee;font-family:monospace;font-size:10px;">07–15</td>
+            <td style="padding:8px 8px;text-align:center;border-right:1px solid #eee;font-family:monospace;font-size:10px;font-weight:700;">8/mo</td>
+            <td style="padding:8px 8px;text-align:center;border-right:1px solid #eee;font-size:10px;color:#EF4444;font-weight:700;">✗</td>
+            <td style="padding:8px 8px;text-align:center;border-right:1px solid #eee;font-family:monospace;font-size:11px;font-weight:700;color:#EF4444;">4</td>
+            <td style="padding:8px 8px;text-align:center;font-family:monospace;font-size:11px;font-weight:700;color:#F59E0B;">6</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div style="border-top:1px solid #050505;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#888;">124 BERICHTE GEFUNDEN</span>
+      <div style="display:flex;gap:1px;background:#050505;">
+        <div style="background:#F4F4F0;font-family:monospace;font-size:8px;text-transform:uppercase;padding:5px 10px;color:#888;"><<<</div>
+        <div style="background:#E61919;font-family:monospace;font-size:8px;text-transform:uppercase;padding:5px 10px;color:#fff;font-weight:700;">01</div>
+        <div style="background:#F4F4F0;font-family:monospace;font-size:8px;text-transform:uppercase;padding:5px 10px;color:#888;">02</div>
+        <div style="background:#F4F4F0;font-family:monospace;font-size:8px;text-transform:uppercase;padding:5px 10px;color:#888;"></div>
+        <div style="background:#F4F4F0;font-family:monospace;font-size:8px;text-transform:uppercase;padding:5px 10px;color:#888;"> >>></div>
+      </div>
+    </div>
+
+  </div>
+</div>
