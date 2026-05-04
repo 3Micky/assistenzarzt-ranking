@@ -1,7 +1,7 @@
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend, ResponsiveContainer } from 'recharts'
 import { useRatings } from '../../hooks/useRatings.js'
 
-const COLORS = ['#E61919', '#050505', '#F59E0B']
+const COLORS = ['#0EA5E9', '#E61919', '#22C55E']
 
 export default function RadarComparison({ selected = [] }) {
   const { radarChartData } = useRatings()
@@ -28,8 +28,8 @@ export default function RadarComparison({ selected = [] }) {
             <Radar key={name} name={name} dataKey={name}
               stroke={COLORS[i % COLORS.length]}
               fill={COLORS[i % COLORS.length]}
-              fillOpacity={0.12}
-              strokeWidth={2} />
+              fillOpacity={0.25}
+              strokeWidth={2.5} />
           ))}
           <Legend wrapperStyle={{ fontFamily: 'JetBrains Mono', fontSize: 9, textTransform: 'uppercase' }} />
         </RadarChart>
