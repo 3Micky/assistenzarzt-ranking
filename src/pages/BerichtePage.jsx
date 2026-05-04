@@ -4,15 +4,17 @@ import { useRatingsStore } from '../store/ratingsStore.js'
 import FilterBar from '../components/Berichte/FilterBar.jsx'
 import BerichteTabelle from '../components/Berichte/BerichteTabelle.jsx'
 
-const EMPTY_FILTERS = { country: '', region: '', specialty: '', dienstsystem: '', hospital: '' }
+const EMPTY_FILTERS = { country: '', region: '', specialty: '', dienstsystem: '', hospital: '', city: '' }
 
 export default function BerichtePage() {
   const ratings        = useRatingsStore((s) => s.ratings)
   const [searchParams] = useSearchParams()
-  const [filters, setFilters] = useState(() => {
-    const q = searchParams.get('q') ?? ''
-    return { ...EMPTY_FILTERS, hospital: q }
-  })
+  const [filters, setFilters] = useState(() => ({
+    ...EMPTY_FILTERS,
+    country:  searchParams.get('country') ?? '',
+    hospital: searchParams.get('q')       ?? '',
+    city:     searchParams.get('city')    ?? '',
+  }))
 
   function updateFilter(key, value) {
     setFilters(prev => ({ ...prev, [key]: value, ...(key === 'country' ? { region: '' } : {}) }))
@@ -25,6 +27,7 @@ export default function BerichtePage() {
       if (filters.specialty    && r.specialty !== filters.specialty)   return false
       if (filters.dienstsystem && r.criteria.dienstsystem !== filters.dienstsystem) return false
       if (filters.hospital     && !r.hospital.toLowerCase().includes(filters.hospital.toLowerCase())) return false
+      if (filters.city         && !r.city?.toLowerCase().includes(filters.city.toLowerCase())) return false
       return true
     })
   }, [ratings, filters])

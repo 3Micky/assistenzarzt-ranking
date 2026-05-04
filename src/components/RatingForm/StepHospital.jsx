@@ -24,11 +24,11 @@ export default function StepHospital({ data, onChange, onNext }) {
     if (alias) {
       out.push({ type: 'bundesland', label: COUNTRY_LABELS[alias], country: alias })
     }
-    hospitals.filter(h => h.toLowerCase().includes(lower)).slice(0, 4).forEach(h => {
+    hospitals.filter(h => h.toLowerCase().includes(lower)).slice(0, 5).forEach(h => {
       const r = ratings.find(r => r.hospital === h)
       out.push({ type: 'klinik', label: h, country: r.country, city: r.city, region: r.region })
     })
-    cities.filter(c => c.toLowerCase().includes(lower)).slice(0, 2).forEach(c => {
+    cities.filter(c => c.toLowerCase().includes(lower)).slice(0, 3).forEach(c => {
       const r = ratings.find(r => r.city === c)
       out.push({ type: 'stadt', label: c, country: r.country })
     })
@@ -36,7 +36,7 @@ export default function StepHospital({ data, onChange, onNext }) {
       const r = ratings.find(r => r.region === rg)
       out.push({ type: 'bundesland', label: rg, country: r.country })
     })
-    return out.slice(0, 8)
+    return out.slice(0, 10)
   }
 
   const results = buildResults(query)
@@ -92,8 +92,8 @@ export default function StepHospital({ data, onChange, onNext }) {
             )}
           </div>
         ) : (
-          <div className="ink-grid mb-4">
-            {/* Country */}
+          <div className="ink-grid mb-4" style={{ gridTemplateColumns: '1fr 1fr' }}>
+            {/* Land */}
             <div className="bg-canvas p-3">
               <div className="mono-label mb-1">01 /// LAND</div>
               <select className="select-brutalist" value={data.country}
@@ -104,7 +104,7 @@ export default function StepHospital({ data, onChange, onNext }) {
                 <option value="CH">🇨🇭 Schweiz</option>
               </select>
             </div>
-            {/* Region */}
+            {/* Bundesland */}
             <div className="bg-canvas p-3">
               <div className="mono-label mb-1">02 /// BUNDESLAND / KANTON</div>
               <select className="select-brutalist" value={data.region}
@@ -113,9 +113,16 @@ export default function StepHospital({ data, onChange, onNext }) {
                 {(REGIONS[data.country] || []).map(r => <option key={r} value={r}>{r}</option>)}
               </select>
             </div>
-            {/* Hospital text */}
+            {/* Stadt */}
             <div className="bg-canvas p-3">
-              <div className="mono-label mb-1">03 /// KLINIK</div>
+              <div className="mono-label mb-1">03 /// STADT</div>
+              <input className="input-brutalist" value={data.city}
+                onChange={e => onChange({ ...data, city: e.target.value })}
+                placeholder="z.B. Berlin" />
+            </div>
+            {/* Klinik */}
+            <div className="bg-canvas p-3">
+              <div className="mono-label mb-1">04 /// KLINIK</div>
               <input className="input-brutalist" value={data.hospital}
                 onChange={e => onChange({ ...data, hospital: e.target.value })}
                 placeholder="Klinikname eingeben…" />
@@ -124,13 +131,15 @@ export default function StepHospital({ data, onChange, onNext }) {
         )}
 
         {/* City + Specialty + Year */}
-        <div className="ink-grid mb-4" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
-          <div className="bg-canvas p-3">
-            <div className="mono-label mb-1">STADT</div>
-            <input className="input-brutalist" value={data.city}
-              onChange={e => onChange({ ...data, city: e.target.value })}
-              placeholder="z.B. Berlin" />
-          </div>
+        <div className="ink-grid mb-4" style={{ gridTemplateColumns: searchMode === 'schnell' ? '1fr 1fr 1fr' : '1fr 1fr' }}>
+          {searchMode === 'schnell' && (
+            <div className="bg-canvas p-3">
+              <div className="mono-label mb-1">STADT</div>
+              <input className="input-brutalist" value={data.city}
+                onChange={e => onChange({ ...data, city: e.target.value })}
+                placeholder="z.B. Berlin" />
+            </div>
+          )}
           <div className="bg-canvas p-3">
             <div className="mono-label mb-1">FACHRICHTUNG</div>
             <select className="select-brutalist" value={data.specialty}

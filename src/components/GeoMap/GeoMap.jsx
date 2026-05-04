@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   ComposableMap,
   Geographies,
@@ -13,6 +14,9 @@ import MapTooltip from './MapTooltip.jsx'
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json'
 const DACH_CODES = new Set(['276', '40', '756'])
 
+const COUNTRY_CODE_MAP = { '276': 'DE', '40': 'AT', '756': 'CH' }
+const COUNTRY_NAMES    = { DE: 'Deutschland', AT: 'Österreich', CH: 'Schweiz' }
+
 const colorScale = scaleLinear()
   .domain([1, 5, 8, 10])
   .range(['#EF4444', '#F59E0B', '#84cc16', '#22C55E'])
@@ -21,14 +25,16 @@ const colorScale = scaleLinear()
 const MAP_CONFIG = {
   projection: 'geoMercator',
   projectionConfig: {
-    center: [12.5, 47.5],
-    scale: 1900,
+    center: [10, 50],
+    scale: 1600,
   },
 }
 
 export default function GeoMap() {
   const { cityData } = useRatings()
+  const navigate = useNavigate()
   const [tooltip, setTooltip] = useState(null)
+  const [hoveredCountry, setHoveredCountry] = useState(null)
   const [zoom, setZoom] = useState(1)
 
   const validCities = useMemo(() => cityData.filter((c) => c.coordinates), [cityData])
@@ -41,6 +47,23 @@ export default function GeoMap() {
   }, [])
 
   const handleMarkerLeave = useCallback(() => setTooltip(null), [])
+
+  const handleCountryEnter = useCallback((geoId, event) => {
+    const code = COUNTRY_CODE_MAP[geoId]
+    if (!code) return
+    const rect = event.currentTarget.closest('svg').getBoundingClientRect()
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+    setHoveredCountry({ code, name: COUNTRY_NAMES[code], x, y })
+  }, [])
+
+  const handleCountryLeave = useCallback(() => setHoveredCountry(null), [])
+
+  const handleCountryClick = useCallback((geoId) => {
+    const code = COUNTRY_CODE_MAP[geoId]
+    if (!code) return
+    navigate(`/berichte?country=${code}`)
+  }, [navigate])
 
   const markerRadius = (count) => Math.min(Math.max(Math.sqrt(count) * 7, 8), 40)
 
@@ -64,7 +87,7 @@ export default function GeoMap() {
           height={480}
           style={{ width: '100%', height: '100%' }}
         >
-          <ZoomableGroup zoom={zoom} center={[12.5, 47.5]}>
+          <ZoomableGroup zoom={zoom} center={[10, 50]}>
             <Geographies geography={GEO_URL}>
               {({ geographies }) =>
                 geographies.map((geo) => {
@@ -74,18 +97,23 @@ export default function GeoMap() {
                     <Geography
                       key={geo.rsmKey}
                       geography={geo}
+                      onClick={isDACH ? () => handleCountryClick(geo.id) : undefined}
+                      onMouseEnter={isDACH ? (e) => handleCountryEnter(geo.id, e) : undefined}
+                      onMouseLeave={isDACH ? handleCountryLeave : undefined}
                       style={{
                         default: {
                           fill:        '#F4F4F0',
                           stroke:      '#050505',
                           strokeWidth: 0.5,
                           outline:     'none',
+                          cursor:      isDACH ? 'pointer' : 'default',
                         },
                         hover: isDACH ? {
-                          fill:        '#F4F4F0',
+                          fill:        '#EAE8E3',
                           stroke:      '#E61919',
                           strokeWidth: 1.5,
                           outline:     'none',
+                          cursor:      'pointer',
                         } : {
                           fill:        '#F4F4F0',
                           stroke:      '#050505',
@@ -111,6 +139,7 @@ export default function GeoMap() {
                 coordinates={city.coordinates}
                 onMouseEnter={(e) => handleMarkerEnter(city, e)}
                 onMouseLeave={handleMarkerLeave}
+                onClick={() => navigate(`/berichte?city=${encodeURIComponent(city.city)}&country=${city.country}`)}
                 style={{ cursor: 'pointer' }}
               >
                 <circle
@@ -154,6 +183,16 @@ export default function GeoMap() {
             x={tooltip.x}
             y={tooltip.y}
           />
+        )}
+
+        {hoveredCountry && (
+          <div
+            className="absolute pointer-events-none z-20 bg-canvas border border-ink px-3 py-2 font-mono text-[10px] uppercase tracking-widest"
+            style={{ left: hoveredCountry.x + 12, top: hoveredCountry.y - 20 }}
+          >
+            <div className="font-bold text-ink">{hoveredCountry.name}</div>
+            <div className="text-ink/40 mt-0.5">KLICKEN FÜR BERICHTE</div>
+          </div>
         )}
       </div>
 

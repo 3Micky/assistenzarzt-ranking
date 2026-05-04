@@ -9,7 +9,7 @@ export default function FilterBar({ filters, onChange }) {
     : [...REGIONS.DE, ...REGIONS.AT, ...REGIONS.CH]
 
   return (
-    <div className="ink-grid border-b border-ink" style={{ gridTemplateColumns: 'repeat(5, auto) 1fr' }}>
+    <div className="ink-grid border-b border-ink" style={{ gridTemplateColumns: 'repeat(6, auto) 1fr' }}>
       {/* Land */}
       <div className="bg-canvas px-3 py-2">
         <div className="mono-label mb-1">LAND</div>
@@ -73,6 +73,17 @@ export default function FilterBar({ filters, onChange }) {
           placeholder="Name…"
           value={filters.hospital}
           onChange={e => onChange('hospital', e.target.value)}
+        />
+      </div>
+
+      {/* Stadt */}
+      <div className="bg-canvas px-3 py-2">
+        <div className="mono-label mb-1">STADT</div>
+        <input
+          className="input-brutalist text-[11px] py-1"
+          placeholder="Name…"
+          value={filters.city}
+          onChange={e => onChange('city', e.target.value)}
         />
       </div>
 

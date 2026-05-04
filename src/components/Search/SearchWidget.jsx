@@ -48,7 +48,7 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
       out.push({ type: 'bundesland', label, country: countryCode, count })
     }
 
-    hospitals.filter(h => h.toLowerCase().includes(lower)).slice(0, 4).forEach(h => {
+    hospitals.filter(h => h.toLowerCase().includes(lower)).slice(0, 5).forEach(h => {
       const r = ratings.find(r => r.hospital === h)
       out.push({ type: 'klinik', label: h, country: r.country })
     })
@@ -65,7 +65,7 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
       out.push({ type: 'bundesland', label: rg, country: r.country, count: cnt })
     })
 
-    return out.slice(0, 8)
+    return out.slice(0, 10)
   }
 
   function handleChange(e) {

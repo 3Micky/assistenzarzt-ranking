@@ -72,11 +72,12 @@ export function avgByCity(ratings, citiesData) {
 /** Radar data — uses wlb/team sliders + derived scores for boolean fields */
 export function radarData(hospitalNames, ratings) {
   const axes = [
-    { key: 'workLifeBalance',          label: 'Work-Life',   extract: c => c.workLifeBalance  ?? 5 },
-    { key: 'teamAtmosphaere',          label: 'Team',        extract: c => c.teamAtmosphaere  ?? 5 },
-    { key: 'ueberstundenAufschreiben', label: 'Überstunden', extract: c => c.ueberstundenAufschreiben === true ? 10 : c.ueberstundenAufschreiben === false ? 1 : 5 },
-    { key: 'fortbildungFreistellung',  label: 'Fortbildung', extract: c => c.fortbildungFreistellung  === true ? 10 : c.fortbildungFreistellung  === false ? 4 : 5 },
-    { key: 'diensteProMonat',          label: 'Dienste',     extract: c => Math.max(1, 10 - ((c.diensteProMonat ?? 4) * 0.6)) },
+    { key: 'workLifeBalance',          label: 'Work-Life',    extract: c => c.workLifeBalance  ?? 5 },
+    { key: 'teamAtmosphaere',          label: 'Team',         extract: c => c.teamAtmosphaere  ?? 5 },
+    { key: 'ueberstundenAufschreiben', label: 'Überstunden',  extract: c => c.ueberstundenAufschreiben === true ? 10 : c.ueberstundenAufschreiben === false ? 1 : 5 },
+    { key: 'fortbildungFreistellung',  label: 'Fortbildung',  extract: c => c.fortbildungFreistellung  === true ? 10 : c.fortbildungFreistellung  === false ? 4 : 5 },
+    { key: 'diensteProMonat',          label: 'Dienste',      extract: c => Math.max(1, 10 - ((c.diensteProMonat ?? 4) * 0.6)) },
+    { key: 'gesamtscore',              label: 'Gesamt',       extract: c => overallScore(c) },
   ]
   return axes.map(({ key, label, extract }) => {
     const entry = { subject: label, key }
