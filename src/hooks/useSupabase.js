@@ -42,9 +42,11 @@ export async function insertRating(rating) {
     console.warn('[useSupabase] Kein .env.local — Bewertung wurde NICHT gespeichert. Siehe SUPABASE_SETUP.md.')
     return null
   }
+  // Strip client-generated fields — Supabase auto-generates id (uuid) and created_at (timestamptz)
+  const { id, timestamp, ...payload } = rating
   const { data, error } = await supabase
     .from('ratings')
-    .insert([rating])
+    .insert([payload])
     .select()
 
   if (error) {
