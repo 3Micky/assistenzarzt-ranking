@@ -67,32 +67,41 @@ export default function GeoMap() {
           <ZoomableGroup zoom={zoom} center={[12.5, 47.5]}>
             <Geographies geography={GEO_URL}>
               {({ geographies }) =>
-                geographies.map((geo) => (
-                  <Geography
-                    key={geo.rsmKey}
-                    geography={geo}
-                    style={{
-                      default: {
-                        fill:        '#F4F4F0',
-                        stroke:      '#050505',
-                        strokeWidth: 0.5,
-                        outline:     'none',
-                      },
-                      hover: {
-                        fill:        '#F4F4F0',
-                        stroke:      '#E61919',
-                        strokeWidth: 1.5,
-                        outline:     'none',
-                      },
-                      pressed: {
-                        fill:        '#EAE8E3',
-                        stroke:      '#E61919',
-                        strokeWidth: 1.5,
-                        outline:     'none',
-                      },
-                    }}
-                  />
-                ))
+                geographies.map((geo) => {
+                  const isDACH = DACH_CODES.has(geo.id)
+
+                  return (
+                    <Geography
+                      key={geo.rsmKey}
+                      geography={geo}
+                      style={{
+                        default: {
+                          fill:        '#F4F4F0',
+                          stroke:      '#050505',
+                          strokeWidth: 0.5,
+                          outline:     'none',
+                        },
+                        hover: isDACH ? {
+                          fill:        '#F4F4F0',
+                          stroke:      '#E61919',
+                          strokeWidth: 1.5,
+                          outline:     'none',
+                        } : {
+                          fill:        '#F4F4F0',
+                          stroke:      '#050505',
+                          strokeWidth: 0.5,
+                          outline:     'none',
+                        },
+                        pressed: {
+                          fill:        '#EAE8E3',
+                          stroke:      '#E61919',
+                          strokeWidth: 1.5,
+                          outline:     'none',
+                        },
+                      }}
+                    />
+                  )
+                })
               }
             </Geographies>
 
