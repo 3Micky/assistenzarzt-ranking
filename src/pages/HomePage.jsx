@@ -9,10 +9,10 @@ export default function HomePage() {
       <div className="border-b border-ink px-6 pt-8 pb-6">
         <div className="mono-label-red mb-2">[ ÜBERSICHT ]</div>
         <h1 className="font-display text-4xl text-ink uppercase tracking-tight leading-none mb-3">
-          Assistenzarztstellen<br />im Vergleich
+          Assistenzärzt*innenstellen<br />im Vergleich
         </h1>
         <p className="text-sm text-ink/60 max-w-xl leading-relaxed">
-          Anonyme Bewertungen von Assistenzärzten aus Deutschland, Österreich und der Schweiz.
+          Anonyme Bewertungen von Assistenzärzt*innen aus Deutschland, Österreich und der Schweiz.
         </p>
       </div>
 

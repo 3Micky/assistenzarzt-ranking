@@ -3,43 +3,55 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseKey = import.meta.env.VITE_SUPABASE_KEY
 
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_KEY in .env.local')
-}
+const supabaseConfigured = Boolean(supabaseUrl && supabaseKey)
 
-export const supabase = createClient(supabaseUrl, supabaseKey)
+export const supabase = supabaseConfigured
+  ? createClient(supabaseUrl, supabaseKey)
+  : null
 
 /**
- * Fetch all ratings from Supabase
- * @returns {Promise<Array>} Array of rating objects
+ * Fetch all ratings from Supabase.
+ * Returns empty array if Supabase is not configured.
+ * @returns {Promise<Array>}
  */
 export async function fetchAllRatings() {
+  if (!supabaseConfigured) {
+    console.warn('[useSupabase] Kein .env.local — Supabase nicht verbunden. Siehe SUPABASE_SETUP.md.')
+    return []
+  }
   const { data, error } = await supabase
     .from('ratings')
     .select('*')
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Failed to fetch ratings:', error)
+    console.error('[useSupabase] fetchAllRatings Fehler:', error)
     return []
   }
   return data || []
 }
 
 /**
- * Insert a new rating into Supabase
- * @param {Object} rating - Rating object (all fields required)
- * @returns {Promise<Object|null>} Inserted rating or null on error
+ * Insert a new rating into Supabase.
+ * Returns null if Supabase is not configured.
+ * @param {Object} rating
+ * @returns {Promise<Object|null>}
  */
 export async function insertRating(rating) {
+  if (!supabaseConfigured) {
+    console.warn('[useSupabase] Kein .env.local — Bewertung wurde NICHT gespeichert. Siehe SUPABASE_SETUP.md.')
+    return null
+  }
   const { data, error } = await supabase
     .from('ratings')
     .insert([rating])
     .select()
 
   if (error) {
-    console.error('Failed to insert rating:', error)
+    console.error('[useSupabase] insertRating Fehler:', error)
     return null
   }
   return data?.[0] || null
 }
+
+export { supabaseConfigured }

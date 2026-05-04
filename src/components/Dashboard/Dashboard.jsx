@@ -20,11 +20,11 @@ export default function Dashboard() {
       {/* Hero */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-100 mb-2">
-          Assistenzarzt-Stellen{' '}
+          Assistenzärzt*innen-Stellen{' '}
           <span className="text-gradient">im Vergleich</span>
         </h1>
         <p className="text-slate-400 text-sm max-w-xl">
-          Anonyme Bewertungen von Assistenzärzten aus Deutschland, Österreich und der Schweiz.
+          Anonyme Bewertungen von Assistenzärzt*innen aus Deutschland, Österreich und der Schweiz.
           Hilf anderen bei der Entscheidung — trage deine Erfahrung bei.
         </p>
       </div>
