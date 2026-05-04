@@ -14,7 +14,7 @@ export default function Header() {
     <header className="border-b border-ink sticky top-0 z-50 bg-canvas">
       {/* Register Strip */}
       <div className="register-strip">
-        <span>ASSISTENZARZT-RANKING /// DE · AT · CH</span>
+        <span>ASSISTENZÄRZT*IN-RANKING /// DE · AT · CH</span>
         <span className="text-canvas/40">ANONYME BEWERTUNGSPLATTFORM</span>
       </div>
 

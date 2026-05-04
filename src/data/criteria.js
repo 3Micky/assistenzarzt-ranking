@@ -10,7 +10,7 @@ export const CRITERIA_ESSENTIAL = [
   { key: 'dienstsystem',             label: 'Dienstsystem',              type: 'enum', options: ['12h', '24h'] },
   { key: 'fortbildungFreistellung',  label: 'Fortbildung — Freistellung', type: 'boolean' },
   { key: 'fortbildungBezahlt',       label: 'Fortbildung — Bezahlt',     type: 'boolean' },
-  { key: 'abteilungsgroesse',        label: 'Abteilungsgröße (Ärzte)',   type: 'number', min: 1, max: 500 },
+  { key: 'abteilungsgroesse',        label: 'Abteilungsgröße (Ärzt*innen)',   type: 'number', min: 1, max: 500 },
   { key: 'mitarbeitergespraeche',    label: 'Mitarbeitergespräche / Jahr', type: 'number', min: 0, max: 12 },
 ]
 
