@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import SearchDropdown from './SearchDropdown.jsx'
 import { useRatingsStore } from '../../store/ratingsStore.js'
 import { COUNTRY_LABELS } from '../../data/criteria.js'
+import { DE_HOSPITALS } from '../../data/hospitals.js'
 
 const COUNTRY_ALIASES = {
   deutschland: 'DE', de: 'DE',
@@ -31,14 +32,14 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
   }, [])
 
   function buildResults(q) {
-    if (!q.trim()) return []
+    if (!q.trim() || q.trim().length < 2) return []
     const lower = q.toLowerCase().trim()
 
     const countryCode = COUNTRY_ALIASES[lower]
 
-    const hospitals = [...new Set(ratings.map(r => r.hospital))]
-    const cities    = [...new Set(ratings.map(r => r.city))]
-    const regions   = [...new Set(ratings.map(r => r.region).filter(Boolean))]
+    const ratedHospitals = new Set(ratings.map(r => r.hospital))
+    const cities         = [...new Set(ratings.map(r => r.city))]
+    const regions        = [...new Set(ratings.map(r => r.region).filter(Boolean))]
 
     const out = []
 
@@ -48,10 +49,21 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
       out.push({ type: 'bundesland', label, country: countryCode, count })
     }
 
-    hospitals.filter(h => h.toLowerCase().includes(lower)).slice(0, 5).forEach(h => {
+    // Rated hospitals first
+    ;[...ratedHospitals].filter(h => h.toLowerCase().includes(lower)).slice(0, 4).forEach(h => {
       const r = ratings.find(r => r.hospital === h)
-      out.push({ type: 'klinik', label: h, country: r.country })
+      out.push({ type: 'klinik', label: h, country: r.country, hasRatings: true })
     })
+
+    // Master list hospitals (not yet rated)
+    if (out.filter(o => o.type === 'klinik').length < 5) {
+      DE_HOSPITALS
+        .filter(h => h.name.toLowerCase().includes(lower) && !ratedHospitals.has(h.name))
+        .slice(0, 5 - out.filter(o => o.type === 'klinik').length)
+        .forEach(h => {
+          out.push({ type: 'klinik', label: h.name, city: h.city, country: 'DE', hasRatings: false })
+        })
+    }
 
     cities.filter(c => c.toLowerCase().includes(lower)).slice(0, 3).forEach(c => {
       const r   = ratings.find(r => r.city === c)
@@ -78,7 +90,7 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
   function handleSelect(r) {
     setQuery(r.label)
     setOpen(false)
-    navigate(`/berichte?q=${encodeURIComponent(r.label)}&type=${r.type}&country=${r.country}`)
+    navigate(`/berichte?q=${encodeURIComponent(r.label)}&type=${r.type}&country=${r.country ?? ''}`)
   }
 
   function handleSubmit(e) {

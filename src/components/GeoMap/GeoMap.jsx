@@ -12,20 +12,23 @@ import { useRatings } from '../../hooks/useRatings.js'
 import MapTooltip from './MapTooltip.jsx'
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json'
-const DACH_CODES = new Set(['276', '40', '756'])
 
-const COUNTRY_CODE_MAP = { '276': 'DE', '40': 'AT', '756': 'CH' }
-const COUNTRY_NAMES    = { DE: 'Deutschland', AT: 'Österreich', CH: 'Schweiz' }
+// Austria in world-atlas is stored as '040' (with leading zero), DE='276', CH='756'
+const COUNTRY_CODE_MAP = { '276': 'DE', '40': 'AT', '040': 'AT', '756': 'CH' }
+const DACH_IDS = new Set(['276', '40', '040', '756'])
+const COUNTRY_NAMES = { DE: 'Deutschland', AT: 'Österreich', CH: 'Schweiz' }
 
 const colorScale = scaleLinear()
   .domain([1, 5, 8, 10])
   .range(['#EF4444', '#F59E0B', '#84cc16', '#22C55E'])
   .clamp(true)
 
+const MAP_HEIGHT = 560
+
 const MAP_CONFIG = {
   projection: 'geoMercator',
   projectionConfig: {
-    center: [10, 50],
+    center: [10, 49],
     scale: 1600,
   },
 }
@@ -33,8 +36,9 @@ const MAP_CONFIG = {
 export default function GeoMap() {
   const { cityData } = useRatings()
   const navigate = useNavigate()
-  const [tooltip, setTooltip] = useState(null)
+  const [tooltip, setTooltip]           = useState(null)
   const [hoveredCountry, setHoveredCountry] = useState(null)
+  const [hoveredGeoId, setHoveredGeoId] = useState(null)
   const [zoom, setZoom] = useState(1)
 
   const validCities = useMemo(() => cityData.filter((c) => c.coordinates), [cityData])
@@ -49,18 +53,22 @@ export default function GeoMap() {
   const handleMarkerLeave = useCallback(() => setTooltip(null), [])
 
   const handleCountryEnter = useCallback((geoId, event) => {
-    const code = COUNTRY_CODE_MAP[geoId]
+    const code = COUNTRY_CODE_MAP[String(geoId)]
     if (!code) return
     const rect = event.currentTarget.closest('svg').getBoundingClientRect()
     const x = event.clientX - rect.left
     const y = event.clientY - rect.top
     setHoveredCountry({ code, name: COUNTRY_NAMES[code], x, y })
+    setHoveredGeoId(String(geoId))
   }, [])
 
-  const handleCountryLeave = useCallback(() => setHoveredCountry(null), [])
+  const handleCountryLeave = useCallback(() => {
+    setHoveredCountry(null)
+    setHoveredGeoId(null)
+  }, [])
 
   const handleCountryClick = useCallback((geoId) => {
-    const code = COUNTRY_CODE_MAP[geoId]
+    const code = COUNTRY_CODE_MAP[String(geoId)]
     if (!code) return
     navigate(`/berichte?country=${code}`)
   }, [navigate])
@@ -68,7 +76,7 @@ export default function GeoMap() {
   const markerRadius = (count) => Math.min(Math.max(Math.sqrt(count) * 7, 8), 40)
 
   return (
-    <div className="bg-canvas relative overflow-hidden" style={{ minHeight: 480 }}>
+    <div className="bg-canvas relative overflow-hidden" style={{ minHeight: MAP_HEIGHT }}>
       {/* Zoom Controls */}
       <div className="absolute top-3 right-3 z-10 ink-grid" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
         <button onClick={() => setZoom((z) => Math.min(z * 1.5, 8))}
@@ -80,45 +88,42 @@ export default function GeoMap() {
       </div>
 
       {/* Map */}
-      <div className="relative bg-canvas" style={{ height: 480 }}>
+      <div className="relative bg-canvas" style={{ height: MAP_HEIGHT }}>
         <ComposableMap
           {...MAP_CONFIG}
           width={800}
-          height={480}
+          height={MAP_HEIGHT}
           style={{ width: '100%', height: '100%' }}
         >
-          <ZoomableGroup zoom={zoom} center={[10, 50]}>
+          <ZoomableGroup zoom={zoom} center={[10, 49]}>
             <Geographies geography={GEO_URL}>
               {({ geographies }) =>
                 geographies.map((geo) => {
-                  const isDACH = DACH_CODES.has(geo.id)
+                  const geoIdStr = String(geo.id)
+                  const isDACH   = DACH_IDS.has(geoIdStr)
+                  const isHovered = hoveredGeoId === geoIdStr
 
                   return (
                     <Geography
                       key={geo.rsmKey}
                       geography={geo}
-                      onClick={isDACH ? () => handleCountryClick(geo.id) : undefined}
-                      onMouseEnter={isDACH ? (e) => handleCountryEnter(geo.id, e) : undefined}
+                      onClick={isDACH ? () => handleCountryClick(geoIdStr) : undefined}
+                      onMouseEnter={isDACH ? (e) => handleCountryEnter(geoIdStr, e) : undefined}
                       onMouseLeave={isDACH ? handleCountryLeave : undefined}
                       style={{
                         default: {
-                          fill:        '#F4F4F0',
-                          stroke:      '#050505',
-                          strokeWidth: 0.5,
+                          fill:        isHovered ? '#EAE8E3' : '#F4F4F0',
+                          stroke:      isHovered ? '#E61919' : '#050505',
+                          strokeWidth: isHovered ? 1.5 : 0.5,
                           outline:     'none',
                           cursor:      isDACH ? 'pointer' : 'default',
                         },
-                        hover: isDACH ? {
-                          fill:        '#EAE8E3',
-                          stroke:      '#E61919',
-                          strokeWidth: 1.5,
+                        hover: {
+                          fill:        isDACH ? '#EAE8E3' : '#F4F4F0',
+                          stroke:      isDACH ? '#E61919' : '#050505',
+                          strokeWidth: isDACH ? 1.5 : 0.5,
                           outline:     'none',
-                          cursor:      'pointer',
-                        } : {
-                          fill:        '#F4F4F0',
-                          stroke:      '#050505',
-                          strokeWidth: 0.5,
-                          outline:     'none',
+                          cursor:      isDACH ? 'pointer' : 'default',
                         },
                         pressed: {
                           fill:        '#EAE8E3',

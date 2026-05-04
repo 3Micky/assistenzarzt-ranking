@@ -21,7 +21,10 @@ export default function SearchDropdown({ results, onSelect }) {
             {typeLabel[r.type]}
           </span>
           <span className="text-xs font-bold text-ink flex-1">{r.label}</span>
-          <span className="font-mono text-[8px] text-ink/40 flex-shrink-0">
+          <span className="font-mono text-[8px] text-ink/40 flex-shrink-0 flex items-center gap-1">
+            {r.type === 'klinik' && r.hasRatings === false && (
+              <span className="text-ink/30">NOCH KEINE BEW.</span>
+            )}
             {COUNTRY_FLAGS[r.country]} {r.count != null ? `${r.count} KLINIKEN` : r.country}
           </span>
         </button>

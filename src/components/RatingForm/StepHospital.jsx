@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { REGIONS, SPECIALTIES, COUNTRY_LABELS, COUNTRY_FLAGS } from '../../data/criteria.js'
 import { useRatingsStore } from '../../store/ratingsStore.js'
+import { DE_HOSPITALS } from '../../data/hospitals.js'
 
 const COUNTRY_ALIASES = {
   deutschland: 'DE', de: 'DE', österreich: 'AT', oesterreich: 'AT',
@@ -14,20 +15,36 @@ export default function StepHospital({ data, onChange, onNext }) {
   const ratings = useRatingsStore((s) => s.ratings)
 
   function buildResults(q) {
-    if (!q.trim()) return []
+    if (!q.trim() || q.trim().length < 2) return []
     const lower = q.toLowerCase()
     const alias = COUNTRY_ALIASES[lower]
-    const hospitals = [...new Set(ratings.map(r => r.hospital))]
-    const cities    = [...new Set(ratings.map(r => r.city))]
-    const regions   = [...new Set(ratings.map(r => r.region).filter(Boolean))]
+
+    const ratedHospitals = new Set(ratings.map(r => r.hospital))
+    const cities         = [...new Set(ratings.map(r => r.city))]
+    const regions        = [...new Set(ratings.map(r => r.region).filter(Boolean))]
     const out = []
+
     if (alias) {
       out.push({ type: 'bundesland', label: COUNTRY_LABELS[alias], country: alias })
     }
-    hospitals.filter(h => h.toLowerCase().includes(lower)).slice(0, 5).forEach(h => {
+
+    // Rated hospitals first
+    ;[...ratedHospitals].filter(h => h.toLowerCase().includes(lower)).slice(0, 4).forEach(h => {
       const r = ratings.find(r => r.hospital === h)
-      out.push({ type: 'klinik', label: h, country: r.country, city: r.city, region: r.region })
+      out.push({ type: 'klinik', label: h, country: r.country, city: r.city, region: r.region, hasRatings: true })
     })
+
+    // Master list (unrated)
+    const ratedKlinikCount = out.filter(o => o.type === 'klinik').length
+    if (ratedKlinikCount < 5) {
+      DE_HOSPITALS
+        .filter(h => h.name.toLowerCase().includes(lower) && !ratedHospitals.has(h.name))
+        .slice(0, 5 - ratedKlinikCount)
+        .forEach(h => {
+          out.push({ type: 'klinik', label: h.name, city: h.city, country: 'DE', hasRatings: false })
+        })
+    }
+
     cities.filter(c => c.toLowerCase().includes(lower)).slice(0, 3).forEach(c => {
       const r = ratings.find(r => r.city === c)
       out.push({ type: 'stadt', label: c, country: r.country })
@@ -45,7 +62,7 @@ export default function StepHospital({ data, onChange, onNext }) {
     setQuery(r.label)
     setOpen(false)
     if (r.type === 'klinik') {
-      onChange({ ...data, hospital: r.label, city: r.city || data.city, country: r.country, region: r.region || data.region })
+      onChange({ ...data, hospital: r.label, city: r.city || data.city, country: r.country || 'DE', region: r.region || data.region })
     } else {
       onChange({ ...data, hospital: r.label, country: r.country })
     }
@@ -85,6 +102,9 @@ export default function StepHospital({ data, onChange, onNext }) {
                       {r.type.toUpperCase()}
                     </span>
                     <span className="text-xs font-bold text-ink flex-1">{r.label}</span>
+                    {r.type === 'klinik' && r.city && (
+                      <span className="font-mono text-[8px] text-ink/40">{r.city}</span>
+                    )}
                     <span className="font-mono text-[8px] text-ink/40">{COUNTRY_FLAGS[r.country]}</span>
                   </button>
                 ))}
@@ -130,16 +150,8 @@ export default function StepHospital({ data, onChange, onNext }) {
           </div>
         )}
 
-        {/* City + Specialty + Year */}
-        <div className="ink-grid mb-4" style={{ gridTemplateColumns: searchMode === 'schnell' ? '1fr 1fr 1fr' : '1fr 1fr' }}>
-          {searchMode === 'schnell' && (
-            <div className="bg-canvas p-3">
-              <div className="mono-label mb-1">STADT</div>
-              <input className="input-brutalist" value={data.city}
-                onChange={e => onChange({ ...data, city: e.target.value })}
-                placeholder="z.B. Berlin" />
-            </div>
-          )}
+        {/* Specialty only (Jahr removed, Stadt removed from Schnellsuche) */}
+        <div className="ink-grid mb-4" style={{ gridTemplateColumns: '1fr' }}>
           <div className="bg-canvas p-3">
             <div className="mono-label mb-1">FACHRICHTUNG</div>
             <select className="select-brutalist" value={data.specialty}
@@ -147,12 +159,6 @@ export default function StepHospital({ data, onChange, onNext }) {
               <option value="">— Wählen —</option>
               {SPECIALTIES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
-          </div>
-          <div className="bg-canvas p-3">
-            <div className="mono-label mb-1">JAHR</div>
-            <input type="number" className="input-brutalist" value={data.year}
-              min={2010} max={2026}
-              onChange={e => onChange({ ...data, year: +e.target.value })} />
           </div>
         </div>
 
