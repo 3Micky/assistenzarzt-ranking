@@ -84,7 +84,12 @@ export default function MeldeModal({ rating, onClose }) {
 
           {/* Begründung */}
           <div>
-            <div className="mono-label mb-1">BEGRÜNDUNG *</div>
+            <div className="flex justify-between items-center mb-1">
+              <div className="mono-label">BEGRÜNDUNG *</div>
+              <div className={`font-mono text-[10px] tabular-nums ${begruendung.trim().length >= 20 ? 'text-score-high' : 'text-ink/40'}`}>
+                {begruendung.trim().length} / 20 min.
+              </div>
+            </div>
             <textarea
               rows={4}
               className="input-brutalist resize-y text-xs w-full"
@@ -92,6 +97,11 @@ export default function MeldeModal({ rating, onClose }) {
               value={begruendung}
               onChange={e => setBegruendung(e.target.value)}
             />
+            {begruendung.trim().length > 0 && begruendung.trim().length < 20 && (
+              <div className="font-mono text-[10px] text-ink/50 mt-1">
+                Noch {20 - begruendung.trim().length} Zeichen bis die Meldung abgesendet werden kann.
+              </div>
+            )}
           </div>
 
           {/* Kontakt */}
@@ -122,9 +132,10 @@ export default function MeldeModal({ rating, onClose }) {
           <button
             onClick={handleAbsenden}
             disabled={begruendung.trim().length < 20 || status === 'sending'}
-            className="btn-hazard disabled:opacity-30"
+            title={begruendung.trim().length < 20 ? `Noch ${20 - begruendung.trim().length} Zeichen erforderlich` : ''}
+            className="btn-hazard disabled:opacity-30 disabled:cursor-not-allowed"
           >
-            {status === 'sending' ? '...' : 'MELDEN >>>'}
+            {status === 'sending' ? '[ ... ]' : 'MELDEN >>>'}
           </button>
         </div>
       </div>
