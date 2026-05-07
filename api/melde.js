@@ -2,7 +2,7 @@ import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-const EMPFAENGER = 'assistenzdoc-ranking@proton.me'
+const EMPFAENGER = process.env.MELDE_EMPFAENGER || 'hbartels22@gmail.com'
 
 const TYP_LABELS = {
   falsch:     'Unwahre Tatsachenbehauptung',

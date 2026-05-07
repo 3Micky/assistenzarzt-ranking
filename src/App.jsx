@@ -11,6 +11,7 @@ import VergleichPage from './pages/VergleichPage.jsx'
 import BewertungPage from './pages/BewertungPage.jsx'
 import DatenschutzPage    from './pages/DatenschutzPage.jsx'
 import AGBPage            from './pages/AGBPage.jsx'
+import ImpressumPage      from './pages/ImpressumPage.jsx'
 import BerichteDetailPage from './pages/BerichteDetailPage.jsx'
 import { useRatingsStore } from './store/ratingsStore.js'
 
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/bewerten"   element={<BewertungPage />}  />
           <Route path="/datenschutz" element={<DatenschutzPage />} />
           <Route path="/agb"        element={<AGBPage />}        />
+          <Route path="/impressum"  element={<ImpressumPage />}  />
         </Routes>
       </main>
       <Footer />
