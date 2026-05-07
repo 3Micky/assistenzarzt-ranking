@@ -55,8 +55,8 @@
   }
   .btn-ghost-ink {
     @apply inline-flex items-center justify-center
-           bg-canvas text-ink/50 border border-ink/20
-           font-mono text-[10px] tracking-wider uppercase
+           bg-canvas text-ink/70 border border-ink/20
+           font-mono text-[11.5px] tracking-wider uppercase
            px-5 py-2.5
            transition-colors duration-100
            hover:text-ink hover:border-ink
@@ -65,10 +65,10 @@
 
   /* ── Tabs ── */
   .tab-active {
-    @apply bg-hazard text-white font-mono text-[10px] tracking-wider uppercase px-5 py-2.5 cursor-pointer;
+    @apply bg-hazard text-white font-mono text-[11.5px] tracking-wider uppercase px-5 py-2.5 cursor-pointer;
   }
   .tab-inactive {
-    @apply bg-canvas text-ink/40 font-mono text-[10px] tracking-wider uppercase px-5 py-2.5 cursor-pointer
+    @apply bg-canvas text-ink/60 font-mono text-[11.5px] tracking-wider uppercase px-5 py-2.5 cursor-pointer
            hover:text-ink transition-colors;
   }
 
@@ -85,15 +85,15 @@
 
   /* ── Mono Label ── */
   .mono-label {
-    @apply font-mono text-[8px] tracking-widest uppercase text-ink/50;
+    @apply font-mono text-[11.5px] tracking-widest uppercase text-ink/70;
   }
   .mono-label-red {
-    @apply font-mono text-[8px] tracking-widest uppercase text-hazard;
+    @apply font-mono text-[11.5px] tracking-widest uppercase text-hazard;
   }
 
   /* ── Register Strip ── */
   .register-strip {
-    @apply bg-ink text-canvas/80 font-mono text-[8px] tracking-widest uppercase
+    @apply bg-ink text-canvas/90 font-mono text-[11.5px] tracking-widest uppercase
            flex items-center justify-between px-5 py-1;
   }
 
@@ -121,9 +121,9 @@
     @apply ink-grid;
     grid-template-columns: 1fr 1fr;
   }
-  .toggle-yes-active   { @apply bg-score-high text-white font-mono text-[9px] tracking-wider uppercase py-1.5 text-center cursor-pointer; }
-  .toggle-no-active    { @apply bg-score-low  text-white font-mono text-[9px] tracking-wider uppercase py-1.5 text-center cursor-pointer; }
-  .toggle-inactive     { @apply bg-canvas text-ink/40 font-mono text-[9px] tracking-wider uppercase py-1.5 text-center cursor-pointer hover:text-ink; }
+  .toggle-yes-active   { @apply bg-score-high text-white font-mono text-[11.5px] tracking-wider uppercase py-1.5 text-center cursor-pointer; }
+  .toggle-no-active    { @apply bg-score-low  text-white font-mono text-[11.5px] tracking-wider uppercase py-1.5 text-center cursor-pointer; }
+  .toggle-inactive     { @apply bg-canvas text-ink/60 font-mono text-[11.5px] tracking-wider uppercase py-1.5 text-center cursor-pointer hover:text-ink; }
 }
 
 @layer utilities {

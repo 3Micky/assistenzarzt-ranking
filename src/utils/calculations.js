@@ -1,21 +1,33 @@
 /**
- * Gewichteter Score aus dem neuen Kriteriensatz.
- * Nur messbare Felder fließen ein; optionale Felder werden ignoriert wenn null.
+ * 5-Dimensionen-Composite-Score (0–10).
+ * Gewichtung: Weiterbildung 30% · WLB 25% · Ausbildungsstruktur 20% · Teamkultur 15% · Infrastruktur 10%
  */
 export function overallScore(criteria) {
-  const wlb    = criteria.workLifeBalance  ?? 5
-  const team   = criteria.teamAtmosphaere  ?? 5
-  const ueb    = criteria.ueberstundenAufschreiben === true  ? 10
-               : criteria.ueberstundenAufschreiben === false ? 1 : 5
-  const frei   = criteria.fortbildungFreistellung  === true  ? 10
-               : criteria.fortbildungFreistellung  === false ? 4 : 5
-  const bezahlt = criteria.fortbildungBezahlt      === true  ? 10
-               : criteria.fortbildungBezahlt       === false ? 3 : 5
-  const dienste = criteria.diensteProMonat != null
-    ? Math.max(1, 10 - (criteria.diensteProMonat * 0.6))
-    : 5
+  const c = criteria
+  const bool = (v, yes = 10, no = 2, dflt = 5) =>
+    v === true ? yes : v === false ? no : dflt
 
-  const score = wlb * 0.30 + team * 0.25 + ueb * 0.20 + frei * 0.10 + bezahlt * 0.10 + dienste * 0.05
+  // Dimension 1: Weiterbildungsqualität (30%)
+  const wbe = c.wbeJahre != null ? Math.min(10, (c.wbeJahre / 12) * 10) : 5
+  const dim1 = (wbe + (c.logbuchErfuellbarkeit ?? 5) + (c.supervisionQualitaet ?? 5) + (c.autonomie ?? 5)) / 4
+
+  // Dimension 2: Work-Life-Balance (25%)
+  const diensteScore   = c.diensteProMonat != null ? Math.max(1, 10 - c.diensteProMonat * 0.6) : 5
+  const dienstsysScore = c.dienstsystem === '12h' ? 7 : c.dienstsystem === '24h' ? 3 : 5
+  const dim2 = (diensteScore + bool(c.ueberstundenAufschreiben, 10, 1) + dienstsysScore + (c.workLifeBalance ?? 5) + (c.urlaubsgenehmigung ?? 5)) / 5
+
+  // Dimension 3: Ausbildungsstruktur (20%)
+  const mitarbScore = c.mitarbeitergespraeche != null ? Math.min(10, c.mitarbeitergespraeche * 2.5) : 5
+  const dim3 = (bool(c.rotationsplaene, 10, 3) + bool(c.fortbildungFreistellung, 10, 4) + bool(c.fortbildungBezahlt, 10, 4) + mitarbScore) / 4
+
+  // Dimension 4: Teamkultur & Klima (15%)
+  const dim4 = ((c.teamAtmosphaere ?? 5) + bool(c.schwangerschaftFamilienfreundlich, 10, 2) + bool(c.nachtdienstBegleitung, 10, 3)) / 3
+
+  // Dimension 5: Infrastruktur & Benefits (10%)
+  const dim5 = (bool(c.parkplatz, 10, 5) + (c.dokumentationsaufwand ?? 5)) / 2
+
+  const score = dim1 * 0.30 + dim2 * 0.25 + dim3 * 0.20 + dim4 * 0.15 + dim5 * 0.10
+
   return Math.round(score * 10) / 10
 }
 
@@ -72,10 +84,12 @@ export function avgByCity(ratings, citiesData) {
 /** Radar data — uses wlb/team sliders + derived scores for boolean fields */
 export function radarData(hospitalNames, ratings) {
   const axes = [
-    { key: 'workLifeBalance',          label: 'Work-Life',    extract: c => c.workLifeBalance  ?? 5 },
-    { key: 'teamAtmosphaere',          label: 'Team',         extract: c => c.teamAtmosphaere  ?? 5 },
+    { key: 'supervisionQualitaet',     label: 'Supervision',  extract: c => c.supervisionQualitaet  ?? 5 },
+    { key: 'autonomie',                label: 'Autonomie',    extract: c => c.autonomie              ?? 5 },
+    { key: 'logbuchErfuellbarkeit',    label: 'Logbuch',      extract: c => c.logbuchErfuellbarkeit  ?? 5 },
+    { key: 'workLifeBalance',          label: 'Work-Life',    extract: c => c.workLifeBalance        ?? 5 },
+    { key: 'teamAtmosphaere',          label: 'Team',         extract: c => c.teamAtmosphaere        ?? 5 },
     { key: 'ueberstundenAufschreiben', label: 'Überstunden',  extract: c => c.ueberstundenAufschreiben === true ? 10 : c.ueberstundenAufschreiben === false ? 1 : 5 },
-    { key: 'fortbildungFreistellung',  label: 'Fortbildung',  extract: c => c.fortbildungFreistellung  === true ? 10 : c.fortbildungFreistellung  === false ? 4 : 5 },
     { key: 'diensteProMonat',          label: 'Dienste',      extract: c => Math.max(1, 10 - ((c.diensteProMonat ?? 4) * 0.6)) },
     { key: 'gesamtscore',              label: 'Gesamt',       extract: c => overallScore(c) },
   ]

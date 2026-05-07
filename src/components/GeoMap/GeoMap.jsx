@@ -23,13 +23,13 @@ const colorScale = scaleLinear()
   .range(['#EF4444', '#F59E0B', '#84cc16', '#22C55E'])
   .clamp(true)
 
-const MAP_HEIGHT = 560
+const MAP_HEIGHT = 640
 
 const MAP_CONFIG = {
   projection: 'geoMercator',
   projectionConfig: {
-    center: [10, 49],
-    scale: 1600,
+    center: [10, 47],
+    scale: 1550,
   },
 }
 
@@ -76,7 +76,7 @@ export default function GeoMap() {
   const markerRadius = (count) => Math.min(Math.max(Math.sqrt(count) * 7, 8), 40)
 
   return (
-    <div className="bg-canvas relative overflow-hidden" style={{ minHeight: MAP_HEIGHT }}>
+    <div className="bg-canvas relative" style={{ minHeight: MAP_HEIGHT }}>
       {/* Zoom Controls */}
       <div className="absolute top-3 right-3 z-10 ink-grid" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
         <button onClick={() => setZoom((z) => Math.min(z * 1.5, 8))}
@@ -192,18 +192,18 @@ export default function GeoMap() {
 
         {hoveredCountry && (
           <div
-            className="absolute pointer-events-none z-20 bg-canvas border border-ink px-3 py-2 font-mono text-[10px] uppercase tracking-widest"
+            className="absolute pointer-events-none z-20 bg-canvas border border-ink px-3 py-2 font-mono text-[11.5px] uppercase tracking-widest"
             style={{ left: hoveredCountry.x + 12, top: hoveredCountry.y - 20 }}
           >
             <div className="font-bold text-ink">{hoveredCountry.name}</div>
-            <div className="text-ink/40 mt-0.5">KLICKEN FÜR BERICHTE</div>
+            <div className="text-ink/60 mt-0.5">KLICKEN FÜR BERICHTE</div>
           </div>
         )}
       </div>
 
       {validCities.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="font-mono text-[10px] uppercase tracking-widest text-ink/30">
+          <div className="font-mono text-[11.5px] uppercase tracking-widest text-ink/50">
             /// NOCH KEINE STADTDATEN VORHANDEN
           </div>
         </div>

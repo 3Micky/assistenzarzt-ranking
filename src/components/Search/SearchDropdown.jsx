@@ -17,13 +17,13 @@ export default function SearchDropdown({ results, onSelect }) {
           className="w-full flex items-center gap-3 px-4 py-2 border-b border-ink/10 last:border-b-0
                      hover:bg-canvas-alt transition-colors text-left"
         >
-          <span className={`font-mono text-[8px] tracking-widest uppercase min-w-[64px] ${r.type === 'klinik' ? 'text-hazard' : 'text-ink/40'}`}>
+          <span className={`font-mono text-[11.5px] tracking-widest uppercase min-w-[64px] ${r.type === 'klinik' ? 'text-hazard' : 'text-ink/60'}`}>
             {typeLabel[r.type]}
           </span>
           <span className="text-xs font-bold text-ink flex-1">{r.label}</span>
-          <span className="font-mono text-[8px] text-ink/40 flex-shrink-0 flex items-center gap-1">
+          <span className="font-mono text-[11.5px] text-ink/60 flex-shrink-0 flex items-center gap-1">
             {r.type === 'klinik' && r.hasRatings === false && (
-              <span className="text-ink/30">NOCH KEINE BEW.</span>
+              <span className="text-ink/50">NOCH KEINE BEW.</span>
             )}
             {COUNTRY_FLAGS[r.country]} {r.count != null ? `${r.count} KLINIKEN` : r.country}
           </span>

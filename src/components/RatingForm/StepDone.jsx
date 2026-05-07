@@ -11,7 +11,7 @@ export default function StepDone({ hospital, onNew }) {
         <div className="font-display text-3xl text-ink uppercase tracking-tight leading-none mb-4">
           Danke.<br />/// Bewertung<br />gespeichert.
         </div>
-        <div className="text-sm text-ink/60 mb-6">{hospital}</div>
+        <div className="text-sm text-ink/80 mb-6">{hospital}</div>
         <div className="ink-grid" style={{ gridTemplateColumns: 'auto auto' }}>
           <button onClick={onNew} className="btn-ink">&gt;&gt;&gt; WEITERE BEWERTUNG</button>
           <Link to="/" className="btn-ghost-ink">[ ZUR STARTSEITE ]</Link>

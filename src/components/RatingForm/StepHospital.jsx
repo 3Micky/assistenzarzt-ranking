@@ -1,79 +1,135 @@
-import { useState } from 'react'
-import { REGIONS, SPECIALTIES, COUNTRY_LABELS, COUNTRY_FLAGS } from '../../data/criteria.js'
+import { useState, useRef, useEffect } from 'react'
+import { REGIONS, SPECIALTIES, COUNTRY_FLAGS } from '../../data/criteria.js'
 import { useRatingsStore } from '../../store/ratingsStore.js'
-import { DE_HOSPITALS } from '../../data/hospitals.js'
+import { searchHospitals, getCitiesForFilters } from '../../utils/hospitalSearch.js'
 
-const COUNTRY_ALIASES = {
-  deutschland: 'DE', de: 'DE', österreich: 'AT', oesterreich: 'AT',
-  at: 'AT', schweiz: 'CH', ch: 'CH',
+/** Schließt ein Dropdown wenn außerhalb geklickt wird */
+function useClickOutside(ref, onClose) {
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose() }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [ref, onClose])
+}
+
+/** Kleines wiederverwendbares Dropdown-Panel */
+function DropdownList({ items, onSelect, renderItem }) {
+  if (!items || items.length === 0) return null
+  return (
+    <div className="absolute top-full left-0 right-0 z-50 border border-ink border-t-0 bg-white max-h-60 overflow-y-auto">
+      {items.map((item, i) => (
+        <button
+          key={i}
+          onMouseDown={e => { e.preventDefault(); onSelect(item) }}
+          className="w-full flex items-center gap-3 px-3 py-2 border-b border-ink/10 last:border-b-0 hover:bg-canvas-alt text-left"
+        >
+          {renderItem(item)}
+        </button>
+      ))}
+    </div>
+  )
 }
 
 export default function StepHospital({ data, onChange, onNext }) {
   const [searchMode, setSearchMode] = useState('schnell')
-  const [query, setQuery]           = useState(data.hospital || '')
-  const [dropdownOpen, setOpen]     = useState(false)
-  const ratings = useRatingsStore((s) => s.ratings)
 
-  function buildResults(q) {
-    if (!q.trim() || q.trim().length < 2) return []
-    const lower = q.toLowerCase()
-    const alias = COUNTRY_ALIASES[lower]
+  // ── Schnellsuche ──────────────────────────────────────────────────────────
+  const [schnellQuery, setSchnellQuery] = useState(data.hospital || '')
+  const [schnellOpen, setSchnellOpen]   = useState(false)
+  const schnellRef                       = useRef(null)
+  useClickOutside(schnellRef, () => setSchnellOpen(false))
 
-    const ratedHospitals = new Set(ratings.map(r => r.hospital))
-    const cities         = [...new Set(ratings.map(r => r.city))]
-    const regions        = [...new Set(ratings.map(r => r.region).filter(Boolean))]
-    const out = []
+  // ── Genaue Suche ─────────────────────────────────────────────────────────
+  const [cityQuery, setCityQuery]         = useState(data.city || '')
+  const [cityOpen, setCityOpen]           = useState(false)
+  const [klinikQuery, setKlinikQuery]     = useState(data.hospital || '')
+  const [klinikOpen, setKlinikOpen]       = useState(false)
+  const cityRef                            = useRef(null)
+  const klinikRef                          = useRef(null)
+  useClickOutside(cityRef,    () => setCityOpen(false))
+  useClickOutside(klinikRef,  () => setKlinikOpen(false))
 
-    if (alias) {
-      out.push({ type: 'bundesland', label: COUNTRY_LABELS[alias], country: alias })
-    }
+  const ratings  = useRatingsStore((s) => s.ratings)
+  const ratedSet = new Set(ratings.map(r => r.hospital))
 
-    // Rated hospitals first
-    ;[...ratedHospitals].filter(h => h.toLowerCase().includes(lower)).slice(0, 4).forEach(h => {
-      const r = ratings.find(r => r.hospital === h)
-      out.push({ type: 'klinik', label: h, country: r.country, city: r.city, region: r.region, hasRatings: true })
+  // ── Schnellsuche Results ──────────────────────────────────────────────────
+  const schnellResults = schnellQuery.trim().length >= 2
+    ? searchHospitals(schnellQuery, ratedSet, {}, 8)
+    : []
+
+  function selectSchnell(h) {
+    setSchnellQuery(h.name)
+    setSchnellOpen(false)
+    onChange({
+      ...data,
+      hospital: h.name,
+      city:     h.city    || data.city,
+      region:   h.region  || data.region,
+      country:  h.country || data.country || 'DE',
     })
-
-    // Master list (unrated)
-    const ratedKlinikCount = out.filter(o => o.type === 'klinik').length
-    if (ratedKlinikCount < 5) {
-      DE_HOSPITALS
-        .filter(h => h.name.toLowerCase().includes(lower) && !ratedHospitals.has(h.name))
-        .slice(0, 5 - ratedKlinikCount)
-        .forEach(h => {
-          out.push({ type: 'klinik', label: h.name, city: h.city, country: 'DE', hasRatings: false })
-        })
-    }
-
-    cities.filter(c => c.toLowerCase().includes(lower)).slice(0, 3).forEach(c => {
-      const r = ratings.find(r => r.city === c)
-      out.push({ type: 'stadt', label: c, country: r.country })
-    })
-    regions.filter(rg => rg.toLowerCase().includes(lower)).slice(0, 2).forEach(rg => {
-      const r = ratings.find(r => r.region === rg)
-      out.push({ type: 'bundesland', label: rg, country: r.country })
-    })
-    return out.slice(0, 10)
   }
 
-  const results = buildResults(query)
+  // ── Genaue Suche: verfügbare Städte (gefiltert nach Land + Region) ────────
+  const availableCities = getCitiesForFilters({
+    country: data.country || undefined,
+    region:  data.region  || undefined,
+  })
+  const cityResults = cityQuery.trim().length >= 1
+    ? availableCities.filter(c => c.toLowerCase().includes(cityQuery.toLowerCase())).slice(0, 8)
+    : availableCities.slice(0, 8)
 
-  function selectResult(r) {
-    setQuery(r.label)
-    setOpen(false)
-    if (r.type === 'klinik') {
-      onChange({ ...data, hospital: r.label, city: r.city || data.city, country: r.country || 'DE', region: r.region || data.region })
-    } else {
-      onChange({ ...data, hospital: r.label, country: r.country })
-    }
+  function selectCity(city) {
+    setCityQuery(city)
+    setCityOpen(false)
+    onChange({ ...data, city })
   }
 
-  const canProceed = data.hospital && data.specialty && data.country
+  // ── Genaue Suche: Klinik-Suche (gefiltert nach Land + Region + Stadt) ─────
+  const klinikResults = klinikQuery.trim().length >= 1
+    ? searchHospitals(klinikQuery, ratedSet, {
+        country: data.country || undefined,
+        region:  data.region  || undefined,
+        city:    cityQuery.trim() || undefined,
+      }, 8)
+    : []
+
+  function selectKlinik(h) {
+    setKlinikQuery(h.name)
+    setKlinikOpen(false)
+    // Auto-fill Stadt, Region, Land aus dem gewählten Krankenhaus
+    onChange({
+      ...data,
+      hospital: h.name,
+      city:     h.city    || data.city,
+      region:   h.region  || data.region,
+      country:  h.country || data.country || 'DE',
+    })
+    setCityQuery(h.city || data.city || '')
+  }
+
+  // Wenn Land wechselt → Region + Stadt + Klinik zurücksetzen
+  function handleCountryChange(country) {
+    onChange({ ...data, country, region: '', city: '', hospital: '' })
+    setCityQuery('')
+    setKlinikQuery('')
+  }
+
+  // Wenn Bundesland wechselt → Stadt + Klinik zurücksetzen
+  function handleRegionChange(region) {
+    onChange({ ...data, region, city: '', hospital: '' })
+    setCityQuery('')
+    setKlinikQuery('')
+  }
+
+  const canProceed = data.hospital && data.specialty && data.country && data.yearFrom
+
+  const currentYear = new Date().getFullYear()
+  const years = Array.from({ length: currentYear - 1999 }, (_, i) => currentYear - i)
 
   return (
     <div>
       <div className="register-strip border-b border-ink">
-        SCHRITT 1 VON 4 /// KLINIK WÄHLEN
+        SCHRITT 1 VON 5 /// KLINIK WÄHLEN
       </div>
 
       {/* Mode toggle */}
@@ -83,74 +139,154 @@ export default function StepHospital({ data, onChange, onNext }) {
       </div>
 
       <div className="p-5">
-        {searchMode === 'schnell' ? (
-          <div className="relative mb-4">
+
+        {/* ── SCHNELLSUCHE ─────────────────────────────────────────────────── */}
+        {searchMode === 'schnell' && (
+          <div className="relative mb-4" ref={schnellRef}>
             <input
               className="input-brutalist"
-              placeholder="Klinik, Stadt, Bundesland, Deutschland…"
-              value={query}
-              onChange={e => { setQuery(e.target.value); onChange({ ...data, hospital: e.target.value }); setOpen(true) }}
-              onFocus={() => query && setOpen(true)}
+              placeholder='z.B. „St. Joseph Berlin" oder „Charité"'
+              value={schnellQuery}
+              onChange={e => {
+                setSchnellQuery(e.target.value)
+                onChange({ ...data, hospital: e.target.value })
+                setSchnellOpen(true)
+              }}
+              onFocus={() => setSchnellOpen(true)}
               autoComplete="off"
             />
-            {dropdownOpen && results.length > 0 && (
-              <div className="absolute top-full left-0 right-0 z-50 border border-ink border-t-0 bg-white">
-                {results.map((r, i) => (
-                  <button key={i} onClick={() => selectResult(r)}
-                    className="w-full flex items-center gap-3 px-3 py-2 border-b border-ink/10 last:border-b-0 hover:bg-canvas-alt text-left">
-                    <span className={`font-mono text-[8px] tracking-widest uppercase min-w-[56px] ${r.type === 'klinik' ? 'text-hazard' : 'text-ink/40'}`}>
-                      {r.type.toUpperCase()}
+            {schnellOpen && (
+              <DropdownList
+                items={schnellResults}
+                onSelect={selectSchnell}
+                renderItem={h => (
+                  <>
+                    <span className="font-mono text-[11.5px] tracking-widest text-hazard min-w-[56px] uppercase">
+                      KLINIK
                     </span>
-                    <span className="text-xs font-bold text-ink flex-1">{r.label}</span>
-                    {r.type === 'klinik' && r.city && (
-                      <span className="font-mono text-[8px] text-ink/40">{r.city}</span>
-                    )}
-                    <span className="font-mono text-[8px] text-ink/40">{COUNTRY_FLAGS[r.country]}</span>
-                  </button>
-                ))}
-              </div>
+                    <span className="text-xs font-bold text-ink flex-1">{h.name}</span>
+                    <span className="font-mono text-[11.5px] text-ink/60 flex-shrink-0 flex items-center gap-1">
+                      {h.city && <span>{h.city}</span>}
+                      {h.hasRatings === false && <span className="text-ink/50">NEU</span>}
+                      <span>{COUNTRY_FLAGS[h.country]}</span>
+                    </span>
+                  </>
+                )}
+              />
             )}
           </div>
-        ) : (
+        )}
+
+        {/* ── GENAUE SUCHE ─────────────────────────────────────────────────── */}
+        {searchMode === 'genau' && (
           <div className="ink-grid mb-4" style={{ gridTemplateColumns: '1fr 1fr' }}>
-            {/* Land */}
+
+            {/* 01 Land */}
             <div className="bg-canvas p-3">
               <div className="mono-label mb-1">01 /// LAND</div>
-              <select className="select-brutalist" value={data.country}
-                onChange={e => onChange({ ...data, country: e.target.value, region: '', city: '' })}>
+              <select className="select-brutalist" value={data.country || ''}
+                onChange={e => handleCountryChange(e.target.value)}>
                 <option value="">— Wählen —</option>
                 <option value="DE">🇩🇪 Deutschland</option>
                 <option value="AT">🇦🇹 Österreich</option>
                 <option value="CH">🇨🇭 Schweiz</option>
               </select>
             </div>
-            {/* Bundesland */}
+
+            {/* 02 Bundesland / Kanton */}
             <div className="bg-canvas p-3">
               <div className="mono-label mb-1">02 /// BUNDESLAND / KANTON</div>
-              <select className="select-brutalist" value={data.region}
-                onChange={e => onChange({ ...data, region: e.target.value })}>
+              <select className="select-brutalist" value={data.region || ''}
+                onChange={e => handleRegionChange(e.target.value)}
+                disabled={!data.country}>
                 <option value="">— Wählen —</option>
                 {(REGIONS[data.country] || []).map(r => <option key={r} value={r}>{r}</option>)}
               </select>
             </div>
-            {/* Stadt */}
-            <div className="bg-canvas p-3">
+
+            {/* 03 Stadt — Dropdown aus DB */}
+            <div className="bg-canvas p-3 relative" ref={cityRef}>
               <div className="mono-label mb-1">03 /// STADT</div>
-              <input className="input-brutalist" value={data.city}
-                onChange={e => onChange({ ...data, city: e.target.value })}
-                placeholder="z.B. Berlin" />
+              <input
+                className="input-brutalist"
+                value={cityQuery}
+                onChange={e => {
+                  setCityQuery(e.target.value)
+                  onChange({ ...data, city: e.target.value })
+                  setCityOpen(true)
+                }}
+                onFocus={() => setCityOpen(true)}
+                placeholder={data.country ? 'Stadt eingeben…' : 'Erst Land wählen'}
+                disabled={!data.country}
+                autoComplete="off"
+              />
+              {cityOpen && cityResults.length > 0 && (
+                <DropdownList
+                  items={cityResults}
+                  onSelect={selectCity}
+                  renderItem={city => (
+                    <span className="text-xs font-bold text-ink">{city}</span>
+                  )}
+                />
+              )}
             </div>
-            {/* Klinik */}
-            <div className="bg-canvas p-3">
+
+            {/* 04 Klinik — Dropdown aus DB */}
+            <div className="bg-canvas p-3 relative" ref={klinikRef}>
               <div className="mono-label mb-1">04 /// KLINIK</div>
-              <input className="input-brutalist" value={data.hospital}
-                onChange={e => onChange({ ...data, hospital: e.target.value })}
-                placeholder="Klinikname eingeben…" />
+              <input
+                className="input-brutalist"
+                value={klinikQuery}
+                onChange={e => {
+                  setKlinikQuery(e.target.value)
+                  onChange({ ...data, hospital: e.target.value })
+                  setKlinikOpen(true)
+                }}
+                onFocus={() => klinikQuery.length >= 1 && setKlinikOpen(true)}
+                placeholder={data.country ? 'Klinikname eingeben…' : 'Erst Land wählen'}
+                disabled={!data.country}
+                autoComplete="off"
+              />
+              {klinikOpen && klinikResults.length > 0 && (
+                <DropdownList
+                  items={klinikResults}
+                  onSelect={selectKlinik}
+                  renderItem={h => (
+                    <>
+                      <span className="text-xs font-bold text-ink flex-1">{h.name}</span>
+                      <span className="font-mono text-[11.5px] text-ink/60 flex-shrink-0 flex items-center gap-1">
+                        {h.city}
+                        {h.hasRatings === false && <span className="text-ink/50 ml-1">NEU</span>}
+                      </span>
+                    </>
+                  )}
+                />
+              )}
             </div>
+
           </div>
         )}
 
-        {/* Specialty only (Jahr removed, Stadt removed from Schnellsuche) */}
+        {/* Arbeitszeitraum */}
+        <div className="ink-grid mb-4" style={{ gridTemplateColumns: '1fr 1fr' }}>
+          <div className="bg-canvas p-3">
+            <div className="mono-label mb-1">VON JAHR</div>
+            <select className="select-brutalist" value={data.yearFrom ?? currentYear}
+              onChange={e => onChange({ ...data, yearFrom: +e.target.value })}>
+              {years.map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+          </div>
+          <div className="bg-canvas p-3">
+            <div className="mono-label mb-1">BIS JAHR</div>
+            <select className="select-brutalist" value={data.yearTo ?? 'fortlaufend'}
+              onChange={e => onChange({ ...data, yearTo: e.target.value === 'fortlaufend' ? 'fortlaufend' : +e.target.value })}>
+              <option value="fortlaufend">FORTLAUFEND</option>
+              {years.map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+          </div>
+        </div>
+
+        {/* Fachrichtung */}
         <div className="ink-grid mb-4" style={{ gridTemplateColumns: '1fr' }}>
           <div className="bg-canvas p-3">
             <div className="mono-label mb-1">FACHRICHTUNG</div>
@@ -162,7 +298,19 @@ export default function StepHospital({ data, onChange, onNext }) {
           </div>
         </div>
 
-        <div className="flex justify-end">
+        {/* Ausgewählte Klinik als Zusammenfassung */}
+        {data.hospital && (
+          <div className="mb-4 px-3 py-2 bg-canvas border border-ink/20 font-mono text-[11.5px] uppercase tracking-widest text-ink/80">
+            ✓ {data.hospital}
+            {data.city   && ` · ${data.city}`}
+            {data.region && ` · ${data.region}`}
+            {data.country && ` · ${data.country}`}
+            {data.yearFrom && ` · ${data.yearFrom} – ${data.yearTo === 'fortlaufend' ? 'FORTLAUFEND' : data.yearTo}`}
+          </div>
+        )}
+
+        <div className="flex border-t border-ink mt-4 -mx-5 -mb-5">
+          <div className="flex-1 bg-canvas" />
           <button onClick={onNext} disabled={!canProceed} className="btn-hazard disabled:opacity-30">
             WEITER &gt;&gt;&gt;
           </button>

@@ -6,7 +6,7 @@ export default function KartePage() {
     <div>
       <div className="register-strip border-b border-ink">
         <span>/// DACH-HEATMAP</span>
-        <span className="text-canvas/40">BEWERTUNGEN NACH REGION</span>
+        <span className="text-canvas/60">BEWERTUNGEN NACH REGION</span>
       </div>
       <StatsBar />
       <GeoMap />

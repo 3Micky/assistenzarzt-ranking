@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useRatingsStore } from '../store/ratingsStore.js'
+import { overallScore } from '../utils/calculations.js'
 import FilterBar from '../components/Berichte/FilterBar.jsx'
 import BerichteTabelle from '../components/Berichte/BerichteTabelle.jsx'
 
-const EMPTY_FILTERS = { country: '', region: '', specialty: '', dienstsystem: '', hospital: '', city: '' }
+const EMPTY_FILTERS = { country: '', region: '', specialty: '', hospital: '', city: '', scoreMin: '0' }
 
 export default function BerichtePage() {
   const ratings        = useRatingsStore((s) => s.ratings)
@@ -21,13 +22,14 @@ export default function BerichtePage() {
   }
 
   const filtered = useMemo(() => {
+    const minScore = parseFloat(filters.scoreMin ?? '0') || 0
     return ratings.filter(r => {
-      if (filters.country      && r.country   !== filters.country)     return false
-      if (filters.region       && r.region    !== filters.region)      return false
-      if (filters.specialty    && r.specialty !== filters.specialty)   return false
-      if (filters.dienstsystem && r.criteria.dienstsystem !== filters.dienstsystem) return false
-      if (filters.hospital     && !r.hospital.toLowerCase().includes(filters.hospital.toLowerCase())) return false
-      if (filters.city         && !r.city?.toLowerCase().includes(filters.city.toLowerCase())) return false
+      if (filters.country   && r.country   !== filters.country)   return false
+      if (filters.region    && r.region    !== filters.region)    return false
+      if (filters.specialty && r.specialty !== filters.specialty) return false
+      if (filters.hospital  && !r.hospital.toLowerCase().includes(filters.hospital.toLowerCase())) return false
+      if (filters.city      && !r.city?.toLowerCase().includes(filters.city.toLowerCase())) return false
+      if (minScore > 0 && overallScore(r.criteria) < minScore)   return false
       return true
     })
   }, [ratings, filters])
@@ -36,7 +38,7 @@ export default function BerichtePage() {
     <div>
       <div className="register-strip border-b border-ink">
         <span>/// BERICHTE LESEN</span>
-        <span className="text-canvas/40">ALLE BEWERTUNGEN</span>
+        <span className="text-canvas/60">ALLE BEWERTUNGEN</span>
       </div>
       <FilterBar filters={filters} onChange={updateFilter} />
       <BerichteTabelle ratings={filtered} />

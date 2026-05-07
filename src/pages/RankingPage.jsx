@@ -6,7 +6,7 @@ export default function RankingPage() {
     <div>
       <div className="register-strip border-b border-ink">
         <span>/// RANKING</span>
-        <span className="text-canvas/40">TOP-KLINIKEN NACH SCORE</span>
+        <span className="text-canvas/60">TOP-KLINIKEN NACH SCORE</span>
       </div>
       <StatsBar />
       <div className="border-b border-ink">

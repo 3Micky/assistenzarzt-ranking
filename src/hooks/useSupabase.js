@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { SAMPLE_RATINGS } from '../data/sampleData.js'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseKey = import.meta.env.VITE_SUPABASE_KEY
@@ -16,8 +17,7 @@ export const supabase = supabaseConfigured
  */
 export async function fetchAllRatings() {
   if (!supabaseConfigured) {
-    console.warn('[useSupabase] Kein .env.local — Supabase nicht verbunden. Siehe SUPABASE_SETUP.md.')
-    return []
+    return SAMPLE_RATINGS
   }
   const { data, error } = await supabase
     .from('ratings')
@@ -25,10 +25,12 @@ export async function fetchAllRatings() {
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('[useSupabase] fetchAllRatings Fehler:', error)
-    return []
+    console.error('[useSupabase] fetchAllRatings Fehler:', error.message, error.code, error.details, error.hint)
+    return SAMPLE_RATINGS
   }
-  return data || []
+  // Supabase-Daten mit Sample-Daten mergen (seed-IDs nie mit echten UUIDs doppelt)
+  const realData = data || []
+  return [...realData, ...SAMPLE_RATINGS]
 }
 
 /**

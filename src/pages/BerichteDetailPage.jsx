@@ -1,0 +1,136 @@
+import { useState } from 'react'
+import { useParams, Link } from 'react-router-dom'
+import { useRatingsStore } from '../store/ratingsStore.js'
+import { overallScore, scoreColor, scoreLabel } from '../utils/calculations.js'
+import { CRITERIA_ESSENTIAL, CRITERIA_MEDICAL, CRITERIA_NICE } from '../data/criteria.js'
+import MeldeModal from '../components/Berichte/MeldeModal.jsx'
+
+const COUNTRY_NAMES = { DE: 'Deutschland', AT: 'Österreich', CH: 'Schweiz' }
+
+function renderValue(type, value, key) {
+  if (value === null || value === undefined || value === '') return <span className="text-ink/50">—</span>
+  if (type === 'boolean') {
+    return (
+      <span className={`font-bold ${value === true ? 'text-score-high' : 'text-score-low'}`}>
+        {value === true ? 'JA' : 'NEIN'}
+      </span>
+    )
+  }
+  if (type === 'slider') {
+    return (
+      <span className="font-bold" style={{ color: scoreColor(value) }}>{value} / 10</span>
+    )
+  }
+  if (type === 'time') return <span>{value}</span>
+  if (type === 'number') return <span className="font-bold">{value}</span>
+  return <span>{value}</span>
+}
+
+function CriteriaSection({ title, criteria, values }) {
+  return (
+    <div className="border-b border-ink">
+      <div className="register-strip border-b border-ink">{title}</div>
+      <div className="ink-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+        {criteria.filter(c => c.type !== 'text' || values[c.key]).map(c => (
+          <div key={c.key} className="bg-canvas p-3">
+            <div className="mono-label mb-1">{c.label}</div>
+            <div className="text-sm">{renderValue(c.type, values[c.key], c.key)}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export default function BerichteDetailPage() {
+  const { id } = useParams()
+  const ratings = useRatingsStore((s) => s.ratings)
+  const [meldeOpen, setMeldeOpen] = useState(false)
+
+  const rating = ratings.find(r => r.id === id)
+
+  if (!rating) {
+    return (
+      <div className="p-12 text-center font-mono text-[11.5px] uppercase tracking-widest text-ink/60">
+        BEWERTUNG NICHT GEFUNDEN —{' '}
+        <Link to="/berichte" className="text-hazard hover:underline">ZURÜCK ZU BERICHTEN</Link>
+      </div>
+    )
+  }
+
+  const score = overallScore(rating.criteria)
+  const date  = rating.timestamp ? new Date(rating.timestamp).toLocaleDateString('de-DE', { year: 'numeric', month: 'long' }) : null
+
+  return (
+    <div className="max-w-3xl mx-auto my-6 border border-ink">
+      {meldeOpen && <MeldeModal rating={rating} onClose={() => setMeldeOpen(false)} />}
+
+      {/* Header */}
+      <div className="register-strip border-b border-ink flex justify-between items-center">
+        <Link to="/berichte" className="hover:text-hazard transition-colors">&lt;&lt;&lt; BERICHTE</Link>
+        {date && <span className="text-canvas/60">{date}</span>}
+      </div>
+
+      {/* Klinik-Info */}
+      <div className="border-b border-ink p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="font-display text-2xl text-ink uppercase tracking-tight leading-none mb-2">
+              {rating.hospital}
+            </h1>
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              {rating.city    && <span className="mono-label">{rating.city}</span>}
+              {rating.region  && <span className="mono-label">{rating.region}</span>}
+              {rating.country && <span className="mono-label">{COUNTRY_NAMES[rating.country] ?? rating.country}</span>}
+              {rating.specialty && <span className="mono-label text-hazard">{rating.specialty}</span>}
+              {rating.yearFrom && (
+                <span className="mono-label">
+                  {rating.yearFrom} – {rating.yearTo === 'fortlaufend' ? 'FORTLAUFEND' : rating.yearTo}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="text-right flex-shrink-0">
+            <div className="font-mono text-4xl font-bold" style={{ color: scoreColor(score) }}>{score}</div>
+            <div className="mono-label mt-0.5">{scoreLabel(score).toUpperCase()}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Criteria sections */}
+      <CriteriaSection
+        title="/// PFLICHT-KRITERIEN"
+        criteria={CRITERIA_ESSENTIAL}
+        values={rating.criteria}
+      />
+      <CriteriaSection
+        title="/// WEITERBILDUNG & AUSBILDUNGSQUALITÄT"
+        criteria={CRITERIA_MEDICAL}
+        values={rating.criteria}
+      />
+      <CriteriaSection
+        title="/// NICE-TO-HAVE"
+        criteria={CRITERIA_NICE}
+        values={rating.criteria}
+      />
+
+      {/* Kommentar */}
+      {rating.comment && (
+        <div className="border-b border-ink p-5">
+          <div className="mono-label mb-2">/// KOMMENTAR</div>
+          <p className="text-sm text-ink/80 leading-relaxed whitespace-pre-wrap">{rating.comment}</p>
+        </div>
+      )}
+
+      {/* Footer: Melden */}
+      <div className="flex justify-end p-4">
+        <button
+          onClick={() => setMeldeOpen(true)}
+          className="font-mono text-[11.5px] uppercase tracking-widest text-ink/50 hover:text-hazard transition-colors border border-ink/20 hover:border-hazard px-3 py-1.5"
+        >
+          ⚑ INHALT MELDEN
+        </button>
+      </div>
+    </div>
+  )
+}

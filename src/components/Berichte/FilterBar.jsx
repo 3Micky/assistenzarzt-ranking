@@ -9,86 +9,71 @@ export default function FilterBar({ filters, onChange }) {
     : [...REGIONS.DE, ...REGIONS.AT, ...REGIONS.CH]
 
   return (
-    <div className="ink-grid border-b border-ink" style={{ gridTemplateColumns: 'repeat(6, auto) 1fr' }}>
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-px bg-ink/10 border-b border-ink">
+
       {/* Land */}
       <div className="bg-canvas px-3 py-2">
         <div className="mono-label mb-1">LAND</div>
-        <select
-          className="select-brutalist text-[11px] py-1"
-          value={filters.country}
-          onChange={e => onChange('country', e.target.value)}
-        >
+        <select className="select-brutalist text-[11px] py-1" value={filters.country}
+          onChange={e => onChange('country', e.target.value)}>
           <option value="">ALLE</option>
-          <option value="DE">🇩🇪 DE</option>
-          <option value="AT">🇦🇹 AT</option>
-          <option value="CH">🇨🇭 CH</option>
+          <option value="DE">Deutschland</option>
+          <option value="AT">Österreich</option>
+          <option value="CH">Schweiz</option>
         </select>
       </div>
 
       {/* Bundesland */}
       <div className="bg-canvas px-3 py-2">
         <div className="mono-label mb-1">BUNDESLAND / KANTON</div>
-        <select
-          className="select-brutalist text-[11px] py-1"
-          value={filters.region}
-          onChange={e => onChange('region', e.target.value)}
-        >
+        <select className="select-brutalist text-[11px] py-1" value={filters.region}
+          onChange={e => onChange('region', e.target.value)}>
           <option value="">ALLE</option>
           {regionOptions.map(r => <option key={r} value={r}>{r}</option>)}
         </select>
       </div>
 
-      {/* Fachrichtung */}
+      {/* Stadt */}
       <div className="bg-canvas px-3 py-2">
-        <div className="mono-label mb-1">FACHRICHTUNG</div>
-        <select
-          className="select-brutalist text-[11px] py-1"
-          value={filters.specialty}
-          onChange={e => onChange('specialty', e.target.value)}
-        >
-          <option value="">ALLE</option>
-          {SPECIALTIES.map(s => <option key={s} value={s}>{s}</option>)}
-        </select>
-      </div>
-
-      {/* Dienstsystem */}
-      <div className="bg-canvas px-3 py-2">
-        <div className="mono-label mb-1">DIENSTSYSTEM</div>
-        <select
-          className="select-brutalist text-[11px] py-1"
-          value={filters.dienstsystem}
-          onChange={e => onChange('dienstsystem', e.target.value)}
-        >
-          <option value="">ALLE</option>
-          <option value="12h">12H</option>
-          <option value="24h">24H</option>
-        </select>
+        <div className="mono-label mb-1">STADT</div>
+        <input className="input-brutalist text-[11px] py-1" placeholder="Name…"
+          value={filters.city} onChange={e => onChange('city', e.target.value)} />
       </div>
 
       {/* Klinik */}
       <div className="bg-canvas px-3 py-2">
         <div className="mono-label mb-1">KLINIK</div>
-        <input
-          className="input-brutalist text-[11px] py-1"
-          placeholder="Name…"
-          value={filters.hospital}
-          onChange={e => onChange('hospital', e.target.value)}
-        />
+        <input className="input-brutalist text-[11px] py-1" placeholder="Name…"
+          value={filters.hospital} onChange={e => onChange('hospital', e.target.value)} />
       </div>
 
-      {/* Stadt */}
+      {/* Fachrichtung */}
       <div className="bg-canvas px-3 py-2">
-        <div className="mono-label mb-1">STADT</div>
-        <input
-          className="input-brutalist text-[11px] py-1"
-          placeholder="Name…"
-          value={filters.city}
-          onChange={e => onChange('city', e.target.value)}
-        />
+        <div className="mono-label mb-1">FACHRICHTUNG</div>
+        <select className="select-brutalist text-[11px] py-1" value={filters.specialty}
+          onChange={e => onChange('specialty', e.target.value)}>
+          <option value="">ALLE</option>
+          {SPECIALTIES.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
       </div>
 
-      {/* Filler */}
-      <div className="bg-canvas" />
+      {/* Min. Score */}
+      <div className="bg-canvas px-3 py-2">
+        <div className="mono-label mb-1">MIN. SCORE</div>
+        <select className="select-brutalist text-[11px] py-1" value={filters.scoreMin ?? '0'}
+          onChange={e => onChange('scoreMin', e.target.value)}>
+          <option value="0">ALLE</option>
+          <option value="5">≥ 5.0</option>
+          <option value="6">≥ 6.0</option>
+          <option value="6.5">≥ 6.5</option>
+          <option value="7">≥ 7.0</option>
+          <option value="7.5">≥ 7.5</option>
+          <option value="8">≥ 8.0</option>
+          <option value="8.5">≥ 8.5</option>
+          <option value="9">≥ 9.0</option>
+        </select>
+      </div>
+
     </div>
   )
 }

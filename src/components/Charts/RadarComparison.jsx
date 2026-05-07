@@ -12,7 +12,7 @@ export default function RadarComparison({ selected = [] }) {
 
   if (selected.length === 0) {
     return (
-      <div className="p-12 text-center font-mono text-[10px] uppercase tracking-widest text-ink/40">
+      <div className="p-12 text-center font-mono text-[11.5px] uppercase tracking-widest text-ink/60">
         [ MINDESTENS EINE KLINIK AUSWÄHLEN UM VERGLEICH ZU STARTEN ]
       </div>
     )

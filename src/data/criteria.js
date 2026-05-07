@@ -6,12 +6,29 @@ export const CRITERIA_ESSENTIAL = [
   { key: 'opsProMonat',              label: 'OPs / Monat',               type: 'number', min: 0, max: 50 },
   { key: 'rotationsplaene',          label: 'Rotationspläne',            type: 'boolean' },
   { key: 'rotationsplaeneText',      label: 'Rotationspläne (Details)',  type: 'text'    },
+  { key: 'schichtsystem',            label: 'Schichtsystem',             type: 'enum', options: ['2-Schicht', '3-Schicht', '24h-Dienste'] },
   { key: 'ueberstundenAufschreiben', label: 'Überstunden aufschreiben',  type: 'boolean' },
-  { key: 'dienstsystem',             label: 'Dienstsystem',              type: 'enum', options: ['12h', '24h'] },
+  { key: 'ueberstundenAusgleich',    label: 'Überstunden-Ausgleich',     type: 'enum', options: ['Bezahlt', 'Freizeitausgleich'] },
+  { key: 'lehreTaetig',              label: 'Lehrtätigkeit vorhanden',   type: 'boolean' },
+  { key: 'lehreFreistellung',        label: 'Freistellung für Lehre',    type: 'boolean' },
+  { key: 'schwangerschaft',          label: 'Schwangerschaft',           type: 'enum', options: ['Sofortiges Arbeitsverbot', 'Individuelle Lösung', 'Normal weiterarbeiten'] },
   { key: 'fortbildungFreistellung',  label: 'Fortbildung — Freistellung', type: 'boolean' },
   { key: 'fortbildungBezahlt',       label: 'Fortbildung — Bezahlt',     type: 'boolean' },
   { key: 'abteilungsgroesse',        label: 'Abteilungsgröße (Ärzt*innen)',   type: 'number', min: 1, max: 500 },
   { key: 'mitarbeitergespraeche',    label: 'Mitarbeitergespräche / Jahr', type: 'number', min: 0, max: 12 },
+]
+
+/** Medizinische Weiterbildungs-Kriterien */
+export const CRITERIA_MEDICAL = [
+  { key: 'wbeJahre',               label: 'WBE-Jahre am Haus',            type: 'number',  min: 0, max: 12 },
+  { key: 'logbuchErfuellbarkeit',  label: 'Logbuch-Erfüllbarkeit',        type: 'slider',  min: 1, max: 10 },
+  { key: 'supervisionQualitaet',   label: 'Supervision-Qualität',         type: 'slider',  min: 1, max: 10 },
+  { key: 'autonomie',              label: 'Autonomie / Selbstständigkeit', type: 'slider',  min: 1, max: 10 },
+  { key: 'nachtdienstBegleitung',  label: 'Nachtdienst-Begleitung (OA)',  type: 'boolean'              },
+  { key: 'dokumentationsaufwand',  label: 'Dokumentationsaufwand',        type: 'slider',  min: 1, max: 10 },
+  { key: 'personalschluessel',     label: 'Betten pro Arzt',              type: 'number',  min: 1, max: 100 },
+  { key: 'urlaubsgenehmigung',     label: 'Urlaubsgenehmigung',           type: 'slider',  min: 1, max: 10 },
+  { key: 'schwangerschaftFamilienfreundlich', label: 'Schwangerschaft / Elternzeit', type: 'boolean' },
 ]
 
 /** Nice-to-have-Kriterien */
@@ -24,6 +41,7 @@ export const CRITERIA_NICE = [
 
 export const ALL_CRITERIA_KEYS = [
   ...CRITERIA_ESSENTIAL.map(c => c.key),
+  ...CRITERIA_MEDICAL.map(c => c.key),
   ...CRITERIA_NICE.map(c => c.key),
 ]
 
@@ -35,12 +53,27 @@ export const DEFAULT_CRITERIA = {
   opsProMonat:              0,
   rotationsplaene:          null,
   rotationsplaeneText:      '',
+  schichtsystem:            null,
   ueberstundenAufschreiben: null,
-  dienstsystem:             null,
+  ueberstundenAusgleich:    null,
+  lehreTaetig:              null,
+  lehreFreistellung:        null,
+  schwangerschaft:          null,
   fortbildungFreistellung:  null,
   fortbildungBezahlt:       null,
   abteilungsgroesse:        10,
   mitarbeitergespraeche:    1,
+  // Medizinische Scores
+  wbeJahre:                        null,
+  logbuchErfuellbarkeit:           5,
+  supervisionQualitaet:            5,
+  autonomie:                       5,
+  nachtdienstBegleitung:           null,
+  dokumentationsaufwand:           5,
+  personalschluessel:              null,
+  urlaubsgenehmigung:              5,
+  schwangerschaftFamilienfreundlich: null,
+  // Nice-to-have
   parkplatz:                null,
   workLifeBalance:          5,
   teamAtmosphaere:          5,
@@ -69,9 +102,11 @@ export const REGIONS = {
     'Salzburg', 'Steiermark', 'Tirol', 'Vorarlberg', 'Wien',
   ],
   CH: [
-    'Aargau', 'Basel', 'Bern', 'Freiburg', 'Genf', 'Glarus',
-    'Graubünden', 'Luzern', 'Schaffhausen', 'Solothurn', 'St. Gallen',
-    'Thurgau', 'Ticino', 'Uri', 'Waadt', 'Wallis', 'Zug', 'Zürich',
+    'Aargau', 'Appenzell Ausserrhoden', 'Appenzell Innerrhoden',
+    'Basel-Landschaft', 'Basel-Stadt', 'Bern', 'Freiburg', 'Genf', 'Glarus',
+    'Graubünden', 'Jura', 'Luzern', 'Neuenburg', 'Nidwalden', 'Obwalden',
+    'Schaffhausen', 'Schwyz', 'Solothurn', 'St. Gallen', 'Tessin',
+    'Thurgau', 'Uri', 'Waadt', 'Wallis', 'Zug', 'Zürich',
   ],
 }
 

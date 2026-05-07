@@ -1,8 +1,8 @@
 function BooleanField({ label, value, onChange }) {
   return (
-    <div className="bg-canvas p-3">
+    <div className="bg-canvas-alt rounded p-3">
       <div className="mono-label mb-2">{label}</div>
-      <div className="ink-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+      <div className="grid grid-cols-2 gap-1">
         <button onClick={() => onChange(true)}  className={value === true  ? 'toggle-yes-active' : 'toggle-inactive'}>JA</button>
         <button onClick={() => onChange(false)} className={value === false ? 'toggle-no-active'  : 'toggle-inactive'}>NEIN</button>
       </div>
@@ -12,9 +12,9 @@ function BooleanField({ label, value, onChange }) {
 
 function EnumField({ label, value, options, onChange }) {
   return (
-    <div className="bg-canvas p-3">
+    <div className="bg-canvas-alt rounded p-3">
       <div className="mono-label mb-2">{label}</div>
-      <div className="ink-grid" style={{ gridTemplateColumns: `repeat(${options.length}, 1fr)` }}>
+      <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${options.length}, 1fr)` }}>
         {options.map(opt => (
           <button key={opt} onClick={() => onChange(opt)}
             className={value === opt ? 'tab-active' : 'tab-inactive'}>
@@ -28,7 +28,7 @@ function EnumField({ label, value, options, onChange }) {
 
 function NumberField({ label, value, min, max, onChange }) {
   return (
-    <div className="bg-canvas p-3">
+    <div className="bg-canvas-alt rounded p-3">
       <div className="mono-label mb-2">{label}</div>
       <input type="number" min={min} max={max} value={value ?? ''}
         onChange={e => onChange(e.target.value === '' ? null : +e.target.value)}
@@ -45,11 +45,13 @@ export default function StepCriteria({ data, onChange, onBack, onNext }) {
   return (
     <div>
       <div className="register-strip border-b border-ink">
-        SCHRITT 2 VON 4 /// PFLICHT-KRITERIEN
+        SCHRITT 2 VON 5 /// PFLICHT-KRITERIEN
       </div>
-      <div className="ink-grid p-0" style={{ gridTemplateColumns: '1fr 1fr' }}>
+
+      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+
         {/* Arbeitszeiten */}
-        <div className="bg-canvas p-3">
+        <div className="bg-canvas-alt rounded p-3">
           <div className="mono-label mb-2">ARBEITSZEITEN</div>
           <div className="flex items-center gap-2">
             <input type="time" value={data.arbeitszeitenVon ?? '07:00'}
@@ -68,62 +70,74 @@ export default function StepCriteria({ data, onChange, onBack, onNext }) {
         <NumberField label="OPS / MONAT" value={data.opsProMonat} min={0} max={50}
           onChange={v => set('opsProMonat', v)} />
 
-        <EnumField label="DIENSTSYSTEM" value={data.dienstsystem} options={['12h', '24h']}
-          onChange={v => set('dienstsystem', v)} />
+        {/* Schichtsystem — ersetzt Dienstsystem */}
+        <EnumField label="SCHICHTSYSTEM" value={data.schichtsystem}
+          options={['2-Schicht', '3-Schicht', '24h-Dienste']}
+          onChange={v => set('schichtsystem', v)} />
 
+        {/* Überstunden */}
         <BooleanField label="ÜBERSTUNDEN AUFSCHREIBEN" value={data.ueberstundenAufschreiben}
           onChange={v => set('ueberstundenAufschreiben', v)} />
 
-        {/* Rotationspläne with text */}
-        <div className="bg-canvas p-3">
+        {data.ueberstundenAufschreiben === true && (
+          <EnumField label="ÜBERSTUNDEN-AUSGLEICH" value={data.ueberstundenAusgleich}
+            options={['Bezahlt', 'Freizeitausgleich']}
+            onChange={v => set('ueberstundenAusgleich', v)} />
+        )}
+
+        {/* Rotationspläne */}
+        <div className="bg-canvas-alt rounded p-3">
           <div className="mono-label mb-2">ROTATIONSPLÄNE</div>
-          <div className="ink-grid mb-2" style={{ gridTemplateColumns: '1fr 1fr' }}>
+          <div className="grid grid-cols-2 gap-1 mb-2">
             <button onClick={() => set('rotationsplaene', true)}
               className={data.rotationsplaene === true ? 'toggle-yes-active' : 'toggle-inactive'}>JA</button>
             <button onClick={() => set('rotationsplaene', false)}
               className={data.rotationsplaene === false ? 'toggle-no-active' : 'toggle-inactive'}>NEIN</button>
           </div>
-          <input className="input-brutalist text-xs" placeholder="Details…"
+          <input className="input-brutalist text-xs w-full" placeholder="Details…"
             value={data.rotationsplaeneText ?? ''}
             onChange={e => set('rotationsplaeneText', e.target.value)} />
         </div>
 
-        {/* Fortbildung */}
-        <div className="bg-canvas p-3">
-          <div className="mono-label mb-2">FORTBILDUNG</div>
-          <div className="flex flex-col gap-2">
-            <div>
-              <div className="mono-label mb-1">FREISTELLUNG</div>
-              <div className="ink-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
-                <button onClick={() => set('fortbildungFreistellung', true)}
-                  className={data.fortbildungFreistellung === true ? 'toggle-yes-active' : 'toggle-inactive'}>JA</button>
-                <button onClick={() => set('fortbildungFreistellung', false)}
-                  className={data.fortbildungFreistellung === false ? 'toggle-no-active' : 'toggle-inactive'}>NEIN</button>
-              </div>
-            </div>
-            <div>
-              <div className="mono-label mb-1">BEZAHLT</div>
-              <div className="ink-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
-                <button onClick={() => set('fortbildungBezahlt', true)}
-                  className={data.fortbildungBezahlt === true ? 'toggle-yes-active' : 'toggle-inactive'}>JA</button>
-                <button onClick={() => set('fortbildungBezahlt', false)}
-                  className={data.fortbildungBezahlt === false ? 'toggle-no-active' : 'toggle-inactive'}>NEIN</button>
-              </div>
-            </div>
+        {/* Lehrtätigkeit */}
+        <BooleanField label="LEHRTÄTIGKEIT VORHANDEN" value={data.lehreTaetig}
+          onChange={v => set('lehreTaetig', v)} />
+
+        {data.lehreTaetig === true && (
+          <BooleanField label="FREISTELLUNG FÜR LEHRE" value={data.lehreFreistellung}
+            onChange={v => set('lehreFreistellung', v)} />
+        )}
+
+        {/* Schwangerschaft */}
+        <div className="bg-canvas-alt rounded p-3 sm:col-span-2">
+          <div className="mono-label mb-2">SCHWANGERSCHAFT</div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-1">
+            {['Sofortiges Arbeitsverbot', 'Individuelle Lösung', 'Normal weiterarbeiten'].map(opt => (
+              <button key={opt} onClick={() => set('schwangerschaft', opt)}
+                className={data.schwangerschaft === opt ? 'tab-active' : 'tab-inactive'}>
+                {opt.toUpperCase()}
+              </button>
+            ))}
           </div>
         </div>
+
+        <BooleanField label="FORTBILDUNG: FREISTELLUNG" value={data.fortbildungFreistellung}
+          onChange={v => set('fortbildungFreistellung', v)} />
+
+        <BooleanField label="FORTBILDUNG: BEZAHLT" value={data.fortbildungBezahlt}
+          onChange={v => set('fortbildungBezahlt', v)} />
 
         <NumberField label="ABTEILUNGSGRÖSSE (ÄRZTE)" value={data.abteilungsgroesse} min={1} max={500}
           onChange={v => set('abteilungsgroesse', v)} />
 
         <NumberField label="MITARBEITERGESPRÄCHE / JAHR" value={data.mitarbeitergespraeche} min={0} max={12}
           onChange={v => set('mitarbeitergespraeche', v)} />
+
       </div>
 
-      <div className="ink-grid border-t border-ink p-0" style={{ gridTemplateColumns: 'auto auto 1fr' }}>
+      <div className="flex border-t border-ink">
         <button onClick={onBack} className="btn-ghost-ink border-r border-ink">&lt;&lt;&lt; ZURÜCK</button>
-        <button onClick={onNext} className="btn-hazard border-r border-ink">WEITER &gt;&gt;&gt;</button>
-        <div className="bg-canvas" />
+        <button onClick={onNext} className="btn-hazard">WEITER &gt;&gt;&gt;</button>
       </div>
     </div>
   )

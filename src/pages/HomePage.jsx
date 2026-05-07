@@ -7,11 +7,11 @@ export default function HomePage() {
     <div>
       {/* Hero */}
       <div className="border-b border-ink px-6 pt-8 pb-6">
-        <div className="mono-label-red mb-2">[ ÜBERSICHT ]</div>
+        <div className="mono-label-red mb-2">[ ÄRZT*INNEN HELFEN ÄRZT*INNEN ]</div>
         <h1 className="font-display text-4xl text-ink uppercase tracking-tight leading-none mb-3">
-          Assistenzärzt*innenstellen<br />im Vergleich
+          Ärzt*innen helfen<br />Ärzt*innen
         </h1>
-        <p className="text-sm text-ink/60 max-w-xl leading-relaxed">
+        <p className="text-sm text-ink/80 max-w-xl leading-relaxed">
           Anonyme Bewertungen von Assistenzärzt*innen aus Deutschland, Österreich und der Schweiz.
         </p>
       </div>
