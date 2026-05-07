@@ -5,7 +5,8 @@ export default function BewertungPage() {
   const [searchParams] = useSearchParams()
 
   // Vorausfüllen aus Startseiten-Suche (mode=bewerten)
-  const prefill = searchParams.get('hospital') ? {
+  const hasPrefill = searchParams.get('hospital') || searchParams.get('country') || searchParams.get('city')
+  const prefill = hasPrefill ? {
     hospital: searchParams.get('hospital') || '',
     city:     searchParams.get('city')     || '',
     region:   searchParams.get('region')   || '',
