@@ -37,6 +37,27 @@ function NumberField({ label, value, min, max, onChange }) {
   )
 }
 
+function SliderField({ label, value, hint, invertLabel, onChange }) {
+  return (
+    <div className="bg-canvas-alt rounded p-3">
+      <div className="mono-label mb-2">
+        {hint ? `${label} · ${hint}` : label}
+      </div>
+      <div className="flex items-center gap-3">
+        <input type="range" min={1} max={10} value={value ?? 5}
+          onChange={e => onChange(+e.target.value)}
+          className="slider-brutalist flex-1" />
+        <span className="text-hazard font-bold font-mono w-6 text-right">{value ?? 5}</span>
+      </div>
+      {invertLabel && (
+        <div className="flex justify-between text-[11.5px] text-ink/70 mt-1">
+          <span>{invertLabel[0]}</span><span>{invertLabel[1]}</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function StepCriteria({ data, onChange, onBack, onNext }) {
   function set(key, val) {
     onChange({ ...data, [key]: val })
@@ -45,7 +66,7 @@ export default function StepCriteria({ data, onChange, onBack, onNext }) {
   return (
     <div>
       <div className="register-strip border-b border-ink">
-        SCHRITT 2 VON 5 /// PFLICHT-KRITERIEN
+        SCHRITT 2 VON 5 /// ARBEITSZEIT &amp; DIENSTE
       </div>
 
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -67,15 +88,10 @@ export default function StepCriteria({ data, onChange, onBack, onNext }) {
         <NumberField label="DIENSTE / MONAT" value={data.diensteProMonat} min={0} max={15}
           onChange={v => set('diensteProMonat', v)} />
 
-        <NumberField label="OPS / MONAT" value={data.opsProMonat} min={0} max={50}
-          onChange={v => set('opsProMonat', v)} />
-
-        {/* Schichtsystem — ersetzt Dienstsystem */}
         <EnumField label="SCHICHTSYSTEM" value={data.schichtsystem}
           options={['2-Schicht', '3-Schicht', '24h-Dienste']}
           onChange={v => set('schichtsystem', v)} />
 
-        {/* Überstunden */}
         <BooleanField label="ÜBERSTUNDEN AUFSCHREIBEN" value={data.ueberstundenAufschreiben}
           onChange={v => set('ueberstundenAufschreiben', v)} />
 
@@ -85,53 +101,19 @@ export default function StepCriteria({ data, onChange, onBack, onNext }) {
             onChange={v => set('ueberstundenAusgleich', v)} />
         )}
 
-        {/* Rotationspläne */}
-        <div className="bg-canvas-alt rounded p-3">
-          <div className="mono-label mb-2">ROTATIONSPLÄNE</div>
-          <div className="grid grid-cols-2 gap-1 mb-2">
-            <button onClick={() => set('rotationsplaene', true)}
-              className={data.rotationsplaene === true ? 'toggle-yes-active' : 'toggle-inactive'}>JA</button>
-            <button onClick={() => set('rotationsplaene', false)}
-              className={data.rotationsplaene === false ? 'toggle-no-active' : 'toggle-inactive'}>NEIN</button>
-          </div>
-          <input className="input-brutalist text-xs w-full" placeholder="Details…"
-            value={data.rotationsplaeneText ?? ''}
-            onChange={e => set('rotationsplaeneText', e.target.value)} />
-        </div>
+        <SliderField
+          label="URLAUBSGENEHMIGUNG"
+          value={data.urlaubsgenehmigung}
+          onChange={v => set('urlaubsgenehmigung', v)}
+          invertLabel={['Wird immer verschoben', 'Problemlos genehmigt']}
+        />
 
-        {/* Lehrtätigkeit */}
-        <BooleanField label="LEHRTÄTIGKEIT VORHANDEN" value={data.lehreTaetig}
-          onChange={v => set('lehreTaetig', v)} />
-
-        {data.lehreTaetig === true && (
-          <BooleanField label="FREISTELLUNG FÜR LEHRE" value={data.lehreFreistellung}
-            onChange={v => set('lehreFreistellung', v)} />
-        )}
-
-        {/* Schwangerschaft */}
-        <div className="bg-canvas-alt rounded p-3 sm:col-span-2">
-          <div className="mono-label mb-2">SCHWANGERSCHAFT</div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-1">
-            {['Sofortiges Arbeitsverbot', 'Individuelle Lösung', 'Normal weiterarbeiten'].map(opt => (
-              <button key={opt} onClick={() => set('schwangerschaft', opt)}
-                className={data.schwangerschaft === opt ? 'tab-active' : 'tab-inactive'}>
-                {opt.toUpperCase()}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <BooleanField label="FORTBILDUNG: FREISTELLUNG" value={data.fortbildungFreistellung}
-          onChange={v => set('fortbildungFreistellung', v)} />
-
-        <BooleanField label="FORTBILDUNG: BEZAHLT" value={data.fortbildungBezahlt}
-          onChange={v => set('fortbildungBezahlt', v)} />
-
-        <NumberField label="ABTEILUNGSGRÖSSE (ÄRZTE)" value={data.abteilungsgroesse} min={1} max={500}
-          onChange={v => set('abteilungsgroesse', v)} />
-
-        <NumberField label="MITARBEITERGESPRÄCHE / JAHR" value={data.mitarbeitergespraeche} min={0} max={12}
-          onChange={v => set('mitarbeitergespraeche', v)} />
+        <SliderField
+          label="WORK-LIFE-BALANCE"
+          value={data.workLifeBalance}
+          onChange={v => set('workLifeBalance', v)}
+          invertLabel={['Kaum Erholung', 'Gute Balance']}
+        />
 
       </div>
 

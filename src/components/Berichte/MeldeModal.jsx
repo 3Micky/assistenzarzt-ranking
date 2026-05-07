@@ -1,7 +1,5 @@
 import { useState } from 'react'
 
-const WEB3FORMS_KEY = import.meta.env.VITE_WEB3FORMS_KEY ?? ''
-
 export default function MeldeModal({ rating, onClose }) {
   const [begruendung, setBegruendung] = useState('')
   const [kontakt, setKontakt]         = useState('')
@@ -18,34 +16,14 @@ export default function MeldeModal({ rating, onClose }) {
     if (begruendung.trim().length < 20) return
     setStatus('sending')
 
-    const message = [
-      `Klinik: ${rating.hospital}`,
-      `Stadt: ${rating.city ?? '—'} · Land: ${rating.country}`,
-      `Bewertungs-ID: ${rating.id}`,
-      `Datum: ${rating.timestamp ? new Date(rating.timestamp).toLocaleDateString('de-DE') : '—'}`,
-      `Meldetyp: ${typLabels[typ]}`,
-      '',
-      `Begründung:`,
-      begruendung,
-      '',
-      `Kontakt (optional): ${kontakt || '—'}`,
-    ].join('\n')
-
     try {
-      const res = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          access_key:  WEB3FORMS_KEY,
-          subject:     `[MELDUNG] ${typLabels[typ]}: ${rating.hospital}`,
-          message,
-          from_name:   'AssistenzDoc Meldung',
-          replyto:     kontakt || 'keine@angabe.de',
-          botcheck:    '',
-        }),
+      const res = await fetch('/api/melde', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ rating, typ, begruendung, kontakt }),
       })
       const data = await res.json()
-      if (data.success) {
+      if (res.ok && data.success) {
         setStatus('success')
       } else {
         setStatus('error')

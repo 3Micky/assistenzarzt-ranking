@@ -7,7 +7,7 @@ export default function HomePage() {
     <div>
       {/* Hero */}
       <div className="border-b border-ink px-6 pt-8 pb-6">
-        <div className="mono-label-red mb-2">[ ÄRZT*INNEN HELFEN ÄRZT*INNEN ]</div>
+        <div className="mono-label-red mb-2">[ TRANSPARENT. ANONYM. FÜR ALLE. ]</div>
         <h1 className="font-display text-4xl text-ink uppercase tracking-tight leading-none mb-3">
           Ärzt*innen helfen<br />Ärzt*innen
         </h1>

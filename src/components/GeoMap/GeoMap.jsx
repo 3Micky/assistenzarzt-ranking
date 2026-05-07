@@ -73,7 +73,7 @@ export default function GeoMap() {
     navigate(`/berichte?country=${code}`)
   }, [navigate])
 
-  const markerRadius = (count) => Math.min(Math.max(Math.sqrt(count) * 7, 8), 40)
+  const markerRadius = (count) => Math.min(Math.max(Math.sqrt(count) * 4, 5), 20)
 
   return (
     <div className="bg-canvas relative" style={{ minHeight: MAP_HEIGHT }}>
@@ -159,7 +159,7 @@ export default function GeoMap() {
                   strokeWidth={1}
                   opacity={0.85}
                 />
-                {markerRadius(city.count) >= 14 && (
+                {markerRadius(city.count) >= 10 && (
                   <text
                     textAnchor="middle"
                     dominantBaseline="middle"

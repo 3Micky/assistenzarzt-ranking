@@ -53,11 +53,12 @@ export default function StepMedical({ data, onChange, onBack, onNext }) {
   return (
     <div>
       <div className="register-strip border-b border-ink">
-        SCHRITT 3 VON 5 /// WEITERBILDUNG &amp; AUSBILDUNGSQUALITÄT
+        SCHRITT 3 VON 5 /// WEITERBILDUNG &amp; KLINISCHER ALLTAG
       </div>
 
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
 
+        {/* Operative & Ausbildungszahlen */}
         <NumberField
           label="WBE-JAHRE AM HAUS"
           hint="WB-Ermächtigung der Abteilung"
@@ -66,12 +67,37 @@ export default function StepMedical({ data, onChange, onBack, onNext }) {
         />
 
         <NumberField
-          label="BETTEN PRO ARZT"
-          hint="Personalschlüssel im Regeldienst"
-          value={data.personalschluessel} min={1} max={100} unit="BETTEN"
-          onChange={v => set('personalschluessel', v)}
+          label="OPS / MONAT"
+          hint="Operative Eingriffe im Regeldienst"
+          value={data.opsProMonat} min={0} max={50} unit="OPS"
+          onChange={v => set('opsProMonat', v)}
         />
 
+        {/* Rotationen */}
+        <div className="bg-canvas-alt rounded p-3">
+          <div className="mono-label mb-2">ROTATIONSPLÄNE</div>
+          <div className="grid grid-cols-2 gap-1 mb-2">
+            <button onClick={() => set('rotationsplaene', true)}
+              className={data.rotationsplaene === true ? 'toggle-yes-active' : 'toggle-inactive'}>JA</button>
+            <button onClick={() => set('rotationsplaene', false)}
+              className={data.rotationsplaene === false ? 'toggle-no-active' : 'toggle-inactive'}>NEIN</button>
+          </div>
+          {data.rotationsplaene === true && (
+            <input className="input-brutalist text-xs w-full" placeholder="Details zu Rotationen…"
+              value={data.rotationsplaeneText ?? ''}
+              onChange={e => set('rotationsplaeneText', e.target.value)} />
+          )}
+        </div>
+
+        <BoolField
+          label="NACHTDIENST-BEGLEITUNG"
+          hint="OA als Hintergrundbereitschaft erreichbar?"
+          value={data.nachtdienstBegleitung}
+          onChange={v => set('nachtdienstBegleitung', v)}
+          yesLabel="OA-HINTERGRUND" noLabel="ALLEIN-DIENST"
+        />
+
+        {/* Qualitäts-Slider */}
         <SliderField
           label="LOGBUCH-ERFÜLLBARKEIT"
           hint="WBO-Pflichteingriffe erreichbar?"
@@ -96,39 +122,32 @@ export default function StepMedical({ data, onChange, onBack, onNext }) {
           invertLabel={['Immer überwacht', 'Volle Selbstständigkeit']}
         />
 
-        <SliderField
-          label="DOKUMENTATIONSAUFWAND"
-          hint="10 = wenig Admin-Last · 1 = viel Bürokratie"
-          value={data.dokumentationsaufwand}
-          onChange={v => set('dokumentationsaufwand', v)}
-          invertLabel={['Extreme Admin-Last', 'Minimale Doku']}
-        />
-
-        <SliderField
-          label="URLAUBSGENEHMIGUNG"
-          hint="Urlaub unkompliziert genehmigt?"
-          value={data.urlaubsgenehmigung}
-          onChange={v => set('urlaubsgenehmigung', v)}
-          invertLabel={['Wird immer verschoben', 'Problemlos genehmigt']}
+        {/* Fortbildung & Lehre */}
+        <BoolField
+          label="FORTBILDUNG: FREISTELLUNG"
+          value={data.fortbildungFreistellung}
+          onChange={v => set('fortbildungFreistellung', v)}
         />
 
         <BoolField
-          label="NACHTDIENST-BEGLEITUNG"
-          hint="OA als Hintergrundbereitschaft erreichbar?"
-          value={data.nachtdienstBegleitung}
-          onChange={v => set('nachtdienstBegleitung', v)}
-          yesLabel="OA-HINTERGRUND" noLabel="ALLEIN-DIENST"
+          label="FORTBILDUNG: BEZAHLT"
+          value={data.fortbildungBezahlt}
+          onChange={v => set('fortbildungBezahlt', v)}
         />
 
-        <div className="sm:col-span-2">
+        <BoolField
+          label="LEHRTÄTIGKEIT VORHANDEN"
+          value={data.lehreTaetig}
+          onChange={v => set('lehreTaetig', v)}
+        />
+
+        {data.lehreTaetig === true && (
           <BoolField
-            label="SCHWANGERSCHAFT / ELTERNZEIT"
-            hint="Abteilung familienfreundlich?"
-            value={data.schwangerschaftFamilienfreundlich}
-            onChange={v => set('schwangerschaftFamilienfreundlich', v)}
-            yesLabel="FAMILIENFREUNDLICH" noLabel="PROBLEMATISCH"
+            label="FREISTELLUNG FÜR LEHRE"
+            value={data.lehreFreistellung}
+            onChange={v => set('lehreFreistellung', v)}
           />
-        </div>
+        )}
 
       </div>
 
