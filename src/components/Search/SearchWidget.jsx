@@ -114,8 +114,18 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
   function handleSelect(r) {
     setQuery(r.label)
     setOpen(false)
-    const params = buildParams(r.label, r.type, r.country)
-    navigate(`/berichte?${params}`)
+    if (mode === 'bewerten' && r.type === 'klinik') {
+      // Klinik direkt ins Bewertungsformular übernehmen
+      const p = new URLSearchParams()
+      p.set('hospital', r.label)
+      if (r.city)    p.set('city',    r.city)
+      if (r.region)  p.set('region',  r.region)
+      if (r.country) p.set('country', r.country)
+      navigate(`/bewerten?${p}`)
+    } else {
+      const params = buildParams(r.label, r.type, r.country)
+      navigate(`/berichte?${params}`)
+    }
   }
 
   function buildParams(q, type, country) {
@@ -129,14 +139,22 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
     return p.toString()
   }
 
+  function buildBewertenParams() {
+    const p = new URLSearchParams()
+    if (query)         p.set('hospital', query)
+    if (filterCountry) p.set('country', filterCountry)
+    if (filterRegion)  p.set('region', filterRegion)
+    if (filterCity)    p.set('city', filterCity)
+    return p.toString()
+  }
+
   function handleSubmit(e) {
     e.preventDefault()
     setOpen(false)
-    const params = buildParams(query)
     if (mode === 'bewerten') {
-      navigate(`/bewerten?${params}`)
+      navigate(`/bewerten?${buildBewertenParams()}`)
     } else {
-      navigate(`/berichte?${params}`)
+      navigate(`/berichte?${buildParams(query)}`)
     }
   }
 

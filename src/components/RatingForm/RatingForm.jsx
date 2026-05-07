@@ -11,9 +11,11 @@ import { DEFAULT_CRITERIA } from '../../data/criteria.js'
 const DEFAULT_HOSPITAL = { hospital: '', city: '', country: 'DE', region: '', specialty: '', year: new Date().getFullYear(), yearFrom: new Date().getFullYear(), yearTo: 'fortlaufend' }
 const TOTAL_STEPS = 5
 
-export default function RatingForm() {
+export default function RatingForm({ prefill = null }) {
   const [step, setStep]           = useState(1)
-  const [hospitalData, setHosp]   = useState(DEFAULT_HOSPITAL)
+  const [hospitalData, setHosp]   = useState(() =>
+    prefill ? { ...DEFAULT_HOSPITAL, ...prefill } : DEFAULT_HOSPITAL
+  )
   const [criteriaData, setCrit]   = useState({ ...DEFAULT_CRITERIA })
   const [comment, setComment]     = useState('')
   const addRating = useRatingsStore((s) => s.addRating)
@@ -25,6 +27,8 @@ export default function RatingForm() {
 
   function reset() {
     setStep(1); setHosp(DEFAULT_HOSPITAL); setCrit({ ...DEFAULT_CRITERIA }); setComment('')
+    // Nach dem Zurücksetzen URL-Params entfernen damit kein altes Prefill erneut greift
+    window.history.replaceState(null, '', window.location.pathname)
   }
 
   const pct = step === TOTAL_STEPS ? 100 : Math.round((step - 1) / (TOTAL_STEPS - 1) * 100)
