@@ -30,8 +30,8 @@ function DropdownList({ items, onSelect, renderItem }) {
   )
 }
 
-export default function StepHospital({ data, onChange, onNext }) {
-  const [searchMode, setSearchMode] = useState('schnell')
+export default function StepHospital({ data, onChange, onNext, initialSearchMode = 'schnell' }) {
+  const [searchMode, setSearchMode] = useState(initialSearchMode)
 
   // ── Schnellsuche ──────────────────────────────────────────────────────────
   const [schnellQuery, setSchnellQuery] = useState(data.hospital || '')

@@ -11,7 +11,7 @@ import { DEFAULT_CRITERIA } from '../../data/criteria.js'
 const DEFAULT_HOSPITAL = { hospital: '', city: '', country: 'DE', region: '', specialty: '', year: new Date().getFullYear(), yearFrom: new Date().getFullYear(), yearTo: 'fortlaufend' }
 const TOTAL_STEPS = 5
 
-export default function RatingForm({ prefill = null }) {
+export default function RatingForm({ prefill = null, initialSearchMode = 'schnell' }) {
   const [step, setStep]           = useState(1)
   const [hospitalData, setHosp]   = useState(() =>
     prefill ? { ...DEFAULT_HOSPITAL, ...prefill } : DEFAULT_HOSPITAL
@@ -41,7 +41,7 @@ export default function RatingForm({ prefill = null }) {
         </div>
       )}
 
-      {step === 1 && <StepHospital   data={hospitalData} onChange={setHosp} onNext={() => setStep(2)} />}
+      {step === 1 && <StepHospital   data={hospitalData} onChange={setHosp} onNext={() => setStep(2)} initialSearchMode={initialSearchMode} />}
       {step === 2 && <StepCriteria   data={criteriaData} onChange={setCrit} onBack={() => setStep(1)} onNext={() => setStep(3)} />}
       {step === 3 && <StepMedical    data={criteriaData} onChange={setCrit} onBack={() => setStep(2)} onNext={() => setStep(4)} />}
       {step === 4 && <StepNiceToHave data={criteriaData} comment={comment} onChange={setCrit} onCommentChange={setComment} onBack={() => setStep(3)} onSubmit={handleSubmit} />}

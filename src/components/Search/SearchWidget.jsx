@@ -263,6 +263,7 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
                     if (advCountry) p.set('country', advCountry)
                     if (advRegion)  p.set('region',  advRegion)
                     if (advCity)    p.set('city',    advCity)
+                    p.set('searchMode', 'genau')
                     navigate(`/bewerten?${p}`)
                   }}
                   className="underline text-hazard hover:text-ink transition-colors"
