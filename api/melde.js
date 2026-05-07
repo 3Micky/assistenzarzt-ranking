@@ -69,7 +69,7 @@ export default async function handler(req, res) {
 
   try {
     const { error } = await resend.emails.send({
-      from:    'AssistenzDoc Meldung <meldung@assistenz-ranking.com>',
+      from:    'AssistenzDoc Meldung <onboarding@resend.dev>',
       to:      EMPFAENGER,
       subject: `[MELDUNG] ${typLabel}: ${rating.hospital}`,
       html:    htmlBody,
