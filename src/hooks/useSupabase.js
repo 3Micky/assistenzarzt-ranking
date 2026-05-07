@@ -12,11 +12,12 @@ export const supabase = supabaseConfigured
 
 /**
  * Fetch all ratings from Supabase.
- * Returns empty array if Supabase is not configured.
+ * Falls back to sample data only in local dev (no .env.local configured).
  * @returns {Promise<Array>}
  */
 export async function fetchAllRatings() {
   if (!supabaseConfigured) {
+    // Local dev without .env.local — show sample data so UI isn't empty
     return SAMPLE_RATINGS
   }
   const { data, error } = await supabase
@@ -26,11 +27,10 @@ export async function fetchAllRatings() {
 
   if (error) {
     console.error('[useSupabase] fetchAllRatings Fehler:', error.message, error.code, error.details, error.hint)
-    return SAMPLE_RATINGS
+    return []
   }
-  // Supabase-Daten mit Sample-Daten mergen (seed-IDs nie mit echten UUIDs doppelt)
-  const realData = data || []
-  return [...realData, ...SAMPLE_RATINGS]
+  // Production: only real user ratings, no seed data
+  return data || []
 }
 
 /**
