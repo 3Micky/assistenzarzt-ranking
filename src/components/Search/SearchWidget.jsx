@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import SearchDropdown from './SearchDropdown.jsx'
 import { useRatingsStore } from '../../store/ratingsStore.js'
 import { COUNTRY_LABELS, REGIONS, SPECIALTIES } from '../../data/criteria.js'
-import { searchHospitals } from '../../utils/hospitalSearch.js'
+import { searchHospitals, getCitiesForFilters, getHospitalsForFilters } from '../../utils/hospitalSearch.js'
 
 const COUNTRY_ALIASES = {
   deutschland: 'DE', de: 'DE',
@@ -15,19 +15,23 @@ const COUNTRY_ALIASES = {
  * @param {{ defaultMode?: 'lesen'|'bewerten' }} props
  */
 export default function SearchWidget({ defaultMode = 'lesen' }) {
-  const [mode, setMode]             = useState(defaultMode)
-  const [showAdvanced, setShowAdv]  = useState(false)
-  const [query, setQuery]           = useState('')
-  const [results, setResults]       = useState([])
-  const [open, setOpen]             = useState(false)
+  const [mode, setMode]            = useState(defaultMode)
+  const [showAdvanced, setShowAdv] = useState(false)
 
-  // Kaskadierte Filter
-  const [filterCountry, setCountry]   = useState('')
-  const [filterRegion, setRegion]     = useState('')
-  const [filterCity, setCity]         = useState('')
-  const [filterSpec, setSpec]         = useState('')
+  // ── Schnellsuche State ────────────────────────────────────────────────────
+  const [query, setQuery]   = useState('')
+  const [results, setResults] = useState([])
+  const [open, setOpen]     = useState(false)
+
+  // ── Genaue Suche State (kaskadiert) ───────────────────────────────────────
+  const [advCountry,  setAdvCountry]  = useState('')
+  const [advRegion,   setAdvRegion]   = useState('')
+  const [advCity,     setAdvCity]     = useState('')
+  const [advHospital, setAdvHospital] = useState('')
+  const [advMode,     setAdvMode]     = useState('lesen')
 
   const ratings    = useRatingsStore((s) => s.ratings)
+  const ratedSet   = useMemo(() => new Set(ratings.map(r => r.hospital)), [ratings])
   const navigate   = useNavigate()
   const wrapperRef = useRef(null)
 
@@ -39,26 +43,32 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  // Kaskadierte Optionen
-  const availableRegions = useMemo(() => {
-    if (!filterCountry) return []
-    return REGIONS[filterCountry] ?? []
-  }, [filterCountry])
+  // ── Genaue Suche: kaskadierte Listen aus Klinik-DB ────────────────────────
+  const advRegions = useMemo(() =>
+    advCountry ? (REGIONS[advCountry] ?? []) : []
+  , [advCountry])
 
-  const availableCities = useMemo(() => {
-    let filtered = ratings
-    if (filterCountry) filtered = filtered.filter(r => r.country === filterCountry)
-    if (filterRegion)  filtered = filtered.filter(r => r.region  === filterRegion)
-    return [...new Set(filtered.map(r => r.city).filter(Boolean))].sort()
-  }, [ratings, filterCountry, filterRegion])
+  const advCities = useMemo(() =>
+    getCitiesForFilters({ country: advCountry || undefined, region: advRegion || undefined })
+  , [advCountry, advRegion])
 
-  function handleCountryChange(c) {
-    setCountry(c); setRegion(''); setCity('')
+  const advHospitals = useMemo(() =>
+    (advCountry && advCity)
+      ? getHospitalsForFilters({ country: advCountry, region: advRegion || undefined, city: advCity }, ratedSet)
+      : []
+  , [advCountry, advRegion, advCity, ratedSet])
+
+  function handleAdvCountry(c) {
+    setAdvCountry(c); setAdvRegion(''); setAdvCity(''); setAdvHospital('')
   }
-  function handleRegionChange(r) {
-    setRegion(r); setCity('')
+  function handleAdvRegion(r) {
+    setAdvRegion(r); setAdvCity(''); setAdvHospital('')
+  }
+  function handleAdvCity(c) {
+    setAdvCity(c); setAdvHospital('')
   }
 
+  // ── Schnellsuche Logic ────────────────────────────────────────────────────
   function buildResults(q) {
     if (!q.trim() || q.trim().length < 2) return []
     const lower = q.toLowerCase().trim()
@@ -70,34 +80,23 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
       return [{ type: 'bundesland', label, country: countryCode, count }]
     }
 
-    // Ratings nach aktiven Filtern einschränken
-    let base = ratings
-    if (filterCountry) base = base.filter(r => r.country === filterCountry)
-    if (filterRegion)  base = base.filter(r => r.region  === filterRegion)
-    if (filterCity)    base = base.filter(r => r.city    === filterCity)
-    if (filterSpec)    base = base.filter(r => r.specialty === filterSpec)
-
-    const ratedSet = new Set(base.map(r => r.hospital))
-    const cities   = [...new Set(base.map(r => r.city))]
-    const regions  = [...new Set(base.map(r => r.region).filter(Boolean))]
     const out = []
-
     const hospitalHits = searchHospitals(q, ratedSet, {}, 6)
     hospitalHits.forEach(h => {
-      if (filterCountry && h.country !== filterCountry) return
-      if (filterCity    && h.city    !== filterCity)    return
       out.push({ type: 'klinik', label: h.name, city: h.city, region: h.region, country: h.country, hasRatings: h.hasRatings })
     })
 
+    const cities = [...new Set(ratings.map(r => r.city))]
     cities.filter(c => c.toLowerCase().includes(lower)).slice(0, 3).forEach(c => {
-      const r   = base.find(r => r.city === c)
-      const cnt = [...new Set(base.filter(r => r.city === c).map(r => r.hospital))].length
+      const r   = ratings.find(r => r.city === c)
+      const cnt = [...new Set(ratings.filter(r => r.city === c).map(r => r.hospital))].length
       out.push({ type: 'stadt', label: c, country: r?.country, count: cnt })
     })
 
+    const regions = [...new Set(ratings.map(r => r.region).filter(Boolean))]
     regions.filter(rg => rg.toLowerCase().includes(lower)).slice(0, 2).forEach(rg => {
-      const r   = base.find(r => r.region === rg)
-      const cnt = [...new Set(base.filter(r => r.region === rg).map(r => r.hospital))].length
+      const r   = ratings.find(r => r.region === rg)
+      const cnt = [...new Set(ratings.filter(r => r.region === rg).map(r => r.hospital))].length
       out.push({ type: 'bundesland', label: rg, country: r?.country, count: cnt })
     })
 
@@ -115,7 +114,6 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
     setQuery(r.label)
     setOpen(false)
     if (mode === 'bewerten' && r.type === 'klinik') {
-      // Klinik direkt ins Bewertungsformular übernehmen
       const p = new URLSearchParams()
       p.set('hospital', r.label)
       if (r.city)    p.set('city',    r.city)
@@ -123,46 +121,49 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
       if (r.country) p.set('country', r.country)
       navigate(`/bewerten?${p}`)
     } else {
-      const params = buildParams(r.label, r.type, r.country)
-      navigate(`/berichte?${params}`)
+      navigate(`/berichte?${new URLSearchParams({ q: r.label, type: r.type ?? '', country: r.country ?? '' })}`)
     }
   }
 
-  function buildParams(q, type, country) {
-    const p = new URLSearchParams({ q: q ?? '' })
-    if (type)          p.set('type', type)
-    if (country)       p.set('country', country)
-    if (filterCountry) p.set('country', filterCountry)
-    if (filterRegion)  p.set('region', filterRegion)
-    if (filterCity)    p.set('city', filterCity)
-    if (filterSpec)    p.set('spec', filterSpec)
-    return p.toString()
-  }
-
-  function buildBewertenParams() {
-    const p = new URLSearchParams()
-    if (query)         p.set('hospital', query)
-    if (filterCountry) p.set('country', filterCountry)
-    if (filterRegion)  p.set('region', filterRegion)
-    if (filterCity)    p.set('city', filterCity)
-    return p.toString()
-  }
-
-  function handleSubmit(e) {
+  function handleQuickSubmit(e) {
     e.preventDefault()
     setOpen(false)
     if (mode === 'bewerten') {
-      navigate(`/bewerten?${buildBewertenParams()}`)
+      const p = new URLSearchParams()
+      if (query) p.set('hospital', query)
+      navigate(`/bewerten?${p}`)
     } else {
-      navigate(`/berichte?${buildParams(query)}`)
+      navigate(`/berichte?${new URLSearchParams({ q: query })}`)
     }
   }
 
-  const submitLabel = 'SUCHEN >>>'
+  // ── Genaue Suche: Submit ──────────────────────────────────────────────────
+  function handleAdvSubmit() {
+    if (advMode === 'bewerten' && advHospital) {
+      const selected = advHospitals.find(h => h.name === advHospital)
+      const p = new URLSearchParams()
+      p.set('hospital', advHospital)
+      if (selected?.city)    p.set('city',    selected.city)
+      if (selected?.region)  p.set('region',  selected.region)
+      if (advCountry)        p.set('country', advCountry)
+      navigate(`/bewerten?${p}`)
+    } else {
+      const p = new URLSearchParams()
+      if (advHospital) { p.set('q', advHospital); p.set('type', 'klinik') }
+      else if (advCity) { p.set('q', advCity); p.set('type', 'stadt') }
+      else if (advRegion) { p.set('q', advRegion); p.set('type', 'bundesland') }
+      if (advCountry) p.set('country', advCountry)
+      if (advRegion)  p.set('region',  advRegion)
+      if (advCity)    p.set('city',    advCity)
+      navigate(`/berichte?${p}`)
+    }
+  }
+
+  const advCanSubmit = !!(advCountry || advRegion || advCity || advHospital)
 
   return (
     <div className="border border-ink bg-canvas">
-      {/* Schnellzugriff: 3 Tabs */}
+      {/* Tabs */}
       <div className="ink-grid" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
         <button
           onClick={() => { setMode('lesen'); setShowAdv(false) }}
@@ -184,17 +185,18 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
         </button>
       </div>
 
-      {/* Erweiterte kaskadierte Filter */}
+      {/* ── GENAUE SUCHE: reine Dropdowns ───────────────────────────────────── */}
       {showAdvanced && (
         <div className="border-t border-ink bg-canvas">
-          {/* Land */}
+
+          {/* 1. Land */}
           <div className="border-b border-ink px-4 py-3">
-            <div className="mono-label mb-2" style={{ fontSize: '10px' }}>/// LAND</div>
+            <div className="mono-label mb-2" style={{ fontSize: '10px' }}>/// 01 LAND</div>
             <div className="ink-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
               {[['', 'ALLE'], ['DE', '🇩🇪 DE'], ['AT', '🇦🇹 AT'], ['CH', '🇨🇭 CH']].map(([c, label]) => (
                 <button key={c}
-                  onClick={() => handleCountryChange(c)}
-                  className={filterCountry === c ? 'tab-active' : 'tab-inactive'}
+                  onClick={() => handleAdvCountry(c)}
+                  className={advCountry === c ? 'tab-active' : 'tab-inactive'}
                   style={{ fontSize: '11px', padding: '5px 2px' }}>
                   {label}
                 </button>
@@ -202,90 +204,108 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
             </div>
           </div>
 
-          {/* Bundesland — nur wenn Land gewählt */}
-          {filterCountry && availableRegions.length > 0 && (
+          {/* 2. Bundesland / Kanton — nur wenn Land gewählt */}
+          {advCountry && advRegions.length > 0 && (
             <div className="border-b border-ink px-4 py-3">
               <div className="mono-label mb-2" style={{ fontSize: '10px' }}>
-                /// {filterCountry === 'CH' ? 'KANTON' : 'BUNDESLAND'}
+                /// 02 {advCountry === 'CH' ? 'KANTON' : 'BUNDESLAND'}
               </div>
               <select
-                value={filterRegion}
-                onChange={e => handleRegionChange(e.target.value)}
+                value={advRegion}
+                onChange={e => handleAdvRegion(e.target.value)}
                 className="input-brutalist text-xs w-full"
               >
-                <option value="">— Alle {filterCountry === 'CH' ? 'Kantone' : 'Bundesländer'} —</option>
-                {availableRegions.map(r => <option key={r} value={r}>{r}</option>)}
+                <option value="">— Alle {advCountry === 'CH' ? 'Kantone' : 'Bundesländer'} —</option>
+                {advRegions.map(r => <option key={r} value={r}>{r}</option>)}
               </select>
             </div>
           )}
 
-          {/* Stadt — nur wenn Bundesland gewählt oder Land mit bewerteten Städten */}
-          {availableCities.length > 0 && (
+          {/* 3. Stadt — aus Klinik-DB, gefiltert nach Land + Bundesland */}
+          {advCountry && (
             <div className="border-b border-ink px-4 py-3">
-              <div className="mono-label mb-2" style={{ fontSize: '10px' }}>/// STADT</div>
+              <div className="mono-label mb-2" style={{ fontSize: '10px' }}>/// 03 STADT</div>
               <select
-                value={filterCity}
-                onChange={e => setCity(e.target.value)}
+                value={advCity}
+                onChange={e => handleAdvCity(e.target.value)}
                 className="input-brutalist text-xs w-full"
+                disabled={!advCountry}
               >
-                <option value="">— Alle Städte —</option>
-                {availableCities.map(c => <option key={c} value={c}>{c}</option>)}
+                <option value="">— Stadt wählen —</option>
+                {advCities.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
           )}
 
-          {/* Fachrichtung + Aktion */}
-          <div className="px-4 py-3 flex flex-col gap-3">
-            <div>
-              <div className="mono-label mb-2" style={{ fontSize: '10px' }}>/// FACHRICHTUNG</div>
+          {/* 4. Klinik — aus Klinik-DB, gefiltert nach Stadt */}
+          {advCity && advHospitals.length > 0 && (
+            <div className="border-b border-ink px-4 py-3">
+              <div className="mono-label mb-2" style={{ fontSize: '10px' }}>/// 04 KLINIK</div>
               <select
-                value={filterSpec}
-                onChange={e => setSpec(e.target.value)}
+                value={advHospital}
+                onChange={e => setAdvHospital(e.target.value)}
                 className="input-brutalist text-xs w-full"
               >
-                <option value="">— Alle Fachrichtungen —</option>
-                {SPECIALTIES.map(s => <option key={s} value={s}>{s}</option>)}
+                <option value="">— Klinik wählen (optional) —</option>
+                {advHospitals.map(h => (
+                  <option key={h.name} value={h.name}>
+                    {h.hasRatings ? '★ ' : ''}{h.name}
+                  </option>
+                ))}
               </select>
             </div>
+          )}
+
+          {/* Aktion + SUCHEN */}
+          <div className="px-4 py-3 flex flex-col gap-3">
             <div>
               <div className="mono-label mb-2" style={{ fontSize: '10px' }}>/// AKTION</div>
               <div className="ink-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
-                <button onClick={() => setMode('lesen')}
-                  className={mode === 'lesen' ? 'tab-active' : 'tab-inactive'}
+                <button onClick={() => setAdvMode('lesen')}
+                  className={advMode === 'lesen' ? 'tab-active' : 'tab-inactive'}
                   style={{ fontSize: '11px', padding: '5px 2px' }}>
                   BERICHTE LESEN
                 </button>
-                <button onClick={() => setMode('bewerten')}
-                  className={mode === 'bewerten' ? 'tab-active' : 'tab-inactive'}
+                <button onClick={() => setAdvMode('bewerten')}
+                  className={advMode === 'bewerten' ? 'tab-active' : 'tab-inactive'}
                   style={{ fontSize: '11px', padding: '5px 2px' }}>
                   BEWERTEN
                 </button>
               </div>
             </div>
+            <button
+              onClick={handleAdvSubmit}
+              disabled={!advCanSubmit}
+              className="btn-hazard disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              SUCHEN &gt;&gt;&gt;
+            </button>
           </div>
         </div>
       )}
 
-      {/* Suchzeile */}
-      <form onSubmit={handleSubmit} className="relative border-t border-ink" ref={wrapperRef}>
-        <div className="ink-grid" style={{ gridTemplateColumns: '1fr auto' }}>
-          <input
-            className="bg-white border-none outline-none px-4 py-3 text-sm font-sans text-ink placeholder-ink/30 w-full"
-            placeholder={filterCity ? `Klinik in ${filterCity} suchen…` : 'Klinik, Stadt, Bundesland… z.B. "Charité Berlin"'}
-            value={query}
-            onChange={handleChange}
-            onFocus={() => query && setOpen(true)}
-            autoComplete="off"
-          />
-          <button type="submit" className="btn-hazard px-6 border-l border-ink whitespace-nowrap">
-            {submitLabel}
-          </button>
-        </div>
+      {/* ── SCHNELLSUCHE: Freitext + Dropdown ───────────────────────────────── */}
+      {!showAdvanced && (
+        <form onSubmit={handleQuickSubmit} className="relative border-t border-ink" ref={wrapperRef}>
+          <div className="ink-grid" style={{ gridTemplateColumns: '1fr auto' }}>
+            <input
+              className="bg-white border-none outline-none px-4 py-3 text-sm font-sans text-ink placeholder-ink/30 w-full"
+              placeholder='Klinik, Stadt, Bundesland… z.B. "Charité Berlin"'
+              value={query}
+              onChange={handleChange}
+              onFocus={() => query && setOpen(true)}
+              autoComplete="off"
+            />
+            <button type="submit" className="btn-hazard px-6 border-l border-ink whitespace-nowrap">
+              SUCHEN &gt;&gt;&gt;
+            </button>
+          </div>
 
-        {open && results.length > 0 && (
-          <SearchDropdown results={results} onSelect={handleSelect} />
-        )}
-      </form>
+          {open && results.length > 0 && (
+            <SearchDropdown results={results} onSelect={handleSelect} />
+          )}
+        </form>
+      )}
     </div>
   )
 }

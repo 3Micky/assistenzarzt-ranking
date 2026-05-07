@@ -171,3 +171,30 @@ export function getCitiesForFilters(filters = {}) {
   }
   return [...new Set(pool.map(h => h.city))].sort()
 }
+
+/**
+ * Gibt alle Kliniken für eine Land/Bundesland/Stadt-Kombination zurück.
+ * Wird für das Klinik-Dropdown in der Genauen Suche verwendet.
+ * @param {{ country?: string, region?: string, city?: string }} filters
+ * @param {Set<string>} ratedSet
+ * @returns {{ name: string, city: string, region: string, country: string, hasRatings: boolean }[]}
+ */
+export function getHospitalsForFilters(filters = {}, ratedSet = new Set()) {
+  let pool = ALL_HOSPITALS
+  if (filters.country) pool = pool.filter(h => h.country === filters.country)
+  if (filters.region) {
+    const nRegion = normalize(filters.region)
+    pool = pool.filter(h => normalize(h.region) === nRegion)
+  }
+  if (filters.city) {
+    const nCity = normalize(filters.city)
+    pool = pool.filter(h => normalize(h.city) === nCity)
+  }
+  return pool
+    .map(h => ({ ...h, hasRatings: ratedSet.has(h.name) }))
+    .sort((a, b) => {
+      // Bewertete zuerst, dann alphabetisch
+      if (a.hasRatings !== b.hasRatings) return a.hasRatings ? -1 : 1
+      return a.name.localeCompare(b.name, 'de')
+    })
+}
