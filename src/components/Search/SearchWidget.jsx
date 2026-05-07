@@ -253,6 +253,23 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
                   </option>
                 ))}
               </select>
+              {/* Hint: Klinik nicht gelistet → Freitext im Formular */}
+              <p className="mt-2 font-mono text-[10px] text-ink/50">
+                Klinik nicht in der Liste?{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const p = new URLSearchParams()
+                    if (advCountry) p.set('country', advCountry)
+                    if (advRegion)  p.set('region',  advRegion)
+                    if (advCity)    p.set('city',    advCity)
+                    navigate(`/bewerten?${p}`)
+                  }}
+                  className="underline text-hazard hover:text-ink transition-colors"
+                >
+                  Namen im Formular frei eingeben →
+                </button>
+              </p>
             </div>
           )}
 
@@ -303,6 +320,14 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
 
           {open && results.length > 0 && (
             <SearchDropdown results={results} onSelect={handleSelect} />
+          )}
+
+          {/* Hint: Klinik nicht gefunden → Freitext im Formular (nur im Bewerten-Tab) */}
+          {mode === 'bewerten' && query.trim().length >= 2 && results.length === 0 && (
+            <p className="px-4 py-2 border-t border-ink/10 font-mono text-[10px] text-ink/50">
+              Nicht gefunden? Einfach{' '}
+              <strong className="text-ink/70">SUCHEN</strong> drücken — du kannst den Namen im Formular frei eingeben.
+            </p>
           )}
         </form>
       )}
