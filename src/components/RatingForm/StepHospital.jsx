@@ -121,7 +121,8 @@ export default function StepHospital({ data, onChange, onNext, initialSearchMode
     setKlinikQuery('')
   }
 
-  const canProceed = data.hospital && data.specialty && data.country && data.yearFrom
+  // Nur Klinikname + Land sind Pflicht — alles andere (Fachrichtung, Jahr) ist freiwillig
+  const canProceed = data.hospital?.trim() && data.country
 
   const currentYear = new Date().getFullYear()
   const years = Array.from({ length: currentYear - 1999 }, (_, i) => currentYear - i)
