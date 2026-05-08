@@ -9,10 +9,15 @@
     --color-score-high: #22C55E;
   }
 
-  html { scroll-behavior: smooth; }
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden; /* verhindert horizontalen Overflow auf Mobile */
+  }
 
   body {
     @apply bg-canvas text-ink font-sans antialiased;
+    overflow-x: hidden;
+    max-width: 100vw;
   }
 
   * { @apply box-border; }
@@ -85,7 +90,7 @@
 
   /* ── Mono Label ── */
   .mono-label {
-    @apply font-mono text-[11.5px] tracking-widest uppercase text-ink/70;
+    @apply font-mono text-[11.5px] font-semibold tracking-widest uppercase text-ink/70;
   }
   .mono-label-red {
     @apply font-mono text-[11.5px] tracking-widest uppercase text-hazard;

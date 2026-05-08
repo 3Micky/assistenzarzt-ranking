@@ -9,7 +9,7 @@ export const CRITERIA_ESSENTIAL = [
   { key: 'ueberstundenAufschreiben', label: 'Überstunden aufschreiben',    type: 'boolean' },
   { key: 'ueberstundenAusgleich',    label: 'Überstunden-Ausgleich',       type: 'enum', options: ['Bezahlt', 'Freizeitausgleich'] },
   { key: 'abteilungsgroesse',        label: 'Abteilungsgröße (Ärzt*innen)', type: 'number', min: 1, max: 500 },
-  { key: 'personalschluessel',       label: 'Betten pro Arzt',             type: 'number', min: 1, max: 100 },
+  { key: 'personalschluessel',       label: 'Betten pro Arzt',              type: 'number', min: 1, max: 100 },
 ]
 
 /**
@@ -20,7 +20,7 @@ export const CRITERIA_MEDICAL = [
   { key: 'opsProMonat',             label: 'OPs / Monat',                   type: 'number',  min: 0, max: 50 },
   { key: 'rotationsplaene',         label: 'Rotationspläne',                type: 'boolean'              },
   { key: 'rotationsplaeneText',     label: 'Rotationspläne (Details)',       type: 'text'                 },
-  { key: 'nachtdienstBegleitung',   label: 'Nachtdienst-Begleitung (OA)',   type: 'boolean'              },
+  { key: 'nachtdienstBegleitung',   label: 'OA-Hintergrundbereitschaft',    type: 'slider',  min: 1, max: 10 },
   { key: 'fortbildungFreistellung', label: 'Fortbildung — Freistellung',    type: 'boolean'              },
   { key: 'fortbildungBezahlt',      label: 'Fortbildung — Bezahlt',         type: 'boolean'              },
   { key: 'lehreTaetig',             label: 'Lehrtätigkeit vorhanden',       type: 'boolean'              },
@@ -36,7 +36,7 @@ export const CRITERIA_MEDICAL = [
  * Schritt 4: Team, Leben & Extras — Subjektives, Emotionales, Nice-to-have
  */
 export const CRITERIA_NICE = [
-  { key: 'urlaubsgenehmigung',              label: 'Urlaubsgenehmigung',          type: 'slider',  min: 1, max: 10 },
+  { key: 'urlaubsgenehmigung',              label: 'Urlaubsgenehmigung',           type: 'slider',  min: 1, max: 10 },
   { key: 'workLifeBalance',                 label: 'Work-Life-Balance',           type: 'slider',  min: 1, max: 10 },
   { key: 'teamAtmosphaere',                 label: 'Team-Atmosphäre',             type: 'slider',  min: 1, max: 10 },
   { key: 'schwangerschaft',                 label: 'Schwangerschaft (Policy)',     type: 'enum', options: ['Sofortiges Arbeitsverbot', 'Individuelle Lösung', 'Normal weiterarbeiten'] },
@@ -70,7 +70,7 @@ export const DEFAULT_CRITERIA = {
   logbuchErfuellbarkeit:    5,
   supervisionQualitaet:     5,
   autonomie:                5,
-  nachtdienstBegleitung:    null,
+  nachtdienstBegleitung:    5,
   fortbildungFreistellung:  null,
   fortbildungBezahlt:       null,
   lehreTaetig:              null,

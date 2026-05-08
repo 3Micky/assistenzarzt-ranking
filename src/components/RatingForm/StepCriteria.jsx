@@ -101,7 +101,7 @@ export default function StepCriteria({ data, onChange, onBack, onNext }) {
             onChange={v => set('ueberstundenAusgleich', v)} />
         )}
 
-        <NumberField label="ABTEILUNGSGRÖSSE (ÄRZTE)" value={data.abteilungsgroesse} min={1} max={500}
+        <NumberField label="ABTEILUNGSGRÖSSE (ÄRZT*INNEN)" value={data.abteilungsgroesse} min={1} max={500}
           onChange={v => set('abteilungsgroesse', v)} />
 
         <NumberField label="BETTEN PRO ARZT" value={data.personalschluessel} min={1} max={100}

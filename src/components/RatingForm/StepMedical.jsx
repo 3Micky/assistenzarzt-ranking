@@ -60,15 +60,13 @@ export default function StepMedical({ data, onChange, onBack, onNext }) {
 
         {/* Operative & Ausbildungszahlen */}
         <NumberField
-          label="WBE-JAHRE AM HAUS"
-          hint="WB-Ermächtigung der Abteilung"
+          label="WB-ERMÄCHTIGUNG DER ABTEILUNG"
           value={data.wbeJahre} min={0} max={12} unit="JAHRE"
           onChange={v => set('wbeJahre', v)}
         />
 
         <NumberField
           label="OPS / MONAT"
-          hint="Operative Eingriffe im Regeldienst"
           value={data.opsProMonat} min={0} max={50} unit="OPS"
           onChange={v => set('opsProMonat', v)}
         />
@@ -89,12 +87,11 @@ export default function StepMedical({ data, onChange, onBack, onNext }) {
           )}
         </div>
 
-        <BoolField
+        <SliderField
           label="NACHTDIENST-BEGLEITUNG"
-          hint="OA als Hintergrundbereitschaft erreichbar?"
           value={data.nachtdienstBegleitung}
           onChange={v => set('nachtdienstBegleitung', v)}
-          yesLabel="OA-HINTERGRUND" noLabel="ALLEIN-DIENST"
+          invertLabel={['Nicht erreichbar', 'Immer erreichbar']}
         />
 
         {/* Qualitäts-Slider */}

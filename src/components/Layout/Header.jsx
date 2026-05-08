@@ -13,15 +13,15 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <header className="border-b border-ink sticky top-0 z-50 bg-canvas">
+    <header className="border-b border-ink sticky top-0 z-50 bg-canvas w-full">
       {/* Register Strip */}
-      <div className="register-strip">
-        <span>ASSISTENZ – RANKING /// DE · AT · CH</span>
-        <span className="text-canvas/60 hidden sm:inline">ANONYME BEWERTUNGSPLATTFORM</span>
+      <div className="register-strip overflow-hidden">
+        <span className="truncate">ASSISTENZ – RANKING /// DE · AT · CH</span>
+        <span className="text-canvas/60 hidden sm:inline flex-shrink-0">ANONYME BEWERTUNGSPLATTFORM</span>
       </div>
 
       {/* Main Header */}
-      <div className="flex items-stretch">
+      <div className="flex items-stretch w-full overflow-hidden">
         {/* Logo */}
         <Link to="/" className="flex items-center px-3 py-2 border-r border-ink hover:bg-canvas-alt transition-colors flex-shrink-0">
           <img src="/Logo_screenshot_ohne_text.png" alt="AssistenzDoc" className="h-10 sm:h-14 flex-shrink-0" />

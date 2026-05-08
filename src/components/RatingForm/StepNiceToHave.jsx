@@ -59,7 +59,7 @@ export default function StepNiceToHave({ data, comment, onChange, onCommentChang
           label="URLAUBSGENEHMIGUNG"
           value={data.urlaubsgenehmigung}
           onChange={v => set('urlaubsgenehmigung', v)}
-          invertLabel={['Wird immer verschoben', 'Problemlos genehmigt']}
+          invertLabel={['Schwierig', 'Problemlos genehmigt']}
         />
 
         <SliderField
@@ -91,7 +91,6 @@ export default function StepNiceToHave({ data, comment, onChange, onCommentChang
 
         <BoolField
           label="SCHWANGERSCHAFT / ELTERNZEIT"
-          hint="Wird Elternzeit unterstützt?"
           value={data.schwangerschaftFamilienfreundlich}
           onChange={v => set('schwangerschaftFamilienfreundlich', v)}
           yesLabel="FAMILIENFREUNDLICH" noLabel="PROBLEMATISCH"
