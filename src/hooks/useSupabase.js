@@ -41,18 +41,30 @@ export async function fetchAllRatings() {
  */
 export async function insertRating(rating) {
   if (!supabaseConfigured) {
-    console.warn('[useSupabase] Kein .env.local — Bewertung wurde NICHT gespeichert. Siehe SUPABASE_SETUP.md.')
+    console.warn('[useSupabase] Kein .env.local — Bewertung wurde NICHT gespeichert.')
     return null
   }
-  // Strip client-generated fields — Supabase auto-generates id (uuid) and created_at (timestamptz)
-  const { id, timestamp, ...payload } = rating
+  // Nur bekannte DB-Spalten senden (kein id/timestamp — Supabase generiert diese)
+  const payload = {
+    hospital:   rating.hospital,
+    city:       rating.city       || '',
+    country:    rating.country    || 'DE',
+    region:     rating.region     || '',
+    specialty:  rating.specialty  || '',
+    year:       rating.yearFrom   ?? rating.year ?? null,
+    yearFrom:   rating.yearFrom   ?? null,
+    yearTo:     rating.yearTo != null ? String(rating.yearTo) : null,
+    criteria:   rating.criteria,
+    comment:    rating.comment    || '',
+  }
+
   const { data, error } = await supabase
     .from('ratings')
     .insert([payload])
     .select()
 
   if (error) {
-    console.error('[useSupabase] insertRating Fehler:', error)
+    console.error('[useSupabase] insertRating Fehler:', error.message, '|', error.details, '|', error.hint)
     return null
   }
   return data?.[0] || null
