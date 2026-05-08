@@ -101,19 +101,11 @@ export default function StepCriteria({ data, onChange, onBack, onNext }) {
             onChange={v => set('ueberstundenAusgleich', v)} />
         )}
 
-        <SliderField
-          label="URLAUBSGENEHMIGUNG"
-          value={data.urlaubsgenehmigung}
-          onChange={v => set('urlaubsgenehmigung', v)}
-          invertLabel={['Wird immer verschoben', 'Problemlos genehmigt']}
-        />
+        <NumberField label="ABTEILUNGSGRÖSSE (ÄRZTE)" value={data.abteilungsgroesse} min={1} max={500}
+          onChange={v => set('abteilungsgroesse', v)} />
 
-        <SliderField
-          label="WORK-LIFE-BALANCE"
-          value={data.workLifeBalance}
-          onChange={v => set('workLifeBalance', v)}
-          invertLabel={['Kaum Erholung', 'Gute Balance']}
-        />
+        <NumberField label="BETTEN PRO ARZT" value={data.personalschluessel} min={1} max={100}
+          onChange={v => set('personalschluessel', v)} />
 
       </div>
 

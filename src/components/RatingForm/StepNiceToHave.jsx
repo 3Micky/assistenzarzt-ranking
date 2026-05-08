@@ -55,35 +55,20 @@ export default function StepNiceToHave({ data, comment, onChange, onCommentChang
 
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
 
-        {/* Abteilungsstruktur */}
-        <NumberField
-          label="ABTEILUNGSGRÖSSE (ÄRZTE)"
-          hint="Wie viele Ärzt*innen in der Abteilung?"
-          value={data.abteilungsgroesse} min={1} max={500} unit="ÄRZTE"
-          onChange={v => set('abteilungsgroesse', v)}
-        />
-
-        <NumberField
-          label="BETTEN PRO ARZT"
-          hint="Personalschlüssel im Regeldienst"
-          value={data.personalschluessel} min={1} max={100} unit="BETTEN"
-          onChange={v => set('personalschluessel', v)}
-        />
-
-        <NumberField
-          label="MITARBEITERGESPRÄCHE / JAHR"
-          value={data.mitarbeitergespraeche} min={0} max={12} unit="× / JAHR"
-          onChange={v => set('mitarbeitergespraeche', v)}
+        <SliderField
+          label="URLAUBSGENEHMIGUNG"
+          value={data.urlaubsgenehmigung}
+          onChange={v => set('urlaubsgenehmigung', v)}
+          invertLabel={['Wird immer verschoben', 'Problemlos genehmigt']}
         />
 
         <SliderField
-          label="DOKUMENTATIONSAUFWAND"
-          value={data.dokumentationsaufwand}
-          onChange={v => set('dokumentationsaufwand', v)}
-          invertLabel={['Extreme Admin-Last', 'Minimale Doku']}
+          label="WORK-LIFE-BALANCE"
+          value={data.workLifeBalance}
+          onChange={v => set('workLifeBalance', v)}
+          invertLabel={['Kaum Erholung', 'Gute Balance']}
         />
 
-        {/* Team & Atmosphäre */}
         <SliderField
           label="TEAM-ATMOSPHÄRE"
           value={data.teamAtmosphaere}

@@ -149,6 +149,19 @@ export default function StepMedical({ data, onChange, onBack, onNext }) {
           />
         )}
 
+        <NumberField
+          label="MITARBEITERGESPRÄCHE / JAHR"
+          value={data.mitarbeitergespraeche} min={0} max={12} unit="× / JAHR"
+          onChange={v => set('mitarbeitergespraeche', v)}
+        />
+
+        <SliderField
+          label="DOKUMENTATIONSAUFWAND"
+          value={data.dokumentationsaufwand}
+          onChange={v => set('dokumentationsaufwand', v)}
+          invertLabel={['Extreme Admin-Last', 'Minimale Doku']}
+        />
+
       </div>
 
       <div className="flex border-t border-ink">

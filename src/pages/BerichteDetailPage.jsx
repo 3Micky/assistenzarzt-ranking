@@ -27,16 +27,18 @@ function renderValue(type, value, key) {
 }
 
 function CriteriaSection({ title, criteria, values }) {
+  const items = criteria.filter(c => c.type !== 'text' || values[c.key])
   return (
     <div className="border-b border-ink">
       <div className="register-strip border-b border-ink">{title}</div>
       <div className="ink-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
-        {criteria.filter(c => c.type !== 'text' || values[c.key]).map(c => (
+        {items.map(c => (
           <div key={c.key} className="bg-canvas p-3">
             <div className="mono-label mb-1">{c.label}</div>
             <div className="text-sm">{renderValue(c.type, values[c.key], c.key)}</div>
           </div>
         ))}
+        {items.length % 2 !== 0 && <div className="bg-canvas" />}
       </div>
     </div>
   )
