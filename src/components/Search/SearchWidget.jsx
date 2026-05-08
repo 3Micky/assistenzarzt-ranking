@@ -167,21 +167,24 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
       <div className="ink-grid" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
         <button
           onClick={() => { setMode('lesen'); setShowAdv(false) }}
-          className={mode === 'lesen' && !showAdvanced ? 'tab-active' : 'tab-inactive'}
+          className={`${mode === 'lesen' && !showAdvanced ? 'tab-active' : 'tab-inactive'} whitespace-nowrap overflow-hidden text-ellipsis`}
+          style={{ fontSize: '10px', padding: '8px 4px' }}
         >
-          &gt;&gt;&gt; BERICHTE LESEN
+          <span className="hidden sm:inline">&gt;&gt;&gt; </span>BERICHTE
         </button>
         <button
           onClick={() => { setMode('bewerten'); setShowAdv(false) }}
-          className={mode === 'bewerten' && !showAdvanced ? 'tab-active' : 'tab-inactive'}
+          className={`${mode === 'bewerten' && !showAdvanced ? 'tab-active' : 'tab-inactive'} whitespace-nowrap`}
+          style={{ fontSize: '10px', padding: '8px 4px' }}
         >
-          [ BEWERTEN ]
+          [BEWERTEN]
         </button>
         <button
           onClick={() => setShowAdv(v => !v)}
-          className={showAdvanced ? 'tab-active' : 'tab-inactive'}
+          className={`${showAdvanced ? 'tab-active' : 'tab-inactive'} whitespace-nowrap overflow-hidden text-ellipsis`}
+          style={{ fontSize: '10px', padding: '8px 4px' }}
         >
-          {showAdvanced ? '▲ GENAUE SUCHE' : '▼ GENAUE SUCHE'}
+          {showAdvanced ? '▲ ' : '▼ '}SUCHE
         </button>
       </div>
 
@@ -192,12 +195,12 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
           {/* 1. Land */}
           <div className="border-b border-ink px-4 py-3">
             <div className="mono-label mb-2" style={{ fontSize: '10px' }}>/// 01 LAND</div>
-            <div className="ink-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-              {[['', 'ALLE'], ['DE', '🇩🇪 DE'], ['AT', '🇦🇹 AT'], ['CH', '🇨🇭 CH']].map(([c, label]) => (
+            <div className="ink-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+              {[['DE', '🇩🇪 DEUTSCHLAND'], ['AT', '🇦🇹 ÖSTERREICH'], ['CH', '🇨🇭 SCHWEIZ']].map(([c, label]) => (
                 <button key={c}
                   onClick={() => handleAdvCountry(c)}
                   className={advCountry === c ? 'tab-active' : 'tab-inactive'}
-                  style={{ fontSize: '11px', padding: '5px 2px' }}>
+                  style={{ fontSize: '10px', padding: '5px 2px' }}>
                   {label}
                 </button>
               ))}

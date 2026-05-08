@@ -47,9 +47,9 @@ export default function Header() {
         <div className="flex-1 md:hidden" />
 
         {/* CTA */}
-        <Link to="/bewerten" className="btn-hazard px-3 sm:px-6 border-l border-ink flex-shrink-0">
+        <Link to="/bewerten" className="btn-hazard px-3 sm:px-6 border-l border-ink flex-shrink-0 self-stretch whitespace-nowrap">
           <span className="hidden sm:inline">[ + BEWERTUNG ]</span>
-          <span className="sm:hidden text-[11.5px]">+ NEU</span>
+          <span className="sm:hidden text-[11.5px]">[ BEWERTEN ]</span>
         </Link>
 
         {/* Hamburger — mobile only */}
