@@ -16,7 +16,7 @@ export default function StatsBar() {
   const top = stats.topHospital.length > 20 ? stats.topHospital.slice(0, 18) + '…' : stats.topHospital
 
   return (
-    <div className="ink-grid border-b border-ink" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
+    <div className="ink-grid border-b border-ink grid-cols-3 sm:grid-cols-6">
       <StatCell label="BEWERTUNGEN" value={stats.total}            valueClass="text-hazard" />
       <StatCell label="⌀ SCORE"     value={stats.avgScore.toFixed(1)} />
       <StatCell label="TOP-KLINIK"  value={top} valueClass="text-xs leading-tight pt-1" />
