@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { useParams, Link } from 'react-router-dom'
 import { useRatingsStore } from '../store/ratingsStore.js'
 import { overallScore, scoreColor, scoreLabel } from '../utils/calculations.js'
@@ -62,9 +63,21 @@ export default function BerichteDetailPage() {
 
   const score = overallScore(rating.criteria)
   const date  = rating.timestamp ? new Date(rating.timestamp).toLocaleDateString('de-DE', { year: 'numeric', month: 'long' }) : null
+  const country = COUNTRY_NAMES[rating.country] ?? rating.country
+  const metaTitle = `${rating.hospital}${rating.city ? ` ${rating.city}` : ''} — Erfahrungsbericht Assistenzarzt | assistenz-ranking.de`
+  const metaDesc  = `Anonymer Erfahrungsbericht: ${rating.hospital}${rating.city ? `, ${rating.city}` : ''}${rating.specialty ? ` · ${rating.specialty}` : ''}. Gesamtscore: ${score}/10. Bewertung auf assistenz-ranking.de.`
 
   return (
     <div className="max-w-3xl mx-auto my-6 border border-ink">
+      <Helmet>
+        <title>{metaTitle}</title>
+        <meta name="description" content={metaDesc} />
+        <link rel="canonical" href={`https://assistenz-ranking.de/berichte/${rating.id}`} />
+        <meta property="og:url" content={`https://assistenz-ranking.de/berichte/${rating.id}`} />
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={metaDesc} />
+        <meta name="robots" content="index, follow" />
+      </Helmet>
       {meldeOpen && <MeldeModal rating={rating} onClose={() => setMeldeOpen(false)} />}
 
       {/* Header */}

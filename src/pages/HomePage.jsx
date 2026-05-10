@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async'
 import SearchWidget from '../components/Search/SearchWidget.jsx'
 import GeoMap from '../components/GeoMap/GeoMap.jsx'
 import StatsBar from '../components/Dashboard/StatsBar.jsx'
@@ -5,6 +6,14 @@ import StatsBar from '../components/Dashboard/StatsBar.jsx'
 export default function HomePage() {
   return (
     <div>
+      <Helmet>
+        <title>Assistenzarzt-Ranking | Anonyme Bewertungen DACH</title>
+        <meta name="description" content="Anonyme Bewertungen von Assistenzarztstellen in Deutschland, Österreich und der Schweiz. Kliniken vergleichen, Erfahrungen lesen und schreiben." />
+        <link rel="canonical" href="https://assistenz-ranking.de/" />
+        <meta property="og:url" content="https://assistenz-ranking.de/" />
+        <meta property="og:title" content="Assistenzarzt-Ranking | Anonyme Bewertungen DACH" />
+        <meta property="og:description" content="Anonyme Bewertungen von Assistenzarztstellen in Deutschland, Österreich und der Schweiz. Kliniken ehrlich vergleichen." />
+      </Helmet>
       {/* Hero */}
       <div className="border-b border-ink px-6 pt-8 pb-6">
         <div className="mono-label-red mb-2">[ TRANSPARENT. ANONYM. FÜR ALLE. ]</div>

@@ -11,15 +11,69 @@
 
     <!-- SEO -->
     <meta name="description" content="Anonyme Bewertungsplattform für Assistenzarztstellen in Deutschland, Österreich und der Schweiz. Kliniken vergleichen, Bewertungen lesen und schreiben." />
-    <meta name="robots" content="index, follow" />
+    <!-- LAUNCH: "noindex, nofollow" → "index, follow" ändern wenn Password-Gate entfernt wird -->
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="canonical" href="https://assistenz-ranking.de" />
+
+    <!-- Open Graph (Fallback für alle Seiten) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Assistenz-Ranking" />
+    <meta property="og:locale" content="de_DE" />
+    <meta property="og:url" content="https://assistenz-ranking.de" />
+    <meta property="og:title" content="Assistenzarzt-Ranking | DACH" />
+    <meta property="og:description" content="Anonyme Bewertungen von Assistenzarztstellen in Deutschland, Österreich und der Schweiz. Kliniken vergleichen, Bewertungen lesen und schreiben." />
+    <meta property="og:image" content="https://assistenz-ranking.de/Logo_screenshot.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Assistenzarzt-Ranking | DACH" />
+    <meta name="twitter:description" content="Anonyme Bewertungen von Assistenzarztstellen in DACH. Kliniken ehrlich vergleichen." />
+    <meta name="twitter:image" content="https://assistenz-ranking.de/Logo_screenshot.png" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
 
-    <!-- GoatCounter Analytics (cookie-free, open-source) -->
-    <!-- Aktivieren: goatcounter.com/signup → Code eintragen -->
+    <!-- Structured Data: Organization + WebSite (für Google Knowledge Panel + Sitelinks-Searchbox) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://assistenz-ranking.de/#organization",
+          "name": "Assistenz-Ranking",
+          "url": "https://assistenz-ranking.de",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://assistenz-ranking.de/Logo_screenshot.png"
+          },
+          "description": "Anonyme Bewertungsplattform für Assistenzarztstellen in Deutschland, Österreich und der Schweiz.",
+          "areaServed": ["DE", "AT", "CH"],
+          "knowsAbout": ["Assistenzarzt", "Weiterbildung", "Klinikbewertung", "DACH"]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://assistenz-ranking.de/#website",
+          "url": "https://assistenz-ranking.de",
+          "name": "Assistenz-Ranking",
+          "description": "Anonyme Bewertungen von Assistenzarztstellen in Deutschland, Österreich und der Schweiz.",
+          "publisher": { "@id": "https://assistenz-ranking.de/#organization" },
+          "inLanguage": "de-DE",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://assistenz-ranking.de/berichte?q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- GoatCounter Analytics (cookie-free, DSGVO-konform, kein Cookie-Banner nötig) -->
+    <!-- TODO: goatcounter.com/signup → kostenlosen Account anlegen → DEIN-CODE durch deinen Code ersetzen → diese Zeile aktivieren -->
     <!-- <script data-goatcounter="https://DEIN-CODE.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script> -->
   </head>
   <body>

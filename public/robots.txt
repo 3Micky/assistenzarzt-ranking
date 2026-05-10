@@ -1,0 +1,5 @@
+# LAUNCH: "Disallow: /" → "Disallow:" ändern wenn Password-Gate entfernt wird
+User-agent: *
+Disallow: /
+
+Sitemap: https://assistenz-ranking.de/sitemap.xml
