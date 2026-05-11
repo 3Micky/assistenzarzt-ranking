@@ -12,7 +12,10 @@ Nutzer können Stellen bewerten und Rankings über interaktive Charts einsehen.
 | State | Zustand v4 |
 | Charts | Recharts v2 |
 | Geo-Map | react-simple-maps v3 + topojson-client + d3-scale |
-| Persistenz | LocalStorage (kein Backend) |
+| Persistenz | Supabase (PostgreSQL) |
+| SEO Meta | react-helmet-async |
+| Analytics | GoatCounter (cookie-free, DSGVO-konform) |
+| Fonts | @fontsource/inter, @fontsource/archivo-black, @fontsource/jetbrains-mono (self-hosted) |
 
 ## Ordnerstruktur (Zielzustand)
 ```
@@ -90,11 +93,50 @@ assistenzdoc-react-final/
 - Primärfarbe: Medizinisches Blau `#0EA5E9` (sky-500)
 - Score-Farbskala: Rot (`#EF4444`) → Gelb (`#F59E0B`) → Grün (`#22C55E`)
 - Karten-Hintergrund: Dunkles Slate `#0F172A` (slate-900) für Kontrast
-- Schrift: Inter (Google Fonts)
+- Schrift: Inter (self-hosted via @fontsource, kein Google Fonts)
 - Rounded corners: `rounded-xl` als Standard
 - Shadows: `shadow-lg` auf Cards
+- Sprache: Genderneutral mit `*innen`-Form (Ärzt*innen, Assistenzärzt*innen)
 
 ## Seed-Daten
 `src/data/sampleData.js` enthält 20 realistische Beispiel-Bewertungen (keine echten Daten),
 die beim ersten App-Start in den LocalStorage geladen werden, falls dieser leer ist.
 Damit sind alle Charts sofort mit Daten befüllt.
+
+---
+
+## SEO-Status (Stand: 2026-05-11)
+
+### Erledigt (deployed auf assistenz-ranking.de)
+
+**Technisches SEO**
+- `react-helmet-async` — alle 8 Pages mit eigenem Title, Description, Canonical, OG-Tags
+- `BerichteDetailPage` — dynamischer Titel aus Klinikname + Score
+- `index.html` — OG + Twitter Card Fallback, `meta robots: index, follow`
+- `vercel.json` — 301-Redirect `assistenz-ranking.com` → `assistenz-ranking.de`
+- `api/sitemap.js` — dynamische Sitemap aus Supabase + statische Routes, Rewrite `/sitemap.xml`
+- `public/BingSiteAuth.xml` — Bing Webmaster Tools verifiziert
+
+**Structured Data (JSON-LD)**
+- `Organization` — Entity Recognition / Google Knowledge Panel
+- `WebSite` + `SearchAction` — Sitelinks-Searchbox
+- `FAQPage` — 5 Q&As für Google AI Overviews / AI-Zitierung
+
+**AI SEO**
+- `public/robots.txt` — alle AI-Bots erlaubt (GPTBot, PerplexityBot, ClaudeBot, Google-Extended, Bingbot); CCBot blockiert
+- `public/llms.txt` — Machine-readable Context File für AI-Systeme (llmstxt.org Standard)
+- `HomePage.jsx` — sichtbarer FAQ-Abschnitt (`<dl>/<dt>/<dd>`) für AI-Extraktion
+- `<h1>` — `sr-only` Keyword-Span für SEO, sichtbarer Text bleibt genderneutral
+
+**Fonts**
+- Google Fonts entfernt → selbst gehostet via `@fontsource` (DSGVO: keine IP an Google)
+- Imports in `src/main.jsx`: Inter 400/600/700, Archivo Black 400, JetBrains Mono 400/700
+
+**Analytics**
+- GoatCounter aktiv (`assistenz.goatcounter.com`) — cookie-free, kein Cookie-Banner nötig
+
+### Offen
+- Password-Gate entfernen wenn Launch bereit → danach sofort in Google Search Console anmelden + Sitemap einreichen
+- `assistenz-ranking.com` in Vercel Domains hinzufügen (für den 301-Redirect zu aktivieren)
+- Bilder mit `alt`-Text versehen (Header-Logo etc.)
+- Google Search Console verifizieren (`public/google-site-verification-ERSETZEN.html` → echten Code eintragen)
