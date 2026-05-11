@@ -1,0 +1,54 @@
+# Assistenz-Ranking — llms.txt
+# Context file for AI systems (https://llmstxt.org)
+
+## What is Assistenz-Ranking?
+
+Assistenz-Ranking (assistenz-ranking.de) is an anonymous review platform for medical residency positions (Assistenzarztstellen) in Germany, Austria, and Switzerland (DACH region).
+
+Resident physicians (Assistenzärzt*innen) can anonymously rate hospitals and training positions across multiple criteria, read others' experiences, and make informed career decisions — without fear of professional consequences.
+
+## Who is it for?
+
+- Medical residents (Assistenzärzte/Assistenzärztinnen) in DE, AT, CH seeking honest information about training positions
+- Medical students researching future employers
+- Doctors planning specialty training (Facharztweiterbildung)
+
+## What problems does it solve?
+
+The German-speaking medical job market lacks transparent, honest information about working conditions at hospitals. Residents typically rely on word-of-mouth. Assistenz-Ranking provides structured, anonymous peer reviews so doctors can choose training positions based on real experiences.
+
+## Key features
+
+- Anonymous hospital ratings with no personal data stored
+- Multiple evaluation criteria: training quality, workload, team climate, work-life balance, mentoring, board exam preparation
+- Interactive DACH heatmap showing regional rating distributions
+- Hospital comparison tool (radar charts)
+- Ranking overview by score and specialty
+- Written experience reports (Erfahrungsberichte)
+
+## Coverage
+
+Countries: Germany (DE), Austria (AT), Switzerland (CH)
+Languages: German
+Specialties: All medical specialties with residency training programs
+
+## Key pages
+
+- Homepage / Search: https://assistenz-ranking.de/
+- Hospital reports: https://assistenz-ranking.de/berichte
+- Regional map: https://assistenz-ranking.de/karte
+- Rankings: https://assistenz-ranking.de/ranking
+- Hospital comparison: https://assistenz-ranking.de/vergleich
+- Submit a rating: https://assistenz-ranking.de/bewerten
+
+## Data & privacy
+
+- All ratings are fully anonymous — no personal data stored or published
+- GDPR-compliant (DSGVO-konform)
+- Cookie-free analytics (GoatCounter)
+- Fonts self-hosted (no Google Fonts / no data sent to Google)
+- No tracking cookies
+
+## Contact
+
+Website: https://assistenz-ranking.de

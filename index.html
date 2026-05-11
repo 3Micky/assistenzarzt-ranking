@@ -11,8 +11,7 @@
 
     <!-- SEO -->
     <meta name="description" content="Anonyme Bewertungsplattform für Assistenzarztstellen in Deutschland, Österreich und der Schweiz. Kliniken vergleichen, Bewertungen lesen und schreiben." />
-    <!-- LAUNCH: "noindex, nofollow" → "index, follow" ändern wenn Password-Gate entfernt wird -->
-    <meta name="robots" content="noindex, nofollow" />
+    <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://assistenz-ranking.de" />
 
     <!-- Open Graph (Fallback für alle Seiten) -->
@@ -28,12 +27,7 @@
     <meta name="twitter:description" content="Anonyme Bewertungen von Assistenzarztstellen in DACH. Kliniken ehrlich vergleichen." />
     <meta name="twitter:image" content="https://assistenz-ranking.de/Logo_screenshot.png" />
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
-
-    <!-- Structured Data: Organization + WebSite (für Google Knowledge Panel + Sitelinks-Searchbox) -->
+    <!-- Structured Data: Organization + WebSite + FAQPage -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -67,6 +61,52 @@
             },
             "query-input": "required name=search_term_string"
           }
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://assistenz-ranking.de/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Was ist das Assistenz-Ranking?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Das Assistenz-Ranking ist eine anonyme Bewertungsplattform für Assistenzarztstellen in Deutschland, Österreich und der Schweiz (DACH). Ärzt*innen können Kliniken und Weiterbildungsstellen anonym bewerten und die Erfahrungen anderer lesen, um fundierte Karriereentscheidungen zu treffen."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Sind die Bewertungen wirklich anonym?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Ja, alle Bewertungen auf dem Assistenz-Ranking sind vollständig anonym. Es werden keine personenbezogenen Daten der Bewertenden gespeichert oder veröffentlicht. Die Anonymität ist technisch und organisatorisch sichergestellt."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Welche Kliniken können bewertet werden?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Auf dem Assistenz-Ranking können Kliniken und Krankenhäuser in Deutschland, Österreich und der Schweiz bewertet werden. Die Plattform deckt alle Fachrichtungen der ärztlichen Weiterbildung im DACH-Raum ab."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Nach welchen Kriterien werden Kliniken bewertet?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Kliniken werden nach folgenden Kriterien bewertet: Weiterbildungsqualität, Arbeitsbelastung, Teamklima, Work-Life-Balance, Mentoring durch Oberärzt*innen und Facharztprüfungsvorbereitung. Jedes Kriterium wird einzeln bewertet für ein differenziertes Gesamtbild."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Wie kann ich eine Klinik bewerten?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Um eine Klinik zu bewerten, klicke auf 'Bewerten' in der Navigation. Die Bewertung erfolgt in drei Schritten: Klinik auswählen, Kriterien bewerten und optional einen anonymen Erfahrungsbericht schreiben. Die Bewertung dauert etwa 3–5 Minuten."
+              }
+            }
+          ]
         }
       ]
     }

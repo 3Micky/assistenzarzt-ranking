@@ -18,6 +18,7 @@ export default function HomePage() {
       <div className="border-b border-ink px-6 pt-8 pb-6">
         <div className="mono-label-red mb-2">[ TRANSPARENT. ANONYM. FÜR ALLE. ]</div>
         <h1 className="font-display text-4xl text-ink uppercase tracking-tight leading-none mb-3">
+          <span className="sr-only">Assistenzarzt Bewertung – </span>
           Ärzt*innen helfen<br />Ärzt*innen
         </h1>
         <p className="text-sm text-ink/80 max-w-xl leading-relaxed">
@@ -41,6 +42,37 @@ export default function HomePage() {
           <span className="mono-label">/// DACH-HEATMAP</span>
         </div>
         <GeoMap />
+      </div>
+
+      {/* FAQ — extractable content for AI search */}
+      <div className="border-b border-ink px-6 py-8">
+        <div className="mono-label mb-6">/// HÄUFIGE FRAGEN</div>
+        <dl className="max-w-2xl space-y-6">
+          <div>
+            <dt className="font-semibold text-ink mb-1">Was ist das Assistenz-Ranking?</dt>
+            <dd className="text-sm text-ink/80 leading-relaxed">
+              Das Assistenz-Ranking ist eine anonyme Bewertungsplattform für Assistenzarztstellen in Deutschland, Österreich und der Schweiz. Ärzt*innen bewerten Kliniken anhand von Weiterbildungsqualität, Arbeitsbelastung, Teamklima und weiteren Kriterien — ohne Angst vor beruflichen Konsequenzen.
+            </dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-ink mb-1">Sind die Bewertungen wirklich anonym?</dt>
+            <dd className="text-sm text-ink/80 leading-relaxed">
+              Ja. Es werden keine personenbezogenen Daten gespeichert oder veröffentlicht. Die Anonymität ist technisch sichergestellt — weder Name, noch Approbationsnummer, noch E-Mail-Adresse werden erhoben.
+            </dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-ink mb-1">Nach welchen Kriterien werden Kliniken bewertet?</dt>
+            <dd className="text-sm text-ink/80 leading-relaxed">
+              Bewertet werden: Weiterbildungsqualität, Arbeitsbelastung, Teamklima, Work-Life-Balance, Mentoring durch Oberärzt*innen und Facharztprüfungsvorbereitung. Jedes Kriterium wird separat bewertet für ein differenziertes Gesamtbild.
+            </dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-ink mb-1">Wie lange dauert eine Bewertung?</dt>
+            <dd className="text-sm text-ink/80 leading-relaxed">
+              Eine Bewertung dauert etwa 3–5 Minuten. In drei Schritten: Klinik auswählen, Kriterien bewerten, optional einen Erfahrungsbericht schreiben.
+            </dd>
+          </div>
+        </dl>
       </div>
     </div>
   )
