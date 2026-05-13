@@ -73,7 +73,7 @@ export default function GeoMap() {
   const markerRadius = (count) => Math.min(Math.max(Math.sqrt(count) * 4, 5), 20)
 
   return (
-    <div className="bg-canvas relative" style={{ minHeight: MAP_HEIGHT }}>
+    <div className="bg-canvas relative" style={{ minHeight: `max(${MAP_HEIGHT}px, calc(100vh - 12rem))` }}>
       {/* Zoom Controls */}
       <div className="absolute top-3 right-3 z-10 ink-grid" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
         <button onClick={() => setZoom((z) => Math.min(z * 1.5, 8))}
@@ -85,7 +85,7 @@ export default function GeoMap() {
       </div>
 
       {/* Map */}
-      <div className="relative bg-canvas" style={{ height: MAP_HEIGHT }}>
+      <div className="relative bg-canvas" style={{ height: `max(${MAP_HEIGHT}px, calc(100vh - 12rem))` }}>
         <ComposableMap
           {...MAP_CONFIG}
           width={800}

@@ -69,7 +69,7 @@ export default function BerichteDetailPage() {
   const metaDesc  = `Anonymer Erfahrungsbericht: ${rating.hospital}${rating.city ? `, ${rating.city}` : ''}${rating.specialty ? ` · ${rating.specialty}` : ''}. Gesamtscore: ${score}/10. Bewertung auf assistenz-ranking.de.`
 
   return (
-    <div className="max-w-3xl mx-auto my-6 border border-ink">
+    <div className="max-w-3xl mx-auto my-6 border border-ink overflow-hidden">
       <Helmet>
         <title>{metaTitle}</title>
         <meta name="description" content={metaDesc} />
@@ -90,8 +90,8 @@ export default function BerichteDetailPage() {
       {/* Klinik-Info */}
       <div className="border-b border-ink p-5">
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="font-display text-2xl text-ink uppercase tracking-tight leading-none mb-2">
+          <div className="min-w-0">
+            <h1 className="font-display text-xl sm:text-2xl text-ink uppercase tracking-tight leading-none mb-2 break-words">
               <Link
                 to={`/klinik/${slugify(rating.hospital)}`}
                 className="hover:text-hazard hover:underline transition-colors"
@@ -136,24 +136,24 @@ export default function BerichteDetailPage() {
       />
 
       {/* CTA Bar */}
-      <div className="ink-grid border-b border-ink" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+      <div className="ink-grid border-b border-ink" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
         <Link
           to={`/bewerten?hospital=${encodeURIComponent(rating.hospital)}${rating.city ? `&city=${encodeURIComponent(rating.city)}` : ''}${rating.region ? `&region=${encodeURIComponent(rating.region)}` : ''}${rating.country ? `&country=${encodeURIComponent(rating.country)}` : ''}${rating.specialty ? `&specialty=${encodeURIComponent(rating.specialty)}` : ''}`}
-          className="btn-hazard text-center py-4"
+          className="btn-hazard text-center py-3 text-[9px] sm:text-[10px]"
         >
-          [ + BEWERTUNG ]
+          + BEWERTUNG
         </Link>
         <Link
           to={`/vergleich?mode=abteilung&hospital=${encodeURIComponent(rating.hospital)}${rating.specialty ? `&specialty=${encodeURIComponent(rating.specialty)}` : ''}`}
-          className="btn-ghost-ink text-center py-4"
+          className="btn-ghost-ink text-center py-3 text-[9px] sm:text-[10px]"
         >
-          VERGLEICHEN
+          VERGLEICH
         </Link>
         <Link
           to={`/berichte?q=${encodeURIComponent(rating.hospital)}&type=klinik`}
-          className="btn-ghost-ink text-center py-4"
+          className="btn-ghost-ink text-center py-3 text-[9px] sm:text-[10px]"
         >
-          ALLE BERICHTE
+          BERICHTE
         </Link>
       </div>
 

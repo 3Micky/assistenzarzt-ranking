@@ -210,7 +210,7 @@ export default function KlinikProfilePage() {
   const canonical = `https://assistenz-ranking.de/klinik/${slug}`
 
   return (
-    <div className="max-w-3xl mx-auto my-6 border border-ink">
+    <div className="max-w-3xl mx-auto my-6 border border-ink overflow-hidden">
       <Helmet>
         <title>{metaTitle}</title>
         <meta name="description" content={metaDesc} />
@@ -239,24 +239,24 @@ export default function KlinikProfilePage() {
         <span className="text-canvas/60">KLINIK-PROFIL</span>
       </div>
 
-      <div className="ink-grid border-b border-ink" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+      <div className="ink-grid border-b border-ink" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
         <Link
           to={`/bewerten?hospital=${encodeURIComponent(hospital.name)}${hospital.city ? `&city=${encodeURIComponent(hospital.city)}` : ''}${hospital.region ? `&region=${encodeURIComponent(hospital.region)}` : ''}${hospital.country ? `&country=${encodeURIComponent(hospital.country)}` : ''}`}
-          className="btn-hazard text-center py-3"
+          className="btn-hazard text-center py-3 text-[9px] sm:text-[10px]"
         >
-          [ + BEWERTUNG ]
+          + BEWERTUNG
         </Link>
         <Link
           to={`/vergleich?q=${encodeURIComponent(hospital.name)}`}
-          className="btn-ghost-ink text-center py-3"
+          className="btn-ghost-ink text-center py-3 text-[9px] sm:text-[10px]"
         >
-          VERGLEICHEN
+          VERGLEICH
         </Link>
         <Link
           to={`/berichte?q=${encodeURIComponent(hospital.name)}&type=klinik`}
-          className="btn-ghost-ink text-center py-3"
+          className="btn-ghost-ink text-center py-3 text-[9px] sm:text-[10px]"
         >
-          ALLE BERICHTE
+          BERICHTE
         </Link>
       </div>
 
@@ -264,7 +264,7 @@ export default function KlinikProfilePage() {
       <div className="border-b border-ink p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="font-display text-2xl text-ink uppercase tracking-tight leading-none mb-2">
+            <h1 className="font-display text-xl sm:text-2xl text-ink uppercase tracking-tight leading-none mb-2 break-words">
               {hospital.name}
             </h1>
             <div className="flex flex-wrap gap-x-4 gap-y-1">
@@ -300,7 +300,7 @@ export default function KlinikProfilePage() {
 
       {/* Stats Bar */}
       {hasRatings && (
-        <div className="ink-grid border-b border-ink" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+        <div className="ink-grid grid-cols-2 sm:grid-cols-4 border-b border-ink">
           <div className="p-3 text-center">
             <div className="mono-label text-ink/50 mb-1">BEWERTUNGEN</div>
             <div className="font-mono text-2xl font-bold text-ink">{data.count}</div>
