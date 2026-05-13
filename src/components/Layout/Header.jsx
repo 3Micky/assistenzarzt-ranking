@@ -3,9 +3,9 @@ import { Link, useLocation } from 'react-router-dom'
 
 const NAV_LINKS = [
   { to: '/berichte',  label: 'BERICHTE'  },
-  { to: '/karte',     label: 'KARTE'     },
   { to: '/ranking',   label: 'RANKING'   },
   { to: '/vergleich', label: 'VERGLEICH' },
+  { to: '/karte',     label: 'KARTE'     },
 ]
 
 export default function Header() {

@@ -12,8 +12,12 @@ import BewertungPage from './pages/BewertungPage.jsx'
 import DatenschutzPage    from './pages/DatenschutzPage.jsx'
 import AGBPage            from './pages/AGBPage.jsx'
 import FAQPage            from './pages/FAQPage.jsx'
+import UeberUnsPage       from './pages/UeberUnsPage.jsx'
 import BerichteDetailPage from './pages/BerichteDetailPage.jsx'
-import KlinikProfilePage from './pages/KlinikProfilePage.jsx'
+import KlinikProfilePage  from './pages/KlinikProfilePage.jsx'
+import StadtPage          from './pages/StadtPage.jsx'
+import BundeslandPage     from './pages/BundeslandPage.jsx'
+import FachrichtungPage   from './pages/FachrichtungPage.jsx'
 import { useRatingsStore } from './store/ratingsStore.js'
 
 export default function App() {
@@ -27,13 +31,18 @@ export default function App() {
       <main className="flex-1">
         <Routes>
           <Route path="/"           element={<HomePage />}       />
-          <Route path="/berichte"      element={<BerichtePage />}       />
-          <Route path="/berichte/:id" element={<BerichteDetailPage />} />
-          <Route path="/klinik/:slug" element={<KlinikProfilePage />} />
+          <Route path="/berichte"   element={<BerichtePage />}   />
+          <Route path="/berichte/:hospitalSlug/:id" element={<BerichteDetailPage />} />
+          <Route path="/berichte/:id"               element={<BerichteDetailPage />} />
+          <Route path="/klinik/:slug"      element={<KlinikProfilePage />}  />
+          <Route path="/stadt/:slug"       element={<StadtPage />}          />
+          <Route path="/bundesland/:slug"  element={<BundeslandPage />}     />
+          <Route path="/fachrichtung/:slug" element={<FachrichtungPage />}  />
           <Route path="/karte"      element={<KartePage />}      />
           <Route path="/ranking"    element={<RankingPage />}    />
           <Route path="/vergleich"  element={<VergleichPage />}  />
           <Route path="/bewerten"   element={<BewertungPage />}  />
+          <Route path="/ueber-uns"  element={<UeberUnsPage />}   />
           <Route path="/datenschutz" element={<DatenschutzPage />} />
           <Route path="/agb"        element={<AGBPage />}        />
           <Route path="/faq"        element={<FAQPage />}        />

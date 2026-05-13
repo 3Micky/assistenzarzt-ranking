@@ -5,7 +5,7 @@ import { useRatingsStore } from '../store/ratingsStore.js'
 import { scoreColor, scoreLabel, overallScore, avgByHospital } from '../utils/calculations.js'
 import { getHospitalBySlug, aggregateHospitalData, hospitalProfileSchema } from '../utils/hospitalProfile.js'
 import { slugify } from '../utils/slugify.js'
-import { CRITERIA_ESSENTIAL, CRITERIA_MEDICAL, CRITERIA_NICE, COUNTRY_FLAGS } from '../data/criteria.js'
+import { CRITERIA_ESSENTIAL, CRITERIA_MEDICAL, CRITERIA_NICE } from '../data/criteria.js'
 import MiniRadar from '../components/Charts/MiniRadar.jsx'
 
 const COUNTRY_NAMES = { DE: 'Deutschland', AT: 'Österreich', CH: 'Schweiz' }
@@ -87,7 +87,7 @@ function ReviewRow({ rating }) {
 
   return (
     <div
-      onClick={() => navigate(`/berichte/${rating.id}`)}
+      onClick={() => navigate(`/berichte/${slugify(rating.hospital)}/${rating.id}`)}
       className="flex items-start gap-4 p-4 border-b border-ink/10 cursor-pointer hover:bg-canvas-alt transition-colors"
     >
       <div className="flex-shrink-0 text-right w-12">
@@ -321,7 +321,7 @@ export default function KlinikProfilePage() {
           <div className="p-3 text-center">
             <div className="mono-label text-ink/50 mb-1">LAND</div>
             <div className="font-mono text-lg font-bold text-ink">
-              {COUNTRY_FLAGS[hospital.country] ?? '—'}
+              {hospital.country ?? '—'}
             </div>
           </div>
         </div>
