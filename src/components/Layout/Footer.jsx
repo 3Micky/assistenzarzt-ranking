@@ -19,6 +19,8 @@ export default function Footer() {
 
         {/* Links */}
         <nav className="flex items-center gap-4 font-mono text-[11px] uppercase tracking-wider text-ink/60">
+          <Link to="/faq"         className="hover:text-ink transition-colors">FAQ</Link>
+          <span className="text-ink/20">|</span>
           <Link to="/datenschutz" className="hover:text-ink transition-colors">Datenschutz</Link>
           <span className="text-ink/20">|</span>
           <Link to="/agb"         className="hover:text-ink transition-colors">AGB</Link>

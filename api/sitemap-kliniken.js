@@ -3,16 +3,6 @@ import { slugify } from '../src/utils/slugify.js'
 
 const DOMAIN = 'https://assistenz-ranking.de'
 
-// Statische Routen mit Priorität und Änderungsfrequenz
-const STATIC_ROUTES = [
-  { path: '/',           priority: '1.0', changefreq: 'daily'   },
-  { path: '/berichte',   priority: '0.9', changefreq: 'daily'   },
-  { path: '/ranking',    priority: '0.8', changefreq: 'daily'   },
-  { path: '/karte',      priority: '0.7', changefreq: 'weekly'  },
-  { path: '/vergleich',  priority: '0.6', changefreq: 'weekly'  },
-  { path: '/bewerten',   priority: '0.5', changefreq: 'monthly' },
-]
-
 function xmlEntry({ loc, lastmod, changefreq, priority }) {
   return [
     '  <url>',
@@ -26,12 +16,8 @@ function xmlEntry({ loc, lastmod, changefreq, priority }) {
 
 export default async function handler(req, res) {
   const today = new Date().toISOString().split('T')[0]
+  const entries = []
 
-  const entries = STATIC_ROUTES.map(r =>
-    xmlEntry({ loc: `${DOMAIN}${r.path}`, lastmod: today, ...r })
-  )
-
-  // Dynamische /berichte/:id Einträge aus Supabase
   const supabaseUrl = process.env.VITE_SUPABASE_URL
   const supabaseKey = process.env.VITE_SUPABASE_KEY
 
@@ -40,38 +26,34 @@ export default async function handler(req, res) {
       const supabase = createClient(supabaseUrl, supabaseKey)
       const { data } = await supabase
         .from('ratings')
-        .select('id, created_at')
+        .select('hospital, created_at')
         .order('created_at', { ascending: false })
-        .limit(1000)
 
       if (data?.length) {
-        const hospitalSet = new Set()
+        const hospitalMap = new Map()
         for (const row of data) {
-          const lastmod = row.created_at
-            ? new Date(row.created_at).toISOString().split('T')[0]
-            : today
-          entries.push(xmlEntry({
-            loc:        `${DOMAIN}/berichte/${row.id}`,
-            lastmod,
-            changefreq: 'never',
-            priority:   '0.4',
-          }))
-          if (row.hospital) hospitalSet.add(row.hospital)
+          if (!row.hospital) continue
+          const slug = slugify(row.hospital)
+          const existing = hospitalMap.get(slug)
+          if (!existing || new Date(row.created_at) > new Date(existing)) {
+            hospitalMap.set(slug, row.created_at)
+          }
         }
 
-        // Klinik-Profile-Seiten
-        for (const hospital of hospitalSet) {
+        for (const [slug, createdAt] of hospitalMap) {
+          const lastmod = createdAt
+            ? new Date(createdAt).toISOString().split('T')[0]
+            : today
           entries.push(xmlEntry({
-            loc:        `${DOMAIN}/klinik/${slugify(hospital)}`,
-            lastmod:    today,
+            loc:        `${DOMAIN}/klinik/${slug}`,
+            lastmod,
             changefreq: 'weekly',
             priority:   '0.7',
           }))
         }
       }
     } catch (err) {
-      // Supabase-Fehler → statische Sitemap reicht vorerst
-      console.error('[sitemap] Supabase-Fehler:', err.message)
+      console.error('[sitemap-kliniken] Supabase-Fehler:', err.message)
     }
   }
 

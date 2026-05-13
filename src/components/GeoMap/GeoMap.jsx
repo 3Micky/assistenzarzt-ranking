@@ -38,7 +38,6 @@ export default function GeoMap() {
   const navigate = useNavigate()
   const [tooltip, setTooltip]           = useState(null)
   const [hoveredCountry, setHoveredCountry] = useState(null)
-  const [hoveredGeoId, setHoveredGeoId] = useState(null)
   const [zoom, setZoom] = useState(1)
 
   const validCities = useMemo(() => cityData.filter((c) => c.coordinates), [cityData])
@@ -59,12 +58,10 @@ export default function GeoMap() {
     const x = event.clientX - rect.left
     const y = event.clientY - rect.top
     setHoveredCountry({ code, name: COUNTRY_NAMES[code], x, y })
-    setHoveredGeoId(String(geoId))
   }, [])
 
   const handleCountryLeave = useCallback(() => {
     setHoveredCountry(null)
-    setHoveredGeoId(null)
   }, [])
 
   const handleCountryClick = useCallback((geoId) => {
@@ -98,43 +95,53 @@ export default function GeoMap() {
           <ZoomableGroup zoom={zoom} center={[10, 49]}>
             <Geographies geography={GEO_URL}>
               {({ geographies }) =>
-                geographies.map((geo) => {
-                  const geoIdStr = String(geo.id)
-                  const isDACH   = DACH_IDS.has(geoIdStr)
-                  const isHovered = hoveredGeoId === geoIdStr
+                [...geographies]
+                  .sort((a, b) => {
+                    const aCode = COUNTRY_CODE_MAP[String(a.id)]
+                    const bCode = COUNTRY_CODE_MAP[String(b.id)]
+                    const aHovered = aCode && hoveredCountry?.code === aCode
+                    const bHovered = bCode && hoveredCountry?.code === bCode
+                    if (aHovered && !bHovered) return 1
+                    if (!aHovered && bHovered) return -1
+                    return 0
+                  })
+                  .map((geo) => {
+                    const geoIdStr = String(geo.id)
+                    const isDACH   = DACH_IDS.has(geoIdStr)
+                    const isHovered = !!COUNTRY_CODE_MAP[geoIdStr] && hoveredCountry?.code === COUNTRY_CODE_MAP[geoIdStr]
 
-                  return (
-                    <Geography
-                      key={geo.rsmKey}
-                      geography={geo}
-                      onClick={isDACH ? () => handleCountryClick(geoIdStr) : undefined}
-                      onMouseEnter={isDACH ? (e) => handleCountryEnter(geoIdStr, e) : undefined}
-                      onMouseLeave={isDACH ? handleCountryLeave : undefined}
-                      style={{
-                        default: {
-                          fill:        isHovered ? '#EAE8E3' : '#F4F4F0',
-                          stroke:      isHovered ? '#E61919' : '#050505',
-                          strokeWidth: isHovered ? 1.5 : 0.5,
-                          outline:     'none',
-                          cursor:      isDACH ? 'pointer' : 'default',
-                        },
-                        hover: {
-                          fill:        isDACH ? '#EAE8E3' : '#F4F4F0',
-                          stroke:      isDACH ? '#E61919' : '#050505',
-                          strokeWidth: isDACH ? 1.5 : 0.5,
-                          outline:     'none',
-                          cursor:      isDACH ? 'pointer' : 'default',
-                        },
-                        pressed: {
-                          fill:        '#EAE8E3',
-                          stroke:      '#E61919',
-                          strokeWidth: 1.5,
-                          outline:     'none',
-                        },
-                      }}
-                    />
-                  )
-                })
+                    return (
+                      <Geography
+                        key={geo.rsmKey}
+                        geography={geo}
+                        onClick={isDACH ? () => handleCountryClick(geoIdStr) : undefined}
+                        onMouseEnter={isDACH ? (e) => handleCountryEnter(geoIdStr, e) : undefined}
+                        onMouseLeave={isDACH ? handleCountryLeave : undefined}
+                        style={{
+                          default: {
+                            fill:        isHovered ? '#EAE8E3' : '#F4F4F0',
+                            stroke:      isHovered ? '#E61919' : '#050505',
+                            strokeWidth: isHovered ? 1.5 : 0.5,
+                            outline:     'none',
+                            cursor:      isDACH ? 'pointer' : 'default',
+                          },
+                          hover: {
+                            fill:        isDACH ? '#EAE8E3' : '#F4F4F0',
+                            stroke:      isDACH ? '#E61919' : '#050505',
+                            strokeWidth: isDACH ? 1.5 : 0.5,
+                            outline:     'none',
+                            cursor:      isDACH ? 'pointer' : 'default',
+                          },
+                          pressed: {
+                            fill:        '#EAE8E3',
+                            stroke:      '#E61919',
+                            strokeWidth: 1.5,
+                            outline:     'none',
+                          },
+                        }}
+                      />
+                    )
+                  })
               }
             </Geographies>
 

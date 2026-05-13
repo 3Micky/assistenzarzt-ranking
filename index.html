@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Assistenzarzt-Ranking | DACH</title>
 
+    <!-- Performance: DNS-Prefetch for external APIs -->
+    <link rel="dns-prefetch" href="//supabase.co" />
+    <link rel="dns-prefetch" href="//gc.zgo.at" />
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/Logo_screenshot_ohne_text.png" />
     <link rel="apple-touch-icon" href="/Logo_screenshot_ohne_text.png" />
@@ -117,7 +121,12 @@
             async src="//gc.zgo.at/count.js"></script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="loading-fallback" style="padding:40px;font-family:monospace;font-size:14px;color:#050505">
+        <p>Loading Assistenz-Ranking...</p>
+        <p>If this message persists, check the browser console (F12 → Console) for errors.</p>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

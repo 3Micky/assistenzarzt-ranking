@@ -27,3 +27,4 @@ User-agent: CCBot
 Disallow: /
 
 Sitemap: https://assistenz-ranking.de/sitemap.xml
+Sitemap: https://assistenz-ranking.de/sitemap-kliniken.xml

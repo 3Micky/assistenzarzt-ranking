@@ -11,7 +11,8 @@
     }
   ],
   "rewrites": [
-    { "source": "/sitemap.xml",  "destination": "/api/sitemap" },
-    { "source": "/((?!api/).*)", "destination": "/index.html"  }
+    { "source": "/sitemap.xml",          "destination": "/api/sitemap" },
+    { "source": "/sitemap-kliniken.xml", "destination": "/api/sitemap-kliniken" },
+    { "source": "/((?!api/).*)",         "destination": "/index.html" }
   ]
 }

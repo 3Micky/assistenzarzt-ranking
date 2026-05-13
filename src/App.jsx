@@ -11,7 +11,9 @@ import VergleichPage from './pages/VergleichPage.jsx'
 import BewertungPage from './pages/BewertungPage.jsx'
 import DatenschutzPage    from './pages/DatenschutzPage.jsx'
 import AGBPage            from './pages/AGBPage.jsx'
+import FAQPage            from './pages/FAQPage.jsx'
 import BerichteDetailPage from './pages/BerichteDetailPage.jsx'
+import KlinikProfilePage from './pages/KlinikProfilePage.jsx'
 import { useRatingsStore } from './store/ratingsStore.js'
 
 export default function App() {
@@ -27,12 +29,14 @@ export default function App() {
           <Route path="/"           element={<HomePage />}       />
           <Route path="/berichte"      element={<BerichtePage />}       />
           <Route path="/berichte/:id" element={<BerichteDetailPage />} />
+          <Route path="/klinik/:slug" element={<KlinikProfilePage />} />
           <Route path="/karte"      element={<KartePage />}      />
           <Route path="/ranking"    element={<RankingPage />}    />
           <Route path="/vergleich"  element={<VergleichPage />}  />
           <Route path="/bewerten"   element={<BewertungPage />}  />
           <Route path="/datenschutz" element={<DatenschutzPage />} />
           <Route path="/agb"        element={<AGBPage />}        />
+          <Route path="/faq"        element={<FAQPage />}        />
         </Routes>
       </main>
       <Footer />

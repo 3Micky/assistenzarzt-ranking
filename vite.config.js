@@ -8,6 +8,9 @@ export default defineConfig({
       '@': '/src',
     },
   },
+  server: {
+    historyApiFallback: true,
+  },
   test: {
     environment: 'node',
     globals: true,

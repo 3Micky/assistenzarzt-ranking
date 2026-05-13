@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async'
 import { useParams, Link } from 'react-router-dom'
 import { useRatingsStore } from '../store/ratingsStore.js'
 import { overallScore, scoreColor, scoreLabel } from '../utils/calculations.js'
+import { slugify } from '../utils/slugify.js'
 import { CRITERIA_ESSENTIAL, CRITERIA_MEDICAL, CRITERIA_NICE } from '../data/criteria.js'
 import MeldeModal from '../components/Berichte/MeldeModal.jsx'
 
@@ -91,7 +92,12 @@ export default function BerichteDetailPage() {
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="font-display text-2xl text-ink uppercase tracking-tight leading-none mb-2">
-              {rating.hospital}
+              <Link
+                to={`/klinik/${slugify(rating.hospital)}`}
+                className="hover:text-hazard hover:underline transition-colors"
+              >
+                {rating.hospital}
+              </Link>
             </h1>
             <div className="flex flex-wrap gap-x-4 gap-y-1">
               {rating.city    && <span className="mono-label">{rating.city}</span>}
@@ -128,6 +134,28 @@ export default function BerichteDetailPage() {
         criteria={CRITERIA_NICE}
         values={rating.criteria}
       />
+
+      {/* CTA Bar */}
+      <div className="ink-grid border-b border-ink" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+        <Link
+          to={`/bewerten?hospital=${encodeURIComponent(rating.hospital)}${rating.city ? `&city=${encodeURIComponent(rating.city)}` : ''}${rating.region ? `&region=${encodeURIComponent(rating.region)}` : ''}${rating.country ? `&country=${encodeURIComponent(rating.country)}` : ''}${rating.specialty ? `&specialty=${encodeURIComponent(rating.specialty)}` : ''}`}
+          className="btn-hazard text-center py-4"
+        >
+          [ + BEWERTUNG ]
+        </Link>
+        <Link
+          to={`/vergleich?mode=abteilung&hospital=${encodeURIComponent(rating.hospital)}${rating.specialty ? `&specialty=${encodeURIComponent(rating.specialty)}` : ''}`}
+          className="btn-ghost-ink text-center py-4"
+        >
+          VERGLEICHEN
+        </Link>
+        <Link
+          to={`/berichte?q=${encodeURIComponent(rating.hospital)}&type=klinik`}
+          className="btn-ghost-ink text-center py-4"
+        >
+          ALLE BERICHTE
+        </Link>
+      </div>
 
       {/* Kommentar */}
       {rating.comment && (

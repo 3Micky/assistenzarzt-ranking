@@ -1,11 +1,12 @@
+const bool = (v, yes = 10, no = 2, dflt = 5) =>
+  v === true ? yes : v === false ? no : dflt
+
 /**
  * 5-Dimensionen-Composite-Score (0–10).
  * Gewichtung: Weiterbildung 30% · WLB 25% · Ausbildungsstruktur 20% · Teamkultur 15% · Infrastruktur 10%
  */
 export function overallScore(criteria) {
   const c = criteria
-  const bool = (v, yes = 10, no = 2, dflt = 5) =>
-    v === true ? yes : v === false ? no : dflt
 
   // Dimension 1: Weiterbildungsqualität (30%)
   const wbe = c.wbeJahre != null ? Math.min(10, (c.wbeJahre / 12) * 10) : 5
@@ -81,23 +82,172 @@ export function avgByCity(ratings, citiesData) {
     .filter((c) => c.coordinates !== null)
 }
 
-/** Radar data — uses wlb/team sliders + derived scores for boolean fields */
+import { matchHospitalName } from './hospitalSearch.js'
+
+/** Radar data — 6 orthogonale Achsen (kein Gesamt-Score als Ecke) */
 export function radarData(hospitalNames, ratings) {
   const axes = [
-    { key: 'supervisionQualitaet',     label: 'Supervision',  extract: c => c.supervisionQualitaet  ?? 5 },
-    { key: 'autonomie',                label: 'Autonomie',    extract: c => c.autonomie              ?? 5 },
-    { key: 'logbuchErfuellbarkeit',    label: 'Logbuch',      extract: c => c.logbuchErfuellbarkeit  ?? 5 },
-    { key: 'workLifeBalance',          label: 'Work-Life',    extract: c => c.workLifeBalance        ?? 5 },
-    { key: 'teamAtmosphaere',          label: 'Team',         extract: c => c.teamAtmosphaere        ?? 5 },
-    { key: 'ueberstundenAufschreiben', label: 'Überstunden',  extract: c => c.ueberstundenAufschreiben === true ? 10 : c.ueberstundenAufschreiben === false ? 1 : 5 },
-    { key: 'diensteProMonat',          label: 'Dienste',      extract: c => Math.max(1, 10 - ((c.diensteProMonat ?? 4) * 0.6)) },
-    { key: 'gesamtscore',              label: 'Gesamt',       extract: c => overallScore(c) },
+    {
+      key: 'weiterbildung',
+      label: 'Weiterbildung',
+      extract: c => {
+        const wbe = c.wbeJahre != null ? Math.min(10, (c.wbeJahre / 12) * 10) : 5
+        const vals = [
+          c.supervisionQualitaet ?? 5,
+          c.logbuchErfuellbarkeit ?? 5,
+          wbe,
+        ]
+        return Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10
+      },
+    },
+    {
+      key: 'autonomie',
+      label: 'Autonomie',
+      extract: c => c.autonomie ?? 5,
+    },
+    {
+      key: 'workLife',
+      label: 'Work-Life',
+      extract: c => {
+        const diensteScore = c.diensteProMonat != null ? Math.max(1, 10 - c.diensteProMonat * 0.6) : 5
+        const ueberstunden = bool(c.ueberstundenAufschreiben, 10, 1, 5)
+        const vals = [
+          c.workLifeBalance ?? 5,
+          diensteScore,
+          ueberstunden,
+        ]
+        return Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10
+      },
+    },
+    {
+      key: 'teamklima',
+      label: 'Teamklima',
+      extract: c => {
+        const vals = [
+          c.teamAtmosphaere ?? 5,
+          bool(c.schwangerschaftFamilienfreundlich, 10, 2, 5),
+          bool(c.nachtdienstBegleitung, 10, 3, 5),
+        ]
+        return Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10
+      },
+    },
+    {
+      key: 'struktur',
+      label: 'Struktur',
+      extract: c => {
+        const mitarb = c.mitarbeitergespraeche != null ? Math.min(10, c.mitarbeitergespraeche * 2.5) : 5
+        const vals = [
+          bool(c.rotationsplaene, 10, 3, 5),
+          bool(c.fortbildungFreistellung, 10, 4, 5),
+          bool(c.fortbildungBezahlt, 10, 4, 5),
+          mitarb,
+        ]
+        return Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10
+      },
+    },
+    {
+      key: 'infrastruktur',
+      label: 'Infrastruktur',
+      extract: c => {
+        const vals = [
+          bool(c.parkplatz, 10, 5, 5),
+          c.dokumentationsaufwand ?? 5,
+        ]
+        return Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10
+      },
+    },
   ]
   return axes.map(({ key, label, extract }) => {
     const entry = { subject: label, key }
     hospitalNames.forEach((name) => {
-      const relevant = ratings.filter((r) => r.hospital === name)
+      const relevant = ratings.filter((r) => matchHospitalName(r.hospital, name))
       entry[name] = relevant.length === 0
+        ? 0
+        : Math.round((relevant.reduce((sum, r) => sum + extract(r.criteria), 0) / relevant.length) * 10) / 10
+    })
+    return entry
+  })
+}
+
+/** Radar data by (hospital, specialty) — 6 Achsen */
+export function radarDataBySpecialty(pairs, ratings) {
+  const axes = [
+    {
+      key: 'weiterbildung',
+      label: 'Weiterbildung',
+      extract: c => {
+        const wbe = c.wbeJahre != null ? Math.min(10, (c.wbeJahre / 12) * 10) : 5
+        const vals = [
+          c.supervisionQualitaet ?? 5,
+          c.logbuchErfuellbarkeit ?? 5,
+          wbe,
+        ]
+        return Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10
+      },
+    },
+    {
+      key: 'autonomie',
+      label: 'Autonomie',
+      extract: c => c.autonomie ?? 5,
+    },
+    {
+      key: 'workLife',
+      label: 'Work-Life',
+      extract: c => {
+        const diensteScore = c.diensteProMonat != null ? Math.max(1, 10 - c.diensteProMonat * 0.6) : 5
+        const ueberstunden = bool(c.ueberstundenAufschreiben, 10, 1, 5)
+        const vals = [
+          c.workLifeBalance ?? 5,
+          diensteScore,
+          ueberstunden,
+        ]
+        return Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10
+      },
+    },
+    {
+      key: 'teamklima',
+      label: 'Teamklima',
+      extract: c => {
+        const vals = [
+          c.teamAtmosphaere ?? 5,
+          bool(c.schwangerschaftFamilienfreundlich, 10, 2, 5),
+          bool(c.nachtdienstBegleitung, 10, 3, 5),
+        ]
+        return Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10
+      },
+    },
+    {
+      key: 'struktur',
+      label: 'Struktur',
+      extract: c => {
+        const mitarb = c.mitarbeitergespraeche != null ? Math.min(10, c.mitarbeitergespraeche * 2.5) : 5
+        const vals = [
+          bool(c.rotationsplaene, 10, 3, 5),
+          bool(c.fortbildungFreistellung, 10, 4, 5),
+          bool(c.fortbildungBezahlt, 10, 4, 5),
+          mitarb,
+        ]
+        return Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10
+      },
+    },
+    {
+      key: 'infrastruktur',
+      label: 'Infrastruktur',
+      extract: c => {
+        const vals = [
+          bool(c.parkplatz, 10, 5, 5),
+          c.dokumentationsaufwand ?? 5,
+        ]
+        return Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10
+      },
+    },
+  ]
+  return axes.map(({ key, label, extract }) => {
+    const entry = { subject: label, key }
+    pairs.forEach((pair) => {
+      const labelKey = `${pair.hospital} · ${pair.specialty}`
+      const relevant = ratings.filter((r) => matchHospitalName(r.hospital, pair.hospital) && r.specialty === pair.specialty)
+      entry[labelKey] = relevant.length === 0
         ? 0
         : Math.round((relevant.reduce((sum, r) => sum + extract(r.criteria), 0) / relevant.length) * 10) / 10
     })

@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { overallScore, scoreColor } from '../../utils/calculations.js'
+import { slugify } from '../../utils/slugify.js'
 
 const COUNTRY_NAMES = { DE: 'Deutschland', AT: 'Österreich', CH: 'Schweiz' }
 const PAGE_SIZE = 50
@@ -85,9 +86,17 @@ export default function BerichteTabelle({ ratings }) {
                 <tr
                   key={r.id}
                   onClick={() => navigate(`/berichte/${r.id}`)}
-                  className={`${rowBg} border-b border-ink/10 cursor-pointer hover:bg-canvas-alt transition-colors`}
+                  className={`${rowBg} border-b border-ink/10 cursor-pointer transition-colors hover:bg-[#F47474]`}
                 >
-                  <td className="px-4 py-2.5 text-xs font-bold text-ink border-r border-ink/10">{r.hospital}</td>
+                  <td className="px-4 py-2.5 text-xs font-bold text-ink border-r border-ink/10">
+                    <Link
+                      to={`/klinik/${slugify(r.hospital)}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="hover:text-hazard hover:underline transition-colors"
+                    >
+                      {r.hospital}
+                    </Link>
+                  </td>
                   <td className="px-3 py-2.5 font-mono text-[11.5px] uppercase text-ink/80 border-r border-ink/10">{r.specialty}</td>
                   <td className="px-3 py-2.5 font-mono text-[11.5px] text-ink/90 border-r border-ink/10">{r.city ?? '—'}</td>
                   <td className="px-3 py-2.5 font-mono text-[11.5px] text-ink/90 border-r border-ink/10">{r.region ?? '—'}</td>

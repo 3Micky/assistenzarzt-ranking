@@ -4,6 +4,7 @@ import SearchDropdown from './SearchDropdown.jsx'
 import { useRatingsStore } from '../../store/ratingsStore.js'
 import { COUNTRY_LABELS, REGIONS, SPECIALTIES } from '../../data/criteria.js'
 import { searchHospitals, getCitiesForFilters, getHospitalsForFilters } from '../../utils/hospitalSearch.js'
+import { slugify } from '../../utils/slugify.js'
 
 const COUNTRY_ALIASES = {
   deutschland: 'DE', de: 'DE',
@@ -121,7 +122,11 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
       if (r.country) p.set('country', r.country)
       navigate(`/bewerten?${p}`)
     } else {
-      navigate(`/berichte?${new URLSearchParams({ q: r.label, type: r.type ?? '', country: r.country ?? '' })}`)
+      if (r.type === 'klinik') {
+        navigate(`/klinik/${slugify(r.label)}`)
+      } else {
+        navigate(`/berichte?${new URLSearchParams({ q: r.label, type: r.type ?? '', country: r.country ?? '' })}`)
+      }
     }
   }
 
@@ -133,7 +138,12 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
       if (query) p.set('hospital', query)
       navigate(`/bewerten?${p}`)
     } else {
-      navigate(`/berichte?${new URLSearchParams({ q: query })}`)
+      const exactMatch = ratings.find(r => r.hospital.toLowerCase() === query.trim().toLowerCase())
+      if (exactMatch) {
+        navigate(`/klinik/${slugify(exactMatch.hospital)}`)
+      } else {
+        navigate(`/berichte?${new URLSearchParams({ q: query })}`)
+      }
     }
   }
 

@@ -21,9 +21,12 @@ export default function SearchDropdown({ results, onSelect }) {
             {typeLabel[r.type]}
           </span>
           <span className="text-xs font-bold text-ink flex-1">{r.label}</span>
-          <span className="font-mono text-[11.5px] text-ink/60 flex-shrink-0 flex items-center gap-1">
+          <span className="font-mono text-[11.5px] text-ink/60 flex-shrink-0 flex items-center gap-2">
             {r.type === 'klinik' && r.hasRatings === false && (
               <span className="text-ink/50">NOCH KEINE BEW.</span>
+            )}
+            {r.type === 'klinik' && r.hasRatings !== false && (
+              <span className="text-hazard hidden sm:inline">PROFIL →</span>
             )}
             {COUNTRY_FLAGS[r.country]} {r.count != null ? `${r.count} KLINIKEN` : r.country}
           </span>
