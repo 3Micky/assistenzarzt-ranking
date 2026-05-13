@@ -19,9 +19,9 @@ export default function StatsBar() {
       <StatCell label="BEWERTUNGEN" value={stats.total}            valueClass="text-hazard" />
       <StatCell label="⌀ SCORE"     value={stats.avgScore.toFixed(1)} />
       <StatCell label="TOP-KLINIK"  value={stats.topHospital} valueClass="text-[11px] leading-snug break-words pt-0.5" />
-      <StatCell label="🇩🇪 DEUTSCHLAND" value={stats.countDE} />
-      <StatCell label="🇦🇹 ÖSTERREICH"  value={stats.countAT} />
-      <StatCell label="🇨🇭 SCHWEIZ"      value={stats.countCH} />
+      <StatCell label="DE · DEUTSCHLAND" value={stats.countDE} />
+      <StatCell label="AT · ÖSTERREICH"  value={stats.countAT} />
+      <StatCell label="CH · SCHWEIZ"      value={stats.countCH} />
     </div>
   )
 }

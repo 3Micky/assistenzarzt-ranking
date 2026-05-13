@@ -118,4 +118,4 @@ export const REGIONS = {
 }
 
 export const COUNTRY_LABELS = { DE: 'Deutschland', AT: 'Österreich', CH: 'Schweiz' }
-export const COUNTRY_FLAGS  = { DE: '🇩🇪', AT: '🇦🇹', CH: '🇨🇭' }
+export const COUNTRY_FLAGS  = { DE: 'DE', AT: 'AT', CH: 'CH' }

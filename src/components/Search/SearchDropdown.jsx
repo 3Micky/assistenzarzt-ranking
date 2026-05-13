@@ -20,7 +20,12 @@ export default function SearchDropdown({ results, onSelect }) {
           <span className={`font-mono text-[11.5px] tracking-widest uppercase min-w-[64px] ${r.type === 'klinik' ? 'text-hazard' : 'text-ink/60'}`}>
             {typeLabel[r.type]}
           </span>
-          <span className="text-xs font-bold text-ink flex-1">{r.label}</span>
+          <span className="text-xs font-bold text-ink flex-1">
+            {r.label}
+            {r.type === 'klinik' && r.city && (
+              <span className="font-normal text-ink/50"> · {r.city}</span>
+            )}
+          </span>
           <span className="font-mono text-[11.5px] text-ink/60 flex-shrink-0 flex items-center gap-2">
             {r.type === 'klinik' && r.hasRatings === false && (
               <span className="text-ink/50">NOCH KEINE BEW.</span>
@@ -28,7 +33,7 @@ export default function SearchDropdown({ results, onSelect }) {
             {r.type === 'klinik' && r.hasRatings !== false && (
               <span className="text-hazard hidden sm:inline">PROFIL →</span>
             )}
-            {COUNTRY_FLAGS[r.country]} {r.count != null ? `${r.count} KLINIKEN` : r.country}
+            {r.count != null ? `${r.count} KLINIKEN` : r.country}
           </span>
         </button>
       ))}

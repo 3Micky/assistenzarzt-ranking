@@ -272,7 +272,7 @@ export default function KlinikProfilePage() {
               {hospital.region && <span className="mono-label">{hospital.region}</span>}
               {hospital.country && (
                 <span className="mono-label">
-                  {COUNTRY_FLAGS[hospital.country]} {countryName}
+                  {hospital.country} · {countryName}
                 </span>
               )}
               {hospital.carrier && (

@@ -206,7 +206,7 @@ export default function SearchWidget({ defaultMode = 'lesen' }) {
           <div className="border-b border-ink px-4 py-3">
             <div className="mono-label mb-2" style={{ fontSize: '10px' }}>/// 01 LAND</div>
             <div className="ink-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-              {[['DE', '🇩🇪 DEUTSCHLAND'], ['AT', '🇦🇹 ÖSTERREICH'], ['CH', '🇨🇭 SCHWEIZ']].map(([c, label]) => (
+              {[['DE', 'DE · DEUTSCHLAND'], ['AT', 'AT · ÖSTERREICH'], ['CH', 'CH · SCHWEIZ']].map(([c, label]) => (
                 <button key={c}
                   onClick={() => handleAdvCountry(c)}
                   className={advCountry === c ? 'tab-active' : 'tab-inactive'}

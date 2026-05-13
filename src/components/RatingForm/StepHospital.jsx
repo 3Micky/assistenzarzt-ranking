@@ -188,9 +188,9 @@ export default function StepHospital({ data, onChange, onNext, initialSearchMode
               <select className="select-brutalist" value={data.country || ''}
                 onChange={e => handleCountryChange(e.target.value)}>
                 <option value="">— Wählen —</option>
-                <option value="DE">🇩🇪 Deutschland</option>
-                <option value="AT">🇦🇹 Österreich</option>
-                <option value="CH">🇨🇭 Schweiz</option>
+                <option value="DE">DE · Deutschland</option>
+                <option value="AT">AT · Österreich</option>
+                <option value="CH">CH · Schweiz</option>
               </select>
             </div>
 
