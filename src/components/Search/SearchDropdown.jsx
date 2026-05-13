@@ -14,13 +14,13 @@ export default function SearchDropdown({ results, onSelect }) {
         <button
           key={i}
           onClick={() => onSelect(r)}
-          className="w-full flex items-center gap-3 px-4 py-2 border-b border-ink/10 last:border-b-0
+          className="w-full flex items-center gap-3 px-4 py-3 sm:py-2 border-b border-ink/10 last:border-b-0
                      hover:bg-canvas-alt transition-colors text-left"
         >
           <span className={`font-mono text-[11.5px] tracking-widest uppercase min-w-[64px] ${r.type === 'klinik' ? 'text-hazard' : 'text-ink/60'}`}>
             {typeLabel[r.type]}
           </span>
-          <span className="text-xs font-bold text-ink flex-1">
+          <span className="text-sm sm:text-xs font-bold text-ink flex-1">
             {r.label}
             {r.type === 'klinik' && r.city && (
               <span className="font-normal text-ink/50"> · {r.city}</span>

@@ -21,7 +21,7 @@ function DropdownList({ items, onSelect, renderItem }) {
         <button
           key={i}
           onMouseDown={e => { e.preventDefault(); onSelect(item) }}
-          className="w-full flex items-center gap-3 px-3 py-2 border-b border-ink/10 last:border-b-0 hover:bg-canvas-alt text-left"
+          className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 border-b border-ink/10 last:border-b-0 hover:bg-canvas-alt text-left"
         >
           {renderItem(item)}
         </button>
@@ -165,7 +165,7 @@ export default function StepHospital({ data, onChange, onNext, initialSearchMode
                     <span className="font-mono text-[11.5px] tracking-widest text-hazard min-w-[56px] uppercase">
                       KLINIK
                     </span>
-                    <span className="text-xs font-bold text-ink flex-1">{h.name}</span>
+                    <span className="text-sm sm:text-xs font-bold text-ink flex-1">{h.name}</span>
                     <span className="font-mono text-[11.5px] text-ink/60 flex-shrink-0 flex items-center gap-1">
                       {h.city && <span>{h.city}</span>}
                       {h.hasRatings === false && <span className="text-ink/50">NEU</span>}
@@ -254,7 +254,7 @@ export default function StepHospital({ data, onChange, onNext, initialSearchMode
                   onSelect={selectKlinik}
                   renderItem={h => (
                     <>
-                      <span className="text-xs font-bold text-ink flex-1">{h.name}</span>
+                      <span className="text-sm sm:text-xs font-bold text-ink flex-1">{h.name}</span>
                       <span className="font-mono text-[11.5px] text-ink/60 flex-shrink-0 flex items-center gap-1">
                         {h.city}
                         {h.hasRatings === false && <span className="text-ink/50 ml-1">NEU</span>}

@@ -165,7 +165,7 @@ export default function VergleichPage() {
         <span className="text-canvas/60">BIS ZU 3 KLINIKEN VERGLEICHEN</span>
       </div>
 
-      <div className="ink-grid border-b border-ink" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+      <div className="grid grid-cols-1 sm:grid-cols-3 border-b border-ink divide-y sm:divide-y-0 divide-ink sm:ink-grid">
         {[0, 1, 2].map(i => (
           <SlotBox
             key={i}

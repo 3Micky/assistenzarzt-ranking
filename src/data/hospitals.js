@@ -7534,7 +7534,7 @@ export const DE_HOSPITALS = [
     region: "Baden-Württemberg",
   },
   {
-    name: "Hauptstandort Charité Universitätsmedizin Berlin",
+    name: "Charité Campus Mitte",
     street: "Charitéplatz 1",
     plz: "10117",
     city: "Berlin",
