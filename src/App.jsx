@@ -28,7 +28,7 @@ export default function App() {
     <PasswordGate>
     <div className="min-h-screen flex flex-col bg-canvas">
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 px-2 sm:px-0">
         <Routes>
           <Route path="/"           element={<HomePage />}       />
           <Route path="/berichte"   element={<BerichtePage />}   />
