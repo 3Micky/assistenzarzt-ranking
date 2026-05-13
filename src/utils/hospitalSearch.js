@@ -50,8 +50,49 @@ function normalize(str) {
     .trim()
 }
 
+/** Levenshtein-Distanz zwischen zwei kurzen Strings */
+function levenshtein(a, b) {
+  if (a === b) return 0
+  if (a.length === 0) return b.length
+  if (b.length === 0) return a.length
+  const prev = Array.from({ length: b.length + 1 }, (_, i) => i)
+  for (let i = 1; i <= a.length; i++) {
+    let cur = i
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1
+      const next = Math.min(prev[j] + 1, cur + 1, prev[j - 1] + cost)
+      prev[j - 1] = cur
+      cur = next
+    }
+    prev[b.length] = cur
+  }
+  return prev[b.length]
+}
+
+/** Max erlaubte Edit-Distanz abhängig von Token-Länge */
+function maxDist(len) {
+  if (len <= 3) return 0  // kurze Tokens: nur exakt
+  if (len <= 5) return 1
+  if (len <= 8) return 2
+  return 3
+}
+
+/**
+ * Prüft ob ein Token fuzzy in einem normalisierten Feld-String vorkommt.
+ * Splittet das Feld in Wörter und prüft Levenshtein gegen jedes Wort.
+ */
+function fuzzyInField(token, field) {
+  const max = maxDist(token.length)
+  if (max === 0) return false
+  return field.split(' ').some(word => {
+    if (Math.abs(word.length - token.length) > max) return false
+    return levenshtein(token, word) <= max
+  })
+}
+
 /**
  * Berechnet einen Score für wie gut ein Hospital zur Suchanfrage passt.
+ * Erst exaktes Matching (hoher Score), dann Levenshtein-Fallback (reduzierter Score).
  * @param {object} hospital
  * @param {string[]} tokens  normalisierte Token aus der Suche
  * @returns {number}  Score 0–200; 0 = kein Match
@@ -69,6 +110,7 @@ function scoreHospital(hospital, tokens) {
   let matchedInCity    = 0
   let matchedInRegion  = 0
   let matchedElsewhere = 0
+  let fuzzyMatches     = 0
 
   for (const token of tokens) {
     const inName    = nName.includes(token)
@@ -77,38 +119,45 @@ function scoreHospital(hospital, tokens) {
     const inPlz     = nPlz.startsWith(token)
     const inCarrier = nCarrier.includes(token)
 
-    if (!inName && !inCity && !inRegion && !inPlz && !inCarrier) return 0
-
-    if (inName)    matchedInName++
-    else if (inCity)   matchedInCity++
-    else if (inRegion) matchedInRegion++
-    else               matchedElsewhere++
+    if (inName || inCity || inRegion || inPlz || inCarrier) {
+      if (inName)         matchedInName++
+      else if (inCity)    matchedInCity++
+      else if (inRegion)  matchedInRegion++
+      else                matchedElsewhere++
+    } else {
+      // Kein exakter Match — Levenshtein-Fallback
+      if (fuzzyInField(token, nName) || fuzzyInField(token, nCity)) {
+        fuzzyMatches++
+      } else {
+        return 0  // Token passt nirgends → komplett raus
+      }
+    }
   }
 
-  const totalTokens = tokens.length
+  const totalTokens  = tokens.length
+  const exactMatched = matchedInName + matchedInCity + matchedInRegion + matchedElsewhere
   let score = 0
 
-  // Alle Tokens matchen nur im Namen → beste Trefferqualität
   if (matchedInName === totalTokens) {
     score = 200
-    // Bonus für exakten Wortbeginn
     if (nName.startsWith(tokens[0])) score += 50
   } else if (matchedInName + matchedInCity === totalTokens) {
-    // Klassischer Multi-Feld-Match: "Sankt Joseph Berlin"
     score = 150
   } else if (matchedInName + matchedInRegion === totalTokens) {
     score = 120
   } else if (matchedInCity === totalTokens) {
     score = 80
+  } else if (exactMatched + fuzzyMatches === totalTokens) {
+    // Gemischter Match: exakt + fuzzy
+    score = fuzzyMatches === totalTokens ? 50 : 90
   } else {
     score = 60
   }
 
-  // Bonus: alle Tokens decken sich vollständig ab
-  const totalMatched = matchedInName + matchedInCity + matchedInRegion + matchedElsewhere
-  if (totalMatched === totalTokens) score += 20
+  if (exactMatched + fuzzyMatches === totalTokens) score += 20
+  if (fuzzyMatches > 0) score -= fuzzyMatches * 15  // Penalty pro Tippfehler
 
-  return score
+  return Math.max(score, 1)
 }
 
 /**
@@ -198,23 +247,17 @@ export function searchHospitals(query, ratedSet = new Set(), filters = {}, limit
   // "Stadt-Trap" entfernen: Krankenhäuser, deren Name identisch mit einer Stadt ist
   const queryAsCity = tokens.join(' ')
   const cityMatchCount = pool.filter(h => normalize(h.city) === queryAsCity).length
-  const filtered = scored.filter(h => {
-    if (cityMatchCount >= 3 && normalize(h.name) === queryAsCity) return false
-    return true
-  })
+  const isCityTrap = (h) => cityMatchCount >= 3 && normalize(h.name) === queryAsCity
+  const filtered = scored.filter(h => !isCityTrap(h))
 
   // Wenn Query = reiner Stadtnamen und es gibt ≥3 Kliniken dort →
   // zusätzlich ALLE Kliniken in dieser Stadt einblenden (Stadt-Suche)
   const isPureCityQuery = tokens.length === 1 && cityMatchCount >= 3
   if (isPureCityQuery) {
+    const inFiltered = new Set(filtered.map(f => f.name))
     const cityHospitals = pool
-      .filter(h => normalize(h.city) === queryAsCity)
-      .map(h => ({
-        ...h,
-        hasRatings: ratedSet.has(h.name),
-        score: 70, // Niedriger Basis-Score, aber sichtbar
-      }))
-      .filter(h => !filtered.some(f => f.name === h.name))
+      .filter(h => normalize(h.city) === queryAsCity && !inFiltered.has(h.name) && !isCityTrap(h))
+      .map(h => ({ ...h, hasRatings: ratedSet.has(h.name), score: 70 }))
     filtered.push(...cityHospitals)
   }
 
