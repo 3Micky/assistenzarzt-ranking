@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useRatingsStore } from '../store/ratingsStore.js'
-import { avgByHospital, avgByCity, computeStats, radarData, radarDataBySpecialty } from '../utils/calculations.js'
+import { avgByHospital, avgByCity, computeStats, radarData, radarDataBySpecialty, radarDataUnified } from '../utils/calculations.js'
 import { CITIES } from '../data/cities.js'
 
 export function useRatings() {
@@ -13,11 +13,12 @@ export function useRatings() {
 
   const radarChartData = (hospitalNames) => radarData(hospitalNames, ratings)
   const radarChartDataBySpecialty = (pairs) => radarDataBySpecialty(pairs, ratings)
+  const radarChartDataUnified = (slots) => radarDataUnified(slots, ratings)
 
   const hospitalNames = useMemo(
     () => [...new Set(ratings.map((r) => r.hospital))].sort(),
     [ratings]
   )
 
-  return { ratings, addRating, ranked, cityData, stats, radarChartData, radarChartDataBySpecialty, hospitalNames }
+  return { ratings, addRating, ranked, cityData, stats, radarChartData, radarChartDataBySpecialty, radarChartDataUnified, hospitalNames }
 }

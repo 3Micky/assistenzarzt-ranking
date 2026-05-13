@@ -170,6 +170,55 @@ export function radarData(hospitalNames, ratings) {
 }
 
 /** Radar data by (hospital, specialty) — 6 Achsen */
+/** Unified radar data: slots = [{hospital, specialty}], specialty '' → aggregate all */
+export function radarDataUnified(slots, ratings) {
+  const axes = [
+    { key: 'supervision', label: 'Supervision', extract: c => c.supervisionQualitaet ?? 5 },
+    { key: 'autonomie', label: 'Autonomie', extract: c => c.autonomie ?? 5 },
+    { key: 'logbuch', label: 'Logbuch', extract: c => c.logbuchErfuellbarkeit ?? 5 },
+    {
+      key: 'workLife', label: 'Work-Life',
+      extract: c => {
+        const d = c.diensteProMonat != null ? Math.max(1, 10 - c.diensteProMonat * 0.6) : 5
+        return Math.round(((c.workLifeBalance ?? 5) + d + bool(c.ueberstundenAufschreiben, 10, 1, 5)) / 3 * 10) / 10
+      },
+    },
+    {
+      key: 'team', label: 'Team',
+      extract: c => Math.round(((c.teamAtmosphaere ?? 5) + bool(c.schwangerschaftFamilienfreundlich, 10, 2, 5) + bool(c.nachtdienstBegleitung, 10, 3, 5)) / 3 * 10) / 10,
+    },
+    {
+      key: 'dienste', label: 'Dienste',
+      extract: c => c.diensteProMonat != null ? Math.max(1, 10 - c.diensteProMonat * 0.6) : 5,
+    },
+    {
+      key: 'struktur', label: 'Struktur',
+      extract: c => {
+        const m = c.mitarbeitergespraeche != null ? Math.min(10, c.mitarbeitergespraeche * 2.5) : 5
+        return Math.round((bool(c.rotationsplaene, 10, 3, 5) + bool(c.fortbildungFreistellung, 10, 4, 5) + bool(c.fortbildungBezahlt, 10, 4, 5) + m) / 4 * 10) / 10
+      },
+    },
+    {
+      key: 'ueberstunden', label: 'Überstunden',
+      extract: c => bool(c.ueberstundenAufschreiben, 10, 1, 5),
+    },
+  ]
+  return axes.map(({ key, label, extract }) => {
+    const entry = { subject: label, key }
+    slots.forEach(slot => {
+      const dataKey = slot.specialty ? `${slot.hospital} · ${slot.specialty}` : slot.hospital
+      const relevant = ratings.filter(r =>
+        matchHospitalName(r.hospital, slot.hospital) &&
+        (slot.specialty ? r.specialty === slot.specialty : true)
+      )
+      entry[dataKey] = relevant.length === 0
+        ? 0
+        : Math.round((relevant.reduce((sum, r) => sum + extract(r.criteria), 0) / relevant.length) * 10) / 10
+    })
+    return entry
+  })
+}
+
 export function radarDataBySpecialty(pairs, ratings) {
   const axes = [
     {

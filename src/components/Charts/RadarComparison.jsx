@@ -9,67 +9,47 @@ import { matchHospitalName } from '../../utils/hospitalSearch.js'
 const COLORS = ['#0EA5E9', '#E61919', '#22C55E']
 
 /**
- * @param {{ selected?: string[], mode?: 'klinik'|'abteilung', selectedPairs?: {hospital:string, specialty:string}[] }} props
+ * @param {{ slots: {hospital:string, specialty:string}[] }} props
+ * specialty '' = aggregate all ratings for that hospital
  */
-export default function RadarComparison({ selected = [], mode = 'klinik', selectedPairs = [] }) {
-  const { radarChartData, radarChartDataBySpecialty, ratings } = useRatings()
+export default function RadarComparison({ slots = [] }) {
+  const { radarChartDataUnified, ratings } = useRatings()
 
-  const data = mode === 'klinik'
-    ? radarChartData(selected)
-    : radarChartDataBySpecialty(selectedPairs)
+  const activeSlots = slots.filter(s => s.hospital)
+  const labels = activeSlots.map(s => s.specialty ? `${s.hospital} · ${s.specialty}` : s.hospital)
+  const data = radarChartDataUnified(activeSlots)
 
-  const labels = mode === 'klinik'
-    ? selected
-    : selectedPairs.map((p) => `${p.hospital} · ${p.specialty}`)
-
-  const isEmpty = labels.length === 0 || data.length === 0
-
-  if (isEmpty) {
+  if (activeSlots.length === 0 || data.length === 0) {
     return (
       <div className="p-12 text-center font-mono text-[11.5px] uppercase tracking-widest text-ink/60">
-        [ MINDESTENS EINE {mode === 'klinik' ? 'KLINIK' : 'ABTEILUNG'} AUSWÄHLEN UM VERGLEICH ZU STARTEN ]
+        [ MINDESTENS EINE KLINIK AUSWÄHLEN UM VERGLEICH ZU STARTEN ]
       </div>
     )
   }
 
-  // Ø-Gesamt-Score pro Entity berechnen (mit fuzzy Hospital-Match)
-  const overallAvgs = labels.map((label, i) => {
-    if (mode === 'klinik') {
-      const relevant = ratings.filter((r) => matchHospitalName(r.hospital, label))
-      const avg = relevant.length === 0
-        ? 0
-        : Math.round((relevant.reduce((sum, r) => sum + overallScore(r.criteria), 0) / relevant.length) * 10) / 10
-      return { label, avg, color: COLORS[i % COLORS.length] }
-    } else {
-      const pair = selectedPairs[i]
-      const relevant = ratings.filter((r) => matchHospitalName(r.hospital, pair.hospital) && r.specialty === pair.specialty)
-      const avg = relevant.length === 0
-        ? 0
-        : Math.round((relevant.reduce((sum, r) => sum + overallScore(r.criteria), 0) / relevant.length) * 10) / 10
-      return { label, avg, color: COLORS[i % COLORS.length] }
-    }
+  const overallAvgs = activeSlots.map((slot, i) => {
+    const relevant = ratings.filter(r =>
+      matchHospitalName(r.hospital, slot.hospital) &&
+      (slot.specialty ? r.specialty === slot.specialty : true)
+    )
+    const avg = relevant.length === 0
+      ? 0
+      : Math.round((relevant.reduce((sum, r) => sum + overallScore(r.criteria), 0) / relevant.length) * 10) / 10
+    return { label: labels[i], avg, color: COLORS[i % COLORS.length] }
   })
 
   return (
     <div className="p-5">
       <div className="mono-label-red mb-4">/// KRITERIENPROFIL – SPIDER-VERGLEICH</div>
 
-      {/* Gesamt-Score Badges */}
       <div className="flex flex-wrap gap-3 mb-5">
         {overallAvgs.map((item, i) => (
-          <div
-            key={i}
-            className="border px-3 py-2 flex items-center gap-2"
-            style={{ borderColor: item.color }}
-          >
+          <div key={i} className="border px-3 py-2 flex items-center gap-2" style={{ borderColor: item.color }}>
             <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: item.color }} />
             <span className="font-mono text-[11.5px] uppercase tracking-widest text-ink truncate max-w-[200px]">
               {item.label}
             </span>
-            <span
-              className="font-mono text-sm font-bold"
-              style={{ color: scoreColor(item.avg) }}
-            >
+            <span className="font-mono text-sm font-bold" style={{ color: scoreColor(item.avg) }}>
               {item.avg.toFixed(1)}
             </span>
           </div>
