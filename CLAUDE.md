@@ -1,6 +1,6 @@
 # Assistenzarzt-Ranking — Master-Kontext für LLMs
 
-> **Letzte Aktualisierung:** 2026-05-13  
+> **Letzte Aktualisierung:** 2026-05-14  
 > Anonyme Bewertungsplattform für Assistenzarztstellen in DE/AT/CH.  
 > Peer-to-peer, kostenlos, DSGVO-konform. Ziel: Transparenz über Weiterbildungsqualität.
 
@@ -73,7 +73,7 @@ assistenzdoc-react-final/
 │   ├── components/
 │   │   ├── Layout/
 │   │   │   ├── Header.jsx        ← Logo + Nav: BERICHTE RANKING VERGLEICH KARTE
-│   │   │   └── Footer.jsx        ← 3-Spalten: PLATTFORM / SUCHE NACH / RECHTLICHES
+│   │   │   └── Footer.jsx        ← Desktop 4-Spalten: PLATTFORM / STÄDTE / FACHRICHTUNGEN / RECHTLICHES; Mobile 2-Spalten (FACHRICHTUNGEN hidden)
 │   │   ├── RatingForm/
 │   │   │   ├── RatingForm.jsx
 │   │   │   ├── StepHospital.jsx  ← Schnellsuche + Genaue Suche (Kaskaden-Dropdowns)
@@ -191,18 +191,31 @@ assistenzdoc-react-final/
 | **DNS** | A-Record `@ → 76.76.21.21` bei united-domains (udag); Nameserver NICHT auf Vercel umgestellt |
 | **SSL** | Automatisch via Vercel (Let's Encrypt), gültig |
 
-**Worktree-Workflow (Claude Code):**
+**Push & Deploy (kompletter Workflow):**
 ```bash
-# Änderungen immer im Hauptprojekt vornehmen:
-cd "assistenzdoc-react-final Kopie"
-# Build prüfen:
+# 1. Änderungen im HAUPTPROJEKT vornehmen (NICHT im Worktree):
+cd "/Users/hermannbartels/Library/Mobile Documents/com~apple~CloudDocs/Documents/assistenzdoc-react-final Kopie"
+
+# 2. Build prüfen (muss ✓ sein):
 npm run build
-# Commit + Push:
-git add <dateien> && git commit -m "..." && git push origin main
-# Worktree syncen (für Preview-Server):
+
+# 3. Commit + Push → Vercel auto-deployed:
+git add src/... api/... public/...
+git commit -m "fix: ..."
+git push
+# → GitHub Repo: github.com/3Micky/assistenzarzt-ranking
+# → Vercel deployed automatisch nach ~1 Min auf assistenz-ranking.de
+
+# 4. Worktree syncen (für Preview-Server in Claude Code):
 cd .claude/worktrees/kind-torvalds-3111a8
 git merge main --no-edit
 ```
+
+> **Achtung Worktree:** Dateien in `.claude/worktrees/kind-torvalds-3111a8/` sind KOPIEN.
+> Claude Code editiert dort, aber `git push` muss vom Hauptverzeichnis erfolgen.
+> Nach dem Push: Worktree mit `git merge main --no-edit` syncen.
+> Commits im Worktree: Branch heißt `claude/kind-torvalds-3111a8`, nicht `main`.
+> Merge-Befehl vom Hauptverzeichnis: `git merge --no-edit claude/kind-torvalds-3111a8`
 
 ---
 
@@ -270,6 +283,12 @@ git merge main --no-edit
 | Berichte-URL | Neu: `/berichte/:hospitalSlug/:id` — alt: `/berichte/:id` (beide funktionieren) |
 | DNS-Fehler im Browser | Lokaler Cache-Problem: `sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder` |
 | Preview zeigt alte Version | Worktree nicht gesynct → `git merge main --no-edit` im Worktree ausführen |
+| `ink-grid` mit `repeat(4,1fr)` auf Mobile | Stattdessen `className="ink-grid grid-cols-2 sm:grid-cols-4"` (kein inline style) |
+| `ink-grid` mit `style` + Tailwind-Breakpoints | Inline `style` überschreibt Tailwind → `gridTemplateColumns` nur per className oder ohne style |
+| BarRanking kein Balken auf Mobile | `margin.left(200) + YAxis.width(195) > Container` → `useWindowWidth()` Hook + responsive Werte |
+| Text-Überlauf auf Mobile (Detail-Seiten) | `overflow-hidden` auf `max-w-3xl`-Container + `min-w-0` + `break-words` auf h1 |
+| GeoMap weißer Balken unter Map | `minHeight: max(640px, calc(100vh - 12rem))` auf beiden Map-Divs |
+| Vergleich-Slots überlappe auf Mobile | `grid-cols-1 sm:grid-cols-3` statt hardcoded `1fr 1fr 1fr` |
 
 ---
 
