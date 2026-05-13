@@ -22,9 +22,9 @@ export default function Header() {
 
       {/* Main Header */}
       <div className="flex items-stretch w-full overflow-hidden">
-        {/* Logo */}
-        <Link to="/" className="flex items-center px-3 py-2 border-r border-ink hover:bg-canvas-alt transition-colors flex-shrink-0">
-          <img src="/Logo_screenshot_ohne_text.png" alt="AssistenzDoc" className="h-10 sm:h-14 flex-shrink-0" />
+        {/* Logo — gesamte Box klickbar als Home-Button */}
+        <Link to="/" className="flex items-center justify-center px-3 border-r border-ink hover:bg-canvas-alt transition-colors flex-shrink-0 self-stretch">
+          <img src="/Logo_assistenz_vector.svg" alt="Assistenz-Ranking" className="h-10 sm:h-14 w-auto flex-shrink-0" />
         </Link>
 
         {/* Desktop Nav */}
