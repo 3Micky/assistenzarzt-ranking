@@ -3,40 +3,10 @@ import { AT_HOSPITALS } from '../data/hospitalsAT.js'
 import { CH_HOSPITALS } from '../data/hospitalsCH.js'
 import { plzToBundesland } from './plzToBundesland.js'
 
-/** Alle Kliniken aus allen drei Ländern, angereichert mit country + region (für DE via PLZ) */
-const ALL_HOSPITALS = [
-  ...DE_HOSPITALS.map(h => ({
-    name:    h.name,
-    city:    h.city,
-    plz:     h.plz,
-    street:  h.street,
-    carrier: h.carrier,
-    country: 'DE',
-    region:  plzToBundesland(h.plz),
-  })),
-  ...AT_HOSPITALS.map(h => ({
-    name:    h.name,
-    city:    h.city,
-    plz:     h.plz,
-    street:  h.street,
-    carrier: h.carrier,
-    country: 'AT',
-    region:  h.region,
-  })),
-  ...CH_HOSPITALS.map(h => ({
-    name:    h.name,
-    city:    h.city,
-    plz:     h.plz,
-    street:  h.street,
-    carrier: h.carrier,
-    country: 'CH',
-    region:  h.region,
-  })),
-]
-
 /**
  * Normalisiert einen String für den Vergleich:
  * Kleinschreibung, Umlaute vereinheitlichen, Sonderzeichen entfernen.
+ * Synonyme (klinik/krankenhaus/klinikum/spital) werden vereinheitlicht.
  * @param {string} str
  * @returns {string}
  */
@@ -48,7 +18,50 @@ function normalize(str) {
     .replace(/[.\-–,()]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
+    .replace(/\bklinikum\b/g, 'klinik').replace(/\bkliniken\b/g, 'klinik')
+    .replace(/\bkrankenhaus\b/g, 'klinik').replace(/\bkrankenhaeuser\b/g, 'klinik')
+    .replace(/\bhospital\b/g, 'klinik').replace(/\bspital\b/g, 'klinik')
 }
+
+/** Generische Registernamen → echter Name aus Träger ableiten */
+const GENERIC_NAMES = new Set(['hauptstandort', 'haupthaus', 'hauptgebaeude', 'standort'])
+function resolveDisplayName(hospital) {
+  if (!hospital.carrier) return hospital.name
+  const key = normalize(hospital.name).replace(/\s/g, '')
+  if (!GENERIC_NAMES.has(key)) return hospital.name
+  return hospital.carrier.replace(/\s+(GmbH|gGmbH|AG|e\.V\.|KG|OHG|GbR)\.?$/i, '').trim()
+}
+
+/** Alle Kliniken aus allen drei Ländern, angereichert mit country + region (für DE via PLZ) */
+const ALL_HOSPITALS = [
+  ...DE_HOSPITALS.map(h => ({
+    name:    resolveDisplayName(h),
+    city:    h.city,
+    plz:     h.plz,
+    street:  h.street,
+    carrier: h.carrier,
+    country: 'DE',
+    region:  plzToBundesland(h.plz),
+  })),
+  ...AT_HOSPITALS.map(h => ({
+    name:    resolveDisplayName(h),
+    city:    h.city,
+    plz:     h.plz,
+    street:  h.street,
+    carrier: h.carrier,
+    country: 'AT',
+    region:  h.region,
+  })),
+  ...CH_HOSPITALS.map(h => ({
+    name:    resolveDisplayName(h),
+    city:    h.city,
+    plz:     h.plz,
+    street:  h.street,
+    carrier: h.carrier,
+    country: 'CH',
+    region:  h.region,
+  })),
+]
 
 /** Levenshtein-Distanz zwischen zwei kurzen Strings */
 function levenshtein(a, b) {
