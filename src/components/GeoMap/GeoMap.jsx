@@ -44,6 +44,7 @@ export default function GeoMap() {
   const [hoveredCountry, setHoveredCountry] = useState(null)
   const [zoom, setZoom] = useState(1)
   const [center, setCenter] = useState([10, 49])
+  const [hoveredMarker, setHoveredMarker] = useState(null)
   const svgRef = useRef(null)
 
   const ZOOM_THRESHOLD = 2.5
@@ -234,19 +235,47 @@ export default function GeoMap() {
               }
             </Geographies>
 
-            {/* Permanent reference city dots — always visible, clickable */}
+            {/* Permanent reference city dots — always visible, clickable, hover label */}
             {REFERENCE_CITIES.map((rc) => (
               <Marker
                 key={`ref-${rc.name}`}
                 coordinates={rc.coordinates}
                 onClick={() => navigate(`/berichte?city=${encodeURIComponent(rc.name)}&country=${rc.country}`)}
+                onMouseEnter={() => setHoveredMarker({ type: 'ref', key: rc.name })}
+                onMouseLeave={() => setHoveredMarker(null)}
                 style={{ cursor: 'pointer' }}
               >
                 <circle
-                  r={3}
+                  r={1.5}
                   fill="#050505"
-                  opacity={0.25}
+                  opacity={0.35}
                 />
+                {hoveredMarker?.type === 'ref' && hoveredMarker?.key === rc.name && (
+                  <g>
+                    <rect
+                      x={4}
+                      y={-12}
+                      width={rc.name.length * 5.5 + 4}
+                      height={14}
+                      fill="white"
+                      opacity={0.9}
+                      rx={1}
+                    />
+                    <text
+                      x={6}
+                      y={-2}
+                      style={{
+                        fontSize: '9px',
+                        fontWeight: 600,
+                        fill: '#050505',
+                        fontFamily: 'JetBrains Mono, monospace',
+                        pointerEvents: 'none',
+                      }}
+                    >
+                      {rc.name}
+                    </text>
+                  </g>
+                )}
               </Marker>
             ))}
 
@@ -255,8 +284,14 @@ export default function GeoMap() {
                 <Marker
                   key={h.hospital}
                   coordinates={h.coordinates}
-                  onMouseEnter={(e) => handleMarkerEnter({ ...h, city: h.hospital }, e)}
-                  onMouseLeave={handleMarkerLeave}
+                  onMouseEnter={(e) => {
+                    handleMarkerEnter({ ...h, city: h.hospital }, e)
+                    setHoveredMarker({ type: 'hospital', key: h.hospital })
+                  }}
+                  onMouseLeave={() => {
+                    handleMarkerLeave()
+                    setHoveredMarker(null)
+                  }}
                   onClick={() => navigate(`/klinik/${slugify(h.hospital)}`)}
                   style={{ cursor: 'pointer' }}
                 >
@@ -267,6 +302,32 @@ export default function GeoMap() {
                     strokeWidth={0.5}
                     opacity={0.9}
                   />
+                  {hoveredMarker?.type === 'hospital' && hoveredMarker?.key === h.hospital && (
+                    <g>
+                      <rect
+                        x={6}
+                        y={-14}
+                        width={Math.min(h.hospital.length * 5.5 + 4, 160)}
+                        height={14}
+                        fill="white"
+                        opacity={0.9}
+                        rx={1}
+                      />
+                      <text
+                        x={8}
+                        y={-4}
+                        style={{
+                          fontSize: '9px',
+                          fontWeight: 600,
+                          fill: '#050505',
+                          fontFamily: 'JetBrains Mono, monospace',
+                          pointerEvents: 'none',
+                        }}
+                      >
+                        {h.hospital.length > 25 ? h.hospital.slice(0, 22) + '...' : h.hospital}
+                      </text>
+                    </g>
+                  )}
                 </Marker>
               ))
               : validCities.map((city) => (
