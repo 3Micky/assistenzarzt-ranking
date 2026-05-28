@@ -97,7 +97,11 @@ export default function GeoMap() {
           height={MAP_HEIGHT}
           style={{ width: '100%', height: '100%' }}
         >
-          <ZoomableGroup zoom={zoom} center={[10, 49]}>
+          <ZoomableGroup
+            zoom={zoom}
+            center={[10, 49]}
+            onMoveEnd={({ zoom: newZoom }) => setZoom(newZoom)}
+          >
             <Geographies geography={GEO_URL}>
               {({ geographies }) =>
                 [...geographies]
