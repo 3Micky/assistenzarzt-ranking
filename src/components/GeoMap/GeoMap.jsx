@@ -19,7 +19,6 @@ const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json'
 // Austria in world-atlas is stored as '040' (with leading zero), DE='276', CH='756'
 const COUNTRY_CODE_MAP = { '276': 'DE', '40': 'AT', '040': 'AT', '756': 'CH' }
 const DACH_IDS = new Set(['276', '40', '040', '756'])
-const COUNTRY_NAMES = { DE: 'Deutschland', AT: 'Österreich', CH: 'Schweiz' }
 
 const colorScale = scaleLinear()
   .domain([1, 5, 8, 10])
@@ -41,10 +40,10 @@ export default function GeoMap() {
   const { cityData, hospitalData } = useRatings()
   const navigate = useNavigate()
   const [tooltip, setTooltip] = useState(null)
+  // hoveredCountry: string ('DE'|'AT'|'CH') or null — drives red borders
   const [hoveredCountry, setHoveredCountry] = useState(null)
   const [zoom, setZoom] = useState(1)
   const [center, setCenter] = useState([10, 49])
-  const [hoveredMarker, setHoveredMarker] = useState(null)
   const svgRef = useRef(null)
 
   const ZOOM_THRESHOLD = 2.5
@@ -70,17 +69,10 @@ export default function GeoMap() {
 
   const handleMarkerLeave = useCallback(() => setTooltip(null), [])
 
-  const handleCountryEnter = useCallback((geoId, event) => {
+  const handleCountryEnter = useCallback((geoId) => {
     const code = COUNTRY_CODE_MAP[String(geoId)]
     if (!code) return
-    const rect = event.currentTarget.closest('svg').getBoundingClientRect()
-    const x = event.clientX - rect.left
-    const y = event.clientY - rect.top
-    setHoveredCountry({ code, name: COUNTRY_NAMES[code], x, y })
-  }, [])
-
-  const handleCountryLeave = useCallback(() => {
-    setHoveredCountry(null)
+    setHoveredCountry(code)
   }, [])
 
   const handleCountryClick = useCallback((geoId) => {
@@ -168,6 +160,7 @@ export default function GeoMap() {
         ref={svgRef}
         className="relative bg-canvas"
         style={{ height: `max(${MAP_HEIGHT}px, calc(100vh - 12rem))` }}
+        onMouseLeave={() => { setHoveredCountry(null); setTooltip(null) }}
       >
         <ComposableMap
           {...MAP_CONFIG}
@@ -189,8 +182,8 @@ export default function GeoMap() {
                   .sort((a, b) => {
                     const aCode = COUNTRY_CODE_MAP[String(a.id)]
                     const bCode = COUNTRY_CODE_MAP[String(b.id)]
-                    const aHovered = aCode && hoveredCountry?.code === aCode
-                    const bHovered = bCode && hoveredCountry?.code === bCode
+                    const aHovered = aCode && hoveredCountry === aCode
+                    const bHovered = bCode && hoveredCountry === bCode
                     if (aHovered && !bHovered) return 1
                     if (!aHovered && bHovered) return -1
                     return 0
@@ -198,15 +191,14 @@ export default function GeoMap() {
                   .map((geo) => {
                     const geoIdStr = String(geo.id)
                     const isDACH = DACH_IDS.has(geoIdStr)
-                    const isHovered = !!COUNTRY_CODE_MAP[geoIdStr] && hoveredCountry?.code === COUNTRY_CODE_MAP[geoIdStr]
+                    const isHovered = isDACH && hoveredCountry === COUNTRY_CODE_MAP[geoIdStr]
 
                     return (
                       <Geography
                         key={geo.rsmKey}
                         geography={geo}
                         onClick={isDACH ? () => handleCountryClick(geoIdStr) : undefined}
-                        onMouseEnter={isDACH ? (e) => handleCountryEnter(geoIdStr, e) : undefined}
-                        onMouseLeave={isDACH ? handleCountryLeave : undefined}
+                        onMouseEnter={isDACH ? () => handleCountryEnter(geoIdStr) : undefined}
                         style={{
                           default: {
                             fill: isHovered ? '#EAE8E3' : '#F4F4F0',
@@ -235,47 +227,41 @@ export default function GeoMap() {
               }
             </Geographies>
 
-            {/* Permanent reference city dots — always visible, clickable, hover label */}
+            {/* Permanent reference city dots — always visible with small name labels */}
             {REFERENCE_CITIES.map((rc) => (
               <Marker
                 key={`ref-${rc.name}`}
                 coordinates={rc.coordinates}
                 onClick={() => navigate(`/berichte?city=${encodeURIComponent(rc.name)}&country=${rc.country}`)}
-                onMouseEnter={() => setHoveredMarker({ type: 'ref', key: rc.name })}
-                onMouseLeave={() => setHoveredMarker(null)}
+                onMouseEnter={(e) => {
+                  setHoveredCountry(rc.country)
+                  handleMarkerEnter({ city: rc.name, country: rc.country }, e)
+                }}
+                onMouseLeave={handleMarkerLeave}
                 style={{ cursor: 'pointer' }}
               >
                 <circle
-                  r={1.5}
+                  r={1.5 / zoom}
                   fill="#050505"
-                  opacity={0.35}
+                  opacity={0.65}
                 />
-                {hoveredMarker?.type === 'ref' && hoveredMarker?.key === rc.name && (
-                  <g>
-                    <rect
-                      x={4}
-                      y={-12}
-                      width={Math.min(rc.name.length * 5.5 + 4, 110)}
-                      height={14}
-                      fill="white"
-                      opacity={0.9}
-                      rx={1}
-                    />
-                    <text
-                      x={6}
-                      y={-2}
-                      style={{
-                        fontSize: `${Math.max(7, 9 / zoom)}px`,
-                        fontWeight: 600,
-                        fill: '#050505',
-                        fontFamily: 'JetBrains Mono, monospace',
-                        pointerEvents: 'none',
-                      }}
-                    >
-                      {rc.name}
-                    </text>
-                  </g>
-                )}
+                <text
+                  x={2.5 / zoom}
+                  y={-1 / zoom}
+                  style={{
+                    fontSize: `${Math.max(3.5, 5.5 / zoom)}px`,
+                    fontFamily: 'JetBrains Mono, monospace',
+                    fontWeight: 600,
+                    fill: '#050505',
+                    stroke: 'rgba(244,244,240,0.9)',
+                    strokeWidth: `${1.5 / zoom}px`,
+                    paintOrder: 'stroke fill',
+                    pointerEvents: 'none',
+                    userSelect: 'none',
+                  }}
+                >
+                  {rc.name}
+                </text>
               </Marker>
             ))}
 
@@ -285,13 +271,10 @@ export default function GeoMap() {
                   key={h.hospital}
                   coordinates={h.coordinates}
                   onMouseEnter={(e) => {
+                    setHoveredCountry(h.country)
                     handleMarkerEnter({ ...h, city: h.hospital }, e)
-                    setHoveredMarker({ type: 'hospital', key: h.hospital })
                   }}
-                  onMouseLeave={() => {
-                    handleMarkerLeave()
-                    setHoveredMarker(null)
-                  }}
+                  onMouseLeave={handleMarkerLeave}
                   onClick={() => navigate(`/klinik/${slugify(h.hospital)}`)}
                   style={{ cursor: 'pointer' }}
                 >
@@ -302,39 +285,16 @@ export default function GeoMap() {
                     strokeWidth={0.5}
                     opacity={0.9}
                   />
-                  {hoveredMarker?.type === 'hospital' && hoveredMarker?.key === h.hospital && (
-                    <g>
-                      <rect
-                        x={6}
-                        y={-14}
-                        width={Math.min(h.hospital.length * 5.5 + 4, 110)}
-                        height={14}
-                        fill="white"
-                        opacity={0.9}
-                        rx={1}
-                      />
-                      <text
-                        x={8}
-                        y={-4}
-                        style={{
-                          fontSize: `${Math.max(7, 9 / zoom)}px`,
-                          fontWeight: 600,
-                          fill: '#050505',
-                          fontFamily: 'JetBrains Mono, monospace',
-                          pointerEvents: 'none',
-                        }}
-                      >
-                        {h.hospital.length > 18 ? h.hospital.slice(0, 15) + '...' : h.hospital}
-                      </text>
-                    </g>
-                  )}
                 </Marker>
               ))
               : validCities.map((city) => (
                 <Marker
                   key={city.city}
                   coordinates={city.coordinates}
-                  onMouseEnter={(e) => handleMarkerEnter(city, e)}
+                  onMouseEnter={(e) => {
+                    setHoveredCountry(city.country)
+                    handleMarkerEnter(city, e)
+                  }}
                   onMouseLeave={handleMarkerLeave}
                   onClick={() => navigate(`/berichte?city=${encodeURIComponent(city.city)}&country=${city.country}`)}
                   style={{ cursor: 'pointer' }}
@@ -380,16 +340,6 @@ export default function GeoMap() {
             x={tooltip.x}
             y={tooltip.y}
           />
-        )}
-
-        {hoveredCountry && (
-          <div
-            className="absolute pointer-events-none z-20 bg-canvas border border-ink px-3 py-2 font-mono text-[11.5px] uppercase tracking-widest"
-            style={{ left: hoveredCountry.x + 12, top: hoveredCountry.y - 20 }}
-          >
-            <div className="font-bold text-ink">{hoveredCountry.name}</div>
-            <div className="text-ink/60 mt-0.5">KLICKEN FÜR BERICHTE</div>
-          </div>
         )}
       </div>
 
