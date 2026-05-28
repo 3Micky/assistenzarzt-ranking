@@ -77,6 +77,36 @@ export default function UeberUnsPage() {
         </p>
       </div>
 
+      {/* Vertrauen & Transparenz */}
+      <div className="border-b border-ink p-5">
+        <div className="mono-label text-hazard mb-2">/// VERTRAUEN & TRANSPARENZ</div>
+        <p className="text-sm text-ink/80 leading-relaxed mb-3">
+          Assistenz-Ranking wird von einem aktiven Assistenzarzt aus dem DACH-Raum betrieben —
+          jemand, der die Herausforderungen der Weiterbildung hautnah kennt.
+          Die Plattform ist unabhängig: Keine Klinik kann Bewertungen kaufen, löschen oder beeinflussen.
+        </p>
+        <p className="text-sm text-ink/80 leading-relaxed mb-3">
+          <strong>Moderation:</strong> Bewertungen werden algorithmisch auf Plausibilität geprüft.
+          Offensichtlich manipulative oder beleidigende Inhalte werden entfernt.
+          Es gibt keine redaktionelle Selektion — alle gültigen Bewertungen fließen in das Ranking ein.
+        </p>
+        <p className="text-sm text-ink/80 leading-relaxed">
+          <strong>Finanzierung:</strong> Die Plattform ist kostenlos und werbefrei.
+          Es gibt keine Paywall, keine Klinik-Kooperationen und keine Vermittlungsprovisionen.
+        </p>
+      </div>
+
+      {/* Hinweis */}
+      <div className="border-b border-ink p-5">
+        <div className="mono-label text-hazard mb-2">/// HINWEIS</div>
+        <p className="text-sm text-ink/80 leading-relaxed">
+          Assistenz-Ranking ersetzt keine medizinische, juristische oder berufliche Beratung.
+          Bewertungen spiegeln subjektive Erfahrungen wider.
+          Bei rechtlichen Fragen zu Arbeitsverträgen oder Weiterbildungsordnungen konsultiere
+          bitte die zuständige Ärztekammer oder einen Fachanwalt für Arbeitsrecht.
+        </p>
+      </div>
+
       {/* Kontakt */}
       <div className="border-b border-ink p-5">
         <div className="mono-label text-hazard mb-2">/// KONTAKT</div>

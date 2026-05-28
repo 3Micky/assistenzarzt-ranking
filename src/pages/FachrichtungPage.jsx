@@ -81,7 +81,7 @@ export default function FachrichtungPage() {
         <link rel="canonical" href={`https://assistenz-ranking.de/fachrichtung/${slug}`} />
         <meta property="og:title" content={metaTitle} />
         <meta property="og:description" content={metaDesc} />
-        <meta name="robots" content="index, follow" />
+        <meta name="robots" content={specRatings.length > 0 ? 'index, follow' : 'noindex'} />
         {breadcrumbSchema && (
           <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
         )}

@@ -9,6 +9,7 @@ import {
 } from 'react-simple-maps'
 import { scaleLinear } from 'd3-scale'
 import { useRatings } from '../../hooks/useRatings.js'
+import { slugify } from '../../utils/slugify.js'
 import MapTooltip from './MapTooltip.jsx'
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json'
@@ -34,13 +35,17 @@ const MAP_CONFIG = {
 }
 
 export default function GeoMap() {
-  const { cityData } = useRatings()
+  const { cityData, hospitalData } = useRatings()
   const navigate = useNavigate()
   const [tooltip, setTooltip]           = useState(null)
   const [hoveredCountry, setHoveredCountry] = useState(null)
   const [zoom, setZoom] = useState(1)
 
+  const ZOOM_THRESHOLD = 2.5
+  const showHospitals = zoom >= ZOOM_THRESHOLD
+
   const validCities = useMemo(() => cityData.filter((c) => c.coordinates), [cityData])
+  const validHospitals = useMemo(() => hospitalData.filter((h) => h.coordinates), [hospitalData])
 
   const handleMarkerEnter = useCallback((city, event) => {
     const rect = event.currentTarget.closest('svg').getBoundingClientRect()
@@ -145,44 +150,63 @@ export default function GeoMap() {
               }
             </Geographies>
 
-            {validCities.map((city) => (
-              <Marker
-                key={city.city}
-                coordinates={city.coordinates}
-                onMouseEnter={(e) => handleMarkerEnter(city, e)}
-                onMouseLeave={handleMarkerLeave}
-                onClick={() => navigate(`/berichte?city=${encodeURIComponent(city.city)}&country=${city.country}`)}
-                style={{ cursor: 'pointer' }}
-              >
-                <circle
-                  r={markerRadius(city.count) + 3}
-                  fill={colorScale(city.score)}
-                  opacity={0.15}
-                />
-                <circle
-                  r={markerRadius(city.count)}
-                  fill={colorScale(city.score)}
-                  stroke="#050505"
-                  strokeWidth={1}
-                  opacity={0.85}
-                />
-                {markerRadius(city.count) >= 10 && (
-                  <text
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    style={{
-                      fontSize: '9px',
-                      fontWeight: 700,
-                      fill: '#050505',
-                      fontFamily: 'JetBrains Mono, monospace',
-                      pointerEvents: 'none',
-                    }}
-                  >
-                    {city.score.toFixed(1)}
-                  </text>
-                )}
-              </Marker>
-            ))}
+            {showHospitals
+              ? validHospitals.map((h) => (
+                <Marker
+                  key={h.hospital}
+                  coordinates={h.coordinates}
+                  onMouseEnter={(e) => handleMarkerEnter({ ...h, city: h.hospital }, e)}
+                  onMouseLeave={handleMarkerLeave}
+                  onClick={() => navigate(`/klinik/${slugify(h.hospital)}`)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <circle
+                    r={Math.max(3, 6 / zoom)}
+                    fill={colorScale(h.score)}
+                    stroke="#050505"
+                    strokeWidth={0.5}
+                    opacity={0.9}
+                  />
+                </Marker>
+              ))
+              : validCities.map((city) => (
+                <Marker
+                  key={city.city}
+                  coordinates={city.coordinates}
+                  onMouseEnter={(e) => handleMarkerEnter(city, e)}
+                  onMouseLeave={handleMarkerLeave}
+                  onClick={() => navigate(`/berichte?city=${encodeURIComponent(city.city)}&country=${city.country}`)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <circle
+                    r={markerRadius(city.count) + 3}
+                    fill={colorScale(city.score)}
+                    opacity={0.15}
+                  />
+                  <circle
+                    r={markerRadius(city.count)}
+                    fill={colorScale(city.score)}
+                    stroke="#050505"
+                    strokeWidth={1}
+                    opacity={0.85}
+                  />
+                  {markerRadius(city.count) >= 10 && (
+                    <text
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      style={{
+                        fontSize: '9px',
+                        fontWeight: 700,
+                        fill: '#050505',
+                        fontFamily: 'JetBrains Mono, monospace',
+                        pointerEvents: 'none',
+                      }}
+                    >
+                      {city.score.toFixed(1)}
+                    </text>
+                  )}
+                </Marker>
+              ))}
           </ZoomableGroup>
         </ComposableMap>
 

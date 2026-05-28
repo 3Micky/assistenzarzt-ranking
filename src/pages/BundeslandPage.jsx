@@ -101,7 +101,7 @@ export default function BundeslandPage() {
         <link rel="canonical" href={`https://assistenz-ranking.de/bundesland/${slug}`} />
         <meta property="og:title" content={metaTitle} />
         <meta property="og:description" content={metaDesc} />
-        <meta name="robots" content="index, follow" />
+        <meta name="robots" content={regionRatings.length > 0 ? 'index, follow' : 'noindex'} />
         {breadcrumbSchema && (
           <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
         )}

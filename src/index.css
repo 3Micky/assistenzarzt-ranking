@@ -11,13 +11,11 @@
 
   html {
     scroll-behavior: smooth;
-    overflow-x: hidden; /* verhindert horizontalen Overflow auf Mobile */
   }
 
   body {
     @apply bg-canvas text-ink font-sans antialiased;
-    overflow-x: hidden;
-    max-width: 100vw;
+    width: 100%;
   }
 
   * { @apply box-border; }

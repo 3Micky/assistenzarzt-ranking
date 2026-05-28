@@ -83,6 +83,25 @@ export function avgByCity(ratings, citiesData) {
 }
 
 import { matchHospitalName } from './hospitalSearch.js'
+import { HOSPITAL_COORDS } from '../data/hospitalCoords.js'
+
+/** Erweitert avgByHospital um echte Koordinaten aus der Hospital-Datenbank */
+export function avgByHospitalWithCoords(ratings) {
+  const hospitals = avgByHospital(ratings)
+  return hospitals.map((h) => {
+    // Direct lookup by exact name (fast path)
+    let coords = HOSPITAL_COORDS[h.hospital] ?? null
+    // Fallback: fuzzy match against hospital database
+    if (!coords) {
+      const match = Object.keys(HOSPITAL_COORDS).find((name) => matchHospitalName(name, h.hospital))
+      if (match) coords = HOSPITAL_COORDS[match]
+    }
+    return {
+      ...h,
+      coordinates: coords,
+    }
+  })
+}
 
 /** Radar data — 6 orthogonale Achsen (kein Gesamt-Score als Ecke) */
 export function radarData(hospitalNames, ratings) {
