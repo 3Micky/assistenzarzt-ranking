@@ -1,6 +1,6 @@
 # Assistenzarzt-Ranking — Master-Kontext für LLMs
 
-> **Letzte Aktualisierung:** 2026-05-14  
+> **Letzte Aktualisierung:** 2026-05-28  
 > Anonyme Bewertungsplattform für Assistenzarztstellen in DE/AT/CH.  
 > Peer-to-peer, kostenlos, DSGVO-konform. Ziel: Transparenz über Weiterbildungsqualität.
 
@@ -314,6 +314,50 @@ git merge main --no-edit
   created_at: string,
 }
 ```
+
+---
+
+## Session-Handover (Pflicht)
+
+> **Regel:** Am Ende **jeder** Session muss `HANDOVER.md` im Projekt-Root aktualisiert werden.
+
+### Was zu dokumentieren ist
+
+1. **Erreichte Ziele** — Was wurde in dieser Session umgesetzt / gefixt
+2. **Offene Punkte** — Bekannte Bugs, TODOs, Blocker mit Priorität
+3. **Geänderte Dateien** — Liste der touched files mit kurzer Beschreibung
+4. **Architektur-Entscheidungen** — Warum wurde X so und nicht anders gelöst
+5. **Nächste Schritte** — Empfohlene nächste Aktionen für die folgende Session
+6. **Letzter Commit** — Branch + Commit-Hash
+
+### Format
+
+```markdown
+# Handover: Assistenzarzt-Ranking
+
+> Letzte Session: YYYY-MM-DD
+> Branch: `main` | Commit: `abc1234`
+> Deploy: Vercel auto-deploy aktiv (assistenz-ranking.de)
+
+---
+
+## Was diese Session erreicht wurde
+- ...
+
+## Offene Punkte / Bekannte Probleme
+| Problem | Priorität | Status |
+|---|---|---|
+| ... | ... | ... |
+
+## Dateien, die in dieser Session geändert wurden
+```
+
+### Warum das wichtig ist
+
+- Zukünftige Sessions (auch mit anderen Modellen/Instanzen) haben sofort Kontext
+- Kein "Was haben wir letzte Woche gemacht?"-Problem
+- Stakeholder kann `HANDOVER.md` lesen ohne Gesprächskontext zu haben
+- Dient als lightweight Projekt-Log parallel zu Git-History
 
 ---
 
