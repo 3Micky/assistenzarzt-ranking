@@ -14,10 +14,15 @@ function EnumField({ label, value, options, onChange }) {
   return (
     <div className="bg-canvas-alt rounded p-3">
       <div className="mono-label mb-2">{label}</div>
-      <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${options.length}, 1fr)` }}>
+      <div className="flex flex-wrap gap-1">
         {options.map(opt => (
-          <button key={opt} onClick={() => onChange(opt)}
-            className={value === opt ? 'tab-active' : 'tab-inactive'}>
+          <button
+            key={opt}
+            onClick={() => onChange(opt)}
+            className={
+              (value === opt ? 'tab-active' : 'tab-inactive') + ' whitespace-nowrap'
+            }
+          >
             {opt.toUpperCase()}
           </button>
         ))}

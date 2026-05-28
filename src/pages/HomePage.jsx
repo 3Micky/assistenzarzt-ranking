@@ -39,8 +39,9 @@ export default function HomePage() {
 
       {/* Map */}
       <div className="border-b border-ink">
-        <div className="px-6 py-2 border-b border-ink">
-          <span className="mono-label">/// DACH-HEATMAP</span>
+        <div className="register-strip border-b border-ink w-full">
+          <span>/// DACH-HEATMAP</span>
+          <span className="text-canvas/60">BEWERTUNGEN NACH REGION</span>
         </div>
         <GeoMap />
       </div>

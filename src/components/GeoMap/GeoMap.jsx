@@ -255,7 +255,7 @@ export default function GeoMap() {
                     <rect
                       x={4}
                       y={-12}
-                      width={rc.name.length * 5.5 + 4}
+                      width={Math.min(rc.name.length * 5.5 + 4, 110)}
                       height={14}
                       fill="white"
                       opacity={0.9}
@@ -265,7 +265,7 @@ export default function GeoMap() {
                       x={6}
                       y={-2}
                       style={{
-                        fontSize: '9px',
+                        fontSize: `${Math.max(7, 9 / zoom)}px`,
                         fontWeight: 600,
                         fill: '#050505',
                         fontFamily: 'JetBrains Mono, monospace',
@@ -307,7 +307,7 @@ export default function GeoMap() {
                       <rect
                         x={6}
                         y={-14}
-                        width={Math.min(h.hospital.length * 5.5 + 4, 160)}
+                        width={Math.min(h.hospital.length * 5.5 + 4, 110)}
                         height={14}
                         fill="white"
                         opacity={0.9}
@@ -317,14 +317,14 @@ export default function GeoMap() {
                         x={8}
                         y={-4}
                         style={{
-                          fontSize: '9px',
+                          fontSize: `${Math.max(7, 9 / zoom)}px`,
                           fontWeight: 600,
                           fill: '#050505',
                           fontFamily: 'JetBrains Mono, monospace',
                           pointerEvents: 'none',
                         }}
                       >
-                        {h.hospital.length > 25 ? h.hospital.slice(0, 22) + '...' : h.hospital}
+                        {h.hospital.length > 18 ? h.hospital.slice(0, 15) + '...' : h.hospital}
                       </text>
                     </g>
                   )}

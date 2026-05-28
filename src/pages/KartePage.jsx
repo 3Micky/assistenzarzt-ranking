@@ -13,7 +13,7 @@ export default function KartePage() {
         <meta property="og:title" content="Klinik-Heatmap DACH | Assistenzarzt-Bewertungen" />
         <meta property="og:description" content="Interaktive Heatmap der Assistenzarzt-Bewertungen in Deutschland, Österreich und der Schweiz." />
       </Helmet>
-      <div className="register-strip border-b border-ink">
+      <div className="register-strip border-b border-ink w-full">
         <span>/// DACH-HEATMAP</span>
         <span className="text-canvas/60">BEWERTUNGEN NACH REGION</span>
       </div>

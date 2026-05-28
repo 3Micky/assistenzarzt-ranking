@@ -57,7 +57,7 @@ function CriteriaSection({ title, criteria, averages }) {
   return (
     <div className="border-b border-ink">
       <div className="register-strip border-b border-ink">{title}</div>
-      <div className="ink-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+      <div className="ink-grid grid-cols-1 sm:grid-cols-2">
         {items.map((c) => {
           const avg = averages[c.key]
           return (
