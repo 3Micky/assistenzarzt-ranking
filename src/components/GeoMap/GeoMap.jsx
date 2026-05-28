@@ -11,6 +11,7 @@ import { scaleLinear } from 'd3-scale'
 import { geoMercator } from 'd3-geo'
 import { useRatings } from '../../hooks/useRatings.js'
 import { slugify } from '../../utils/slugify.js'
+import { REFERENCE_CITIES } from '../../data/cities.js'
 import MapTooltip from './MapTooltip.jsx'
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json'
@@ -232,6 +233,18 @@ export default function GeoMap() {
                   })
               }
             </Geographies>
+
+            {/* Permanent reference city dots — always visible */}
+            {REFERENCE_CITIES.map((rc) => (
+              <Marker key={`ref-${rc.name}`} coordinates={rc.coordinates}>
+                <circle
+                  r={2.5}
+                  fill="#050505"
+                  opacity={0.12}
+                  style={{ pointerEvents: 'none' }}
+                />
+              </Marker>
+            ))}
 
             {showHospitals
               ? validHospitals.map((h) => (
