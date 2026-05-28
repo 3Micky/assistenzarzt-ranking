@@ -227,30 +227,6 @@ export default function GeoMap() {
               }
             </Geographies>
 
-            {/* Reference city outline dots — only at high zoom, name on hover only */}
-            {zoom >= 5 && REFERENCE_CITIES.map((rc) => (
-              <Marker
-                key={`ref-${rc.name}`}
-                coordinates={rc.coordinates}
-                onClick={() => navigate(`/berichte?city=${encodeURIComponent(rc.name)}&country=${rc.country}`)}
-                onMouseEnter={(e) => {
-                  setHoveredCountry(rc.country)
-                  handleMarkerEnter({ city: rc.name, country: rc.country }, e)
-                }}
-                onMouseLeave={handleMarkerLeave}
-                style={{ cursor: 'pointer' }}
-              >
-                <circle
-                  r={2 / zoom}
-                  fill="none"
-                  stroke="#050505"
-                  strokeWidth={0.8 / zoom}
-                  opacity={0.7}
-                />
-                <circle r={0.6 / zoom} fill="#050505" opacity={0.5} />
-              </Marker>
-            ))}
-
             {showHospitals
               ? validHospitals.map((h) => (
                 <Marker
@@ -314,6 +290,32 @@ export default function GeoMap() {
                   )}
                 </Marker>
               ))}
+
+            {/* City outline markers — visible at zoom ≥ 4, rendered on top of hospital dots */}
+            {zoom >= 4 && REFERENCE_CITIES.map((rc) => (
+              <Marker
+                key={`ref-${rc.name}`}
+                coordinates={rc.coordinates}
+                onClick={() => navigate(`/berichte?city=${encodeURIComponent(rc.name)}&country=${rc.country}`)}
+                onMouseEnter={(e) => {
+                  setHoveredCountry(rc.country)
+                  handleMarkerEnter({ city: rc.name, country: rc.country }, e)
+                }}
+                onMouseLeave={handleMarkerLeave}
+                style={{ cursor: 'pointer' }}
+              >
+                {/* Outer ring: white fill so it pops above colored hospital dots */}
+                <circle
+                  r={5 / zoom}
+                  fill="white"
+                  stroke="#050505"
+                  strokeWidth={1 / zoom}
+                  opacity={0.9}
+                />
+                {/* Center dot */}
+                <circle r={1.5 / zoom} fill="#050505" opacity={0.85} />
+              </Marker>
+            ))}
           </ZoomableGroup>
         </ComposableMap>
 
