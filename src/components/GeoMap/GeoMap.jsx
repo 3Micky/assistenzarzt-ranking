@@ -81,7 +81,7 @@ export default function GeoMap() {
     navigate(`/berichte?country=${code}`)
   }, [navigate])
 
-  const markerRadius = (count) => Math.min(Math.max(Math.sqrt(count) * 4, 5), 20)
+  const markerRadius = (count) => Math.min(Math.max(Math.sqrt(count) * 2.5, 4), 14)
 
   // Zoom to cursor: adjust center so the point under the mouse stays fixed
   const applyZoom = useCallback((zNew, mouseX, mouseY) => {
@@ -227,8 +227,8 @@ export default function GeoMap() {
               }
             </Geographies>
 
-            {/* Permanent reference city dots — always visible with small name labels */}
-            {REFERENCE_CITIES.map((rc) => (
+            {/* Reference city outline dots — only at high zoom, name on hover only */}
+            {zoom >= 5 && REFERENCE_CITIES.map((rc) => (
               <Marker
                 key={`ref-${rc.name}`}
                 coordinates={rc.coordinates}
@@ -241,27 +241,13 @@ export default function GeoMap() {
                 style={{ cursor: 'pointer' }}
               >
                 <circle
-                  r={1.5 / zoom}
-                  fill="#050505"
-                  opacity={0.65}
+                  r={2 / zoom}
+                  fill="none"
+                  stroke="#050505"
+                  strokeWidth={0.8 / zoom}
+                  opacity={0.7}
                 />
-                <text
-                  x={2.5 / zoom}
-                  y={-1 / zoom}
-                  style={{
-                    fontSize: `${Math.max(3.5, 5.5 / zoom)}px`,
-                    fontFamily: 'JetBrains Mono, monospace',
-                    fontWeight: 600,
-                    fill: '#050505',
-                    stroke: 'rgba(244,244,240,0.9)',
-                    strokeWidth: `${1.5 / zoom}px`,
-                    paintOrder: 'stroke fill',
-                    pointerEvents: 'none',
-                    userSelect: 'none',
-                  }}
-                >
-                  {rc.name}
-                </text>
+                <circle r={0.6 / zoom} fill="#050505" opacity={0.5} />
               </Marker>
             ))}
 
@@ -279,10 +265,10 @@ export default function GeoMap() {
                   style={{ cursor: 'pointer' }}
                 >
                   <circle
-                    r={Math.max(3, 6 / zoom)}
+                    r={Math.max(2, 4 / zoom)}
                     fill={colorScale(h.score)}
                     stroke="#050505"
-                    strokeWidth={0.5}
+                    strokeWidth={0.4}
                     opacity={0.9}
                   />
                 </Marker>
