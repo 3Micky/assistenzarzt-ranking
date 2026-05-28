@@ -62,9 +62,9 @@ function CriteriaSection({ title, criteria, averages }) {
           const avg = averages[c.key]
           return (
             <div key={c.key} className="bg-canvas p-3">
-              <div className="flex items-start justify-between gap-2">
-                <div className="mono-label mb-1">{c.label}</div>
-                <div className="text-sm text-right">
+              <div className="flex items-start justify-between gap-2 min-w-0">
+                <div className="mono-label mb-1 break-words flex-1 min-w-0">{c.label}</div>
+                <div className="text-sm text-right flex-shrink-0">
                   <CriteriaValue type={avg.type} value={avg.value} />
                 </div>
               </div>
@@ -98,7 +98,7 @@ function ReviewRow({ rating }) {
       <div className="flex-1 min-w-0">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mb-1">
           {rating.specialty && (
-            <span className="mono-label text-hazard">{rating.specialty}</span>
+            <span className="mono-label text-hazard break-words max-w-full">{rating.specialty}</span>
           )}
           {date && <span className="mono-label text-ink/50">{date}</span>}
         </div>

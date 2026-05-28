@@ -20,7 +20,12 @@ function EnumField({ label, value, options, onChange }) {
             key={opt}
             onClick={() => onChange(opt)}
             className={
-              (value === opt ? 'tab-active' : 'tab-inactive') + ' whitespace-nowrap'
+              (value === opt
+                ? 'bg-hazard text-white'
+                : 'bg-canvas text-ink/60 hover:text-ink'
+              ) +
+              ' font-mono text-[11.5px] tracking-wider uppercase cursor-pointer transition-colors' +
+              ' px-2 py-1 sm:px-3 sm:py-1.5 whitespace-nowrap'
             }
           >
             {opt.toUpperCase()}

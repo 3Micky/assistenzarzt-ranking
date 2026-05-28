@@ -37,8 +37,8 @@ export default function HomePage() {
       {/* Stats */}
       <StatsBar />
 
-      {/* Map */}
-      <div className="border-b border-ink">
+      {/* Map — full-bleed, breaks out of main padding */}
+      <div className="border-b border-ink mx-[-0.75rem] sm:mx-[-1rem] md:mx-[-1.5rem] lg:mx-[-2rem]">
         <div className="register-strip border-b border-ink w-full">
           <span>/// DACH-HEATMAP</span>
           <span className="text-canvas/60">BEWERTUNGEN NACH REGION</span>
