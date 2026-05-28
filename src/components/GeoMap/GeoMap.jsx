@@ -234,14 +234,18 @@ export default function GeoMap() {
               }
             </Geographies>
 
-            {/* Permanent reference city dots — always visible */}
+            {/* Permanent reference city dots — always visible, clickable */}
             {REFERENCE_CITIES.map((rc) => (
-              <Marker key={`ref-${rc.name}`} coordinates={rc.coordinates}>
+              <Marker
+                key={`ref-${rc.name}`}
+                coordinates={rc.coordinates}
+                onClick={() => navigate(`/berichte?city=${encodeURIComponent(rc.name)}&country=${rc.country}`)}
+                style={{ cursor: 'pointer' }}
+              >
                 <circle
-                  r={2.5}
+                  r={3}
                   fill="#050505"
-                  opacity={0.12}
-                  style={{ pointerEvents: 'none' }}
+                  opacity={0.25}
                 />
               </Marker>
             ))}
