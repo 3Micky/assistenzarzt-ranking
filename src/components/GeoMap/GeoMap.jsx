@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ComposableMap,
@@ -8,6 +8,7 @@ import {
   ZoomableGroup,
 } from 'react-simple-maps'
 import { scaleLinear } from 'd3-scale'
+import { geoMercator } from 'd3-geo'
 import { useRatings } from '../../hooks/useRatings.js'
 import { slugify } from '../../utils/slugify.js'
 import MapTooltip from './MapTooltip.jsx'
@@ -25,6 +26,7 @@ const colorScale = scaleLinear()
   .clamp(true)
 
 const MAP_HEIGHT = 640
+const MAP_WIDTH = 800
 
 const MAP_CONFIG = {
   projection: 'geoMercator',
@@ -37,15 +39,25 @@ const MAP_CONFIG = {
 export default function GeoMap() {
   const { cityData, hospitalData } = useRatings()
   const navigate = useNavigate()
-  const [tooltip, setTooltip]           = useState(null)
+  const [tooltip, setTooltip] = useState(null)
   const [hoveredCountry, setHoveredCountry] = useState(null)
   const [zoom, setZoom] = useState(1)
+  const [center, setCenter] = useState([10, 49])
+  const svgRef = useRef(null)
 
   const ZOOM_THRESHOLD = 2.5
   const showHospitals = zoom >= ZOOM_THRESHOLD
 
   const validCities = useMemo(() => cityData.filter((c) => c.coordinates), [cityData])
   const validHospitals = useMemo(() => hospitalData.filter((h) => h.coordinates), [hospitalData])
+
+  // Projection matching react-simple-maps internal setup
+  const projection = useMemo(() =>
+    geoMercator()
+      .scale(1550)
+      .translate([MAP_WIDTH / 2, MAP_HEIGHT / 2])
+      .center([10, 47]),
+    [])
 
   const handleMarkerEnter = useCallback((city, event) => {
     const rect = event.currentTarget.closest('svg').getBoundingClientRect()
@@ -77,30 +89,97 @@ export default function GeoMap() {
 
   const markerRadius = (count) => Math.min(Math.max(Math.sqrt(count) * 4, 5), 20)
 
+  // Zoom to cursor: adjust center so the point under the mouse stays fixed
+  const applyZoom = useCallback((zNew, mouseX, mouseY) => {
+    if (!svgRef.current || zNew === zoom) return
+
+    const svg = svgRef.current.querySelector('svg')
+    if (!svg) return
+
+    // Convert rendered mouse position to SVG viewBox coordinates (800×640)
+    let pt
+    try {
+      pt = svg.createSVGPoint()
+    } catch {
+      // Fallback for browsers without SVGPoint
+      const rect = svg.getBoundingClientRect()
+      pt = {
+        x: ((mouseX - rect.left) / rect.width) * MAP_WIDTH,
+        y: ((mouseY - rect.top) / rect.height) * MAP_HEIGHT,
+      }
+    }
+    if (pt.matrixTransform) {
+      pt.x = mouseX
+      pt.y = mouseY
+      const ctm = svg.getScreenCTM()
+      if (ctm) {
+        const svgP = pt.matrixTransform(ctm.inverse())
+        pt.x = svgP.x
+        pt.y = svgP.y
+      }
+    }
+
+    const [projCenterX, projCenterY] = projection(center)
+    const projCenterNewX = projCenterX + (pt.x - MAP_WIDTH / 2) * (1 / zoom - 1 / zNew)
+    const projCenterNewY = projCenterY + (pt.y - MAP_HEIGHT / 2) * (1 / zoom - 1 / zNew)
+    const centerNew = projection.invert([projCenterNewX, projCenterNewY])
+
+    setZoom(zNew)
+    setCenter(centerNew)
+  }, [zoom, center, projection])
+
+  useEffect(() => {
+    const el = svgRef.current
+    if (!el) return
+
+    const onWheel = (e) => {
+      e.preventDefault()
+      const delta = e.deltaY > 0 ? -0.4 : 0.4
+      const zNew = Math.min(Math.max(zoom + delta, 1), 8)
+      applyZoom(zNew, e.clientX, e.clientY)
+    }
+
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [zoom, applyZoom])
+
   return (
     <div className="bg-canvas relative" style={{ minHeight: `max(${MAP_HEIGHT}px, calc(100vh - 12rem))` }}>
       {/* Zoom Controls */}
       <div className="absolute top-3 right-3 z-10 ink-grid" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
-        <button onClick={() => setZoom((z) => Math.min(z * 1.5, 8))}
-          className="bg-canvas border-ink/20 font-mono text-xs px-2 py-1 hover:bg-canvas-alt transition-colors">+</button>
-        <button onClick={() => setZoom(1)}
-          className="bg-canvas border-ink/20 font-mono text-xs px-2 py-1 hover:bg-canvas-alt transition-colors">↺</button>
-        <button onClick={() => setZoom((z) => Math.max(z / 1.5, 1))}
-          className="bg-canvas border-ink/20 font-mono text-xs px-2 py-1 hover:bg-canvas-alt transition-colors">−</button>
+        <button
+          onClick={() => applyZoom(Math.min(zoom * 1.5, 8), window.innerWidth / 2, window.innerHeight / 2)}
+          className="bg-canvas border-ink/20 font-mono text-xs px-2 py-1 hover:bg-canvas-alt transition-colors"
+        >+</button>
+        <button
+          onClick={() => { setZoom(1); setCenter([10, 49]) }}
+          className="bg-canvas border-ink/20 font-mono text-xs px-2 py-1 hover:bg-canvas-alt transition-colors"
+        >↺</button>
+        <button
+          onClick={() => applyZoom(Math.max(zoom / 1.5, 1), window.innerWidth / 2, window.innerHeight / 2)}
+          className="bg-canvas border-ink/20 font-mono text-xs px-2 py-1 hover:bg-canvas-alt transition-colors"
+        >−</button>
       </div>
 
       {/* Map */}
-      <div className="relative bg-canvas" style={{ height: `max(${MAP_HEIGHT}px, calc(100vh - 12rem))` }}>
+      <div
+        ref={svgRef}
+        className="relative bg-canvas"
+        style={{ height: `max(${MAP_HEIGHT}px, calc(100vh - 12rem))` }}
+      >
         <ComposableMap
           {...MAP_CONFIG}
-          width={800}
+          width={MAP_WIDTH}
           height={MAP_HEIGHT}
           style={{ width: '100%', height: '100%' }}
         >
           <ZoomableGroup
             zoom={zoom}
-            center={[10, 49]}
-            onMoveEnd={({ zoom: newZoom }) => setZoom(newZoom)}
+            center={center}
+            onMoveEnd={({ zoom: newZoom, coordinates: newCenter }) => {
+              setZoom(newZoom)
+              setCenter(newCenter)
+            }}
           >
             <Geographies geography={GEO_URL}>
               {({ geographies }) =>
@@ -116,7 +195,7 @@ export default function GeoMap() {
                   })
                   .map((geo) => {
                     const geoIdStr = String(geo.id)
-                    const isDACH   = DACH_IDS.has(geoIdStr)
+                    const isDACH = DACH_IDS.has(geoIdStr)
                     const isHovered = !!COUNTRY_CODE_MAP[geoIdStr] && hoveredCountry?.code === COUNTRY_CODE_MAP[geoIdStr]
 
                     return (
@@ -128,24 +207,24 @@ export default function GeoMap() {
                         onMouseLeave={isDACH ? handleCountryLeave : undefined}
                         style={{
                           default: {
-                            fill:        isHovered ? '#EAE8E3' : '#F4F4F0',
-                            stroke:      isHovered ? '#E61919' : '#050505',
+                            fill: isHovered ? '#EAE8E3' : '#F4F4F0',
+                            stroke: isHovered ? '#E61919' : '#050505',
                             strokeWidth: isHovered ? 1.5 : 0.5,
-                            outline:     'none',
-                            cursor:      isDACH ? 'pointer' : 'default',
+                            outline: 'none',
+                            cursor: isDACH ? 'pointer' : 'default',
                           },
                           hover: {
-                            fill:        isDACH ? '#EAE8E3' : '#F4F4F0',
-                            stroke:      isDACH ? '#E61919' : '#050505',
+                            fill: isDACH ? '#EAE8E3' : '#F4F4F0',
+                            stroke: isDACH ? '#E61919' : '#050505',
                             strokeWidth: isDACH ? 1.5 : 0.5,
-                            outline:     'none',
-                            cursor:      isDACH ? 'pointer' : 'default',
+                            outline: 'none',
+                            cursor: isDACH ? 'pointer' : 'default',
                           },
                           pressed: {
-                            fill:        '#EAE8E3',
-                            stroke:      '#E61919',
+                            fill: '#EAE8E3',
+                            stroke: '#E61919',
                             strokeWidth: 1.5,
-                            outline:     'none',
+                            outline: 'none',
                           },
                         }}
                       />
