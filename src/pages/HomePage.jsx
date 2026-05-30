@@ -27,15 +27,17 @@ export default function HomePage() {
         </p>
       </div>
 
-      {/* Search */}
-      <div className="border-b border-ink px-6 py-4">
+      {/* Search — full-bleed so bottom border reaches viewport edges */}
+      <div className="border-b border-ink py-4 mx-[-0.75rem] sm:mx-[-1rem] md:mx-[-1.5rem] lg:mx-[-2rem] px-9 sm:px-10 md:px-12 lg:px-14">
         <div className="max-w-xl">
           <SearchWidget defaultMode="lesen" />
         </div>
       </div>
 
-      {/* Stats */}
-      <StatsBar />
+      {/* Stats — full-bleed wrapper so top/bottom borders reach viewport edges */}
+      <div className="mx-[-0.75rem] sm:mx-[-1rem] md:mx-[-1.5rem] lg:mx-[-2rem]">
+        <StatsBar />
+      </div>
 
       {/* Map — full-bleed, breaks out of main padding */}
       <div className="border-b border-ink mx-[-0.75rem] sm:mx-[-1rem] md:mx-[-1.5rem] lg:mx-[-2rem]">
