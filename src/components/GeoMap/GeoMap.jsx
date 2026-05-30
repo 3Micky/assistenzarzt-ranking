@@ -291,49 +291,59 @@ export default function GeoMap() {
                 </Marker>
               ))}
 
-            {/* City markers — always visible; at max zoom: black outline ring */}
-            {REFERENCE_CITIES.map((rc) => {
-              const isMaxZoom = zoom >= 7
-              return (
-                <Marker
-                  key={`ref-${rc.name}`}
-                  coordinates={rc.coordinates}
-                  onClick={() => navigate(`/berichte?city=${encodeURIComponent(rc.name)}&country=${rc.country}`)}
-                  onMouseEnter={(e) => {
-                    setHoveredCountry(rc.country)
-                    handleMarkerEnter({ city: rc.name, country: rc.country }, e)
-                  }}
-                  onMouseLeave={handleMarkerLeave}
-                  style={{ cursor: 'pointer' }}
-                >
-                  {isMaxZoom ? (
-                    /* Max zoom: bold black outline ring */
-                    <>
-                      <circle
-                        r={6 / zoom}
-                        fill="none"
-                        stroke="#050505"
-                        strokeWidth={1.5 / zoom}
-                        opacity={1}
-                      />
-                      <circle r={1.2 / zoom} fill="#050505" opacity={1} />
-                    </>
-                  ) : (
-                    /* Normal zoom: subtle white-filled dot */
-                    <>
-                      <circle
-                        r={5 / zoom}
-                        fill="white"
-                        stroke="#050505"
-                        strokeWidth={1 / zoom}
-                        opacity={0.85}
-                      />
-                      <circle r={1.5 / zoom} fill="#050505" opacity={0.7} />
-                    </>
-                  )}
-                </Marker>
-              )
-            })}
+            {/* City boundary polygons — only at max zoom (≥7), from pre-built GeoJSON */}
+            {zoom >= 7 && (
+              <Geographies geography="/cityBoundaries.geojson">
+                {({ geographies }) =>
+                  geographies.map((geo) => (
+                    <Geography
+                      key={geo.rsmKey}
+                      geography={geo}
+                      style={{
+                        default: {
+                          fill: 'none',
+                          stroke: '#050505',
+                          strokeWidth: 0.6 / zoom,
+                          outline: 'none',
+                        },
+                        hover: {
+                          fill: 'rgba(5,5,5,0.04)',
+                          stroke: '#050505',
+                          strokeWidth: 0.8 / zoom,
+                          outline: 'none',
+                          cursor: 'pointer',
+                        },
+                        pressed: { fill: 'none', outline: 'none' },
+                      }}
+                    />
+                  ))
+                }
+              </Geographies>
+            )}
+
+            {/* City reference dots — always visible, subtler at max zoom where polygon shows */}
+            {REFERENCE_CITIES.map((rc) => (
+              <Marker
+                key={`ref-${rc.name}`}
+                coordinates={rc.coordinates}
+                onClick={() => navigate(`/berichte?city=${encodeURIComponent(rc.name)}&country=${rc.country}`)}
+                onMouseEnter={(e) => {
+                  setHoveredCountry(rc.country)
+                  handleMarkerEnter({ city: rc.name, country: rc.country }, e)
+                }}
+                onMouseLeave={handleMarkerLeave}
+                style={{ cursor: 'pointer' }}
+              >
+                <circle
+                  r={5 / zoom}
+                  fill="white"
+                  stroke="#050505"
+                  strokeWidth={1 / zoom}
+                  opacity={zoom >= 7 ? 0.5 : 0.85}
+                />
+                <circle r={1.5 / zoom} fill="#050505" opacity={zoom >= 7 ? 0.4 : 0.7} />
+              </Marker>
+            ))}
           </ZoomableGroup>
         </ComposableMap>
 
