@@ -291,31 +291,49 @@ export default function GeoMap() {
                 </Marker>
               ))}
 
-            {/* City outline markers — visible at zoom ≥ 4, rendered on top of hospital dots */}
-            {zoom >= 4 && REFERENCE_CITIES.map((rc) => (
-              <Marker
-                key={`ref-${rc.name}`}
-                coordinates={rc.coordinates}
-                onClick={() => navigate(`/berichte?city=${encodeURIComponent(rc.name)}&country=${rc.country}`)}
-                onMouseEnter={(e) => {
-                  setHoveredCountry(rc.country)
-                  handleMarkerEnter({ city: rc.name, country: rc.country }, e)
-                }}
-                onMouseLeave={handleMarkerLeave}
-                style={{ cursor: 'pointer' }}
-              >
-                {/* Outer ring: white fill so it pops above colored hospital dots */}
-                <circle
-                  r={5 / zoom}
-                  fill="white"
-                  stroke="#050505"
-                  strokeWidth={1 / zoom}
-                  opacity={0.9}
-                />
-                {/* Center dot */}
-                <circle r={1.5 / zoom} fill="#050505" opacity={0.85} />
-              </Marker>
-            ))}
+            {/* City markers — always visible; at max zoom: black outline ring */}
+            {REFERENCE_CITIES.map((rc) => {
+              const isMaxZoom = zoom >= 7
+              return (
+                <Marker
+                  key={`ref-${rc.name}`}
+                  coordinates={rc.coordinates}
+                  onClick={() => navigate(`/berichte?city=${encodeURIComponent(rc.name)}&country=${rc.country}`)}
+                  onMouseEnter={(e) => {
+                    setHoveredCountry(rc.country)
+                    handleMarkerEnter({ city: rc.name, country: rc.country }, e)
+                  }}
+                  onMouseLeave={handleMarkerLeave}
+                  style={{ cursor: 'pointer' }}
+                >
+                  {isMaxZoom ? (
+                    /* Max zoom: bold black outline ring */
+                    <>
+                      <circle
+                        r={6 / zoom}
+                        fill="none"
+                        stroke="#050505"
+                        strokeWidth={1.5 / zoom}
+                        opacity={1}
+                      />
+                      <circle r={1.2 / zoom} fill="#050505" opacity={1} />
+                    </>
+                  ) : (
+                    /* Normal zoom: subtle white-filled dot */
+                    <>
+                      <circle
+                        r={5 / zoom}
+                        fill="white"
+                        stroke="#050505"
+                        strokeWidth={1 / zoom}
+                        opacity={0.85}
+                      />
+                      <circle r={1.5 / zoom} fill="#050505" opacity={0.7} />
+                    </>
+                  )}
+                </Marker>
+              )
+            })}
           </ZoomableGroup>
         </ComposableMap>
 
