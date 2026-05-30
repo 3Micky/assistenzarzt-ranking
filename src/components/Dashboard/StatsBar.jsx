@@ -15,7 +15,7 @@ export default function StatsBar() {
   const { stats } = useRatings()
 
   return (
-    <div className="ink-grid border-b border-ink grid-cols-3 sm:grid-cols-6 auto-rows-min">
+    <div className="ink-grid border-b border-ink grid-cols-3 sm:grid-cols-6 auto-rows-min mx-[-0.75rem] sm:mx-[-1rem] md:mx-[-1.5rem] lg:mx-[-2rem]">
       <StatCell label="BEWERTUNGEN" value={stats.total}            valueClass="text-hazard" />
       <StatCell label="⌀ SCORE"     value={stats.avgScore.toFixed(1)} />
       <StatCell label="TOP-KLINIK"  value={stats.topHospital} valueClass="text-[11px] leading-snug break-words pt-0.5" />
