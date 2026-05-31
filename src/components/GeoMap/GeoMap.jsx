@@ -22,7 +22,7 @@ const DACH_IDS = new Set(['276', '40', '040', '756'])
 
 const colorScale = scaleLinear()
   .domain([1, 5, 8, 10])
-  .range(['#EF4444', '#F59E0B', '#84cc16', '#22C55E'])
+  .range(['#E60000', '#FF8000', '#7BC800', '#00BB44'])
   .clamp(true)
 
 const MAP_HEIGHT = 640
@@ -81,7 +81,7 @@ export default function GeoMap() {
     navigate(`/berichte?country=${code}`)
   }, [navigate])
 
-  const markerRadius = (count) => Math.min(Math.max(Math.sqrt(count) * 2.5, 4), 14)
+  const markerRadius = (count) => Math.min(Math.max(Math.sqrt(count) * 1.8, 3), 10)
 
   // Zoom to cursor: adjust center so the point under the mouse stays fixed
   const applyZoom = useCallback((zNew, mouseX, mouseY) => {
@@ -241,11 +241,11 @@ export default function GeoMap() {
                   style={{ cursor: 'pointer' }}
                 >
                   <circle
-                    r={Math.max(2, 4 / zoom)}
+                    r={Math.max(1.5, 3 / zoom)}
                     fill={colorScale(h.score)}
                     stroke="#050505"
-                    strokeWidth={0.4}
-                    opacity={0.9}
+                    strokeWidth={0.3}
+                    opacity={0.95}
                   />
                 </Marker>
               ))
@@ -262,16 +262,16 @@ export default function GeoMap() {
                   style={{ cursor: 'pointer' }}
                 >
                   <circle
-                    r={markerRadius(city.count) + 3}
+                    r={markerRadius(city.count) + 2}
                     fill={colorScale(city.score)}
-                    opacity={0.15}
+                    opacity={0.18}
                   />
                   <circle
                     r={markerRadius(city.count)}
                     fill={colorScale(city.score)}
                     stroke="#050505"
-                    strokeWidth={1}
-                    opacity={0.85}
+                    strokeWidth={0.7}
+                    opacity={0.92}
                   />
                   {markerRadius(city.count) >= 10 && (
                     <text
@@ -336,13 +336,13 @@ export default function GeoMap() {
                 style={{ cursor: 'pointer' }}
               >
                 <circle
-                  r={5 / zoom}
+                  r={3.5 / zoom}
                   fill="white"
                   stroke="#050505"
-                  strokeWidth={1 / zoom}
-                  opacity={zoom >= 7 ? 0.5 : 0.85}
+                  strokeWidth={0.8 / zoom}
+                  opacity={zoom >= 7 ? 0.4 : 0.8}
                 />
-                <circle r={1.5 / zoom} fill="#050505" opacity={zoom >= 7 ? 0.4 : 0.7} />
+                <circle r={1 / zoom} fill="#050505" opacity={zoom >= 7 ? 0.3 : 0.65} />
               </Marker>
             ))}
           </ZoomableGroup>
