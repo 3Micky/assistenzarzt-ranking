@@ -329,7 +329,8 @@ export default function GeoMap() {
                 onClick={() => navigate(`/berichte?city=${encodeURIComponent(rc.name)}&country=${rc.country}`)}
                 onMouseEnter={(e) => {
                   setHoveredCountry(rc.country)
-                  handleMarkerEnter({ city: rc.name, country: rc.country }, e)
+                  const cityInfo = validCities.find(c => c.city === rc.name)
+                  handleMarkerEnter(cityInfo ?? { city: rc.name, country: rc.country }, e)
                 }}
                 onMouseLeave={handleMarkerLeave}
                 style={{ cursor: 'pointer' }}
