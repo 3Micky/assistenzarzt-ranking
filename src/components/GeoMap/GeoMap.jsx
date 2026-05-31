@@ -291,6 +291,37 @@ export default function GeoMap() {
                 </Marker>
               ))}
 
+            {/* State/Kanton boundary polygons — only at max zoom (≥7) */}
+            {zoom >= 7 && (
+              <Geographies geography="/stateBoundaries.geojson">
+                {({ geographies }) =>
+                  geographies.map((geo) => (
+                    <Geography
+                      key={geo.rsmKey}
+                      geography={geo}
+                      style={{
+                        default: {
+                          fill: 'none',
+                          stroke: '#050505',
+                          strokeWidth: 0.5 / zoom,
+                          opacity: 0.5,
+                          outline: 'none',
+                        },
+                        hover: {
+                          fill: 'none',
+                          stroke: '#050505',
+                          strokeWidth: 0.5 / zoom,
+                          opacity: 0.5,
+                          outline: 'none',
+                        },
+                        pressed: { fill: 'none', outline: 'none' },
+                      }}
+                    />
+                  ))
+                }
+              </Geographies>
+            )}
+
             {/* City boundary polygons — only at max zoom (≥7), from pre-built GeoJSON */}
             {zoom >= 7 && (
               <Geographies geography="/cityBoundaries.geojson">
