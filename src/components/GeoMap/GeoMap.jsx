@@ -352,8 +352,8 @@ export default function GeoMap() {
               </Geographies>
             )}
 
-            {/* City reference dots — always visible, subtler at max zoom where polygon shows */}
-            {REFERENCE_CITIES.map((rc) => (
+            {/* City reference dots — only for cities without ratings (colored bubble already marks rated cities) */}
+            {REFERENCE_CITIES.filter(rc => !validCities.some(c => c.city === rc.name)).map((rc) => (
               <Marker
                 key={`ref-${rc.name}`}
                 coordinates={rc.coordinates}
