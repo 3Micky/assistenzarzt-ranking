@@ -306,6 +306,7 @@ export default function GeoMap() {
                           strokeWidth: 0.5 / zoom,
                           opacity: 0.5,
                           outline: 'none',
+                          pointerEvents: 'none',
                         },
                         hover: {
                           fill: 'none',
@@ -313,8 +314,9 @@ export default function GeoMap() {
                           strokeWidth: 0.5 / zoom,
                           opacity: 0.5,
                           outline: 'none',
+                          pointerEvents: 'none',
                         },
-                        pressed: { fill: 'none', outline: 'none' },
+                        pressed: { fill: 'none', outline: 'none', pointerEvents: 'none' },
                       }}
                     />
                   ))
@@ -336,15 +338,16 @@ export default function GeoMap() {
                           stroke: '#050505',
                           strokeWidth: 0.6 / zoom,
                           outline: 'none',
+                          pointerEvents: 'none',
                         },
                         hover: {
-                          fill: 'rgba(5,5,5,0.04)',
+                          fill: 'none',
                           stroke: '#050505',
                           strokeWidth: 0.8 / zoom,
                           outline: 'none',
-                          cursor: 'pointer',
+                          pointerEvents: 'none',
                         },
-                        pressed: { fill: 'none', outline: 'none' },
+                        pressed: { fill: 'none', outline: 'none', pointerEvents: 'none' },
                       }}
                     />
                   ))
