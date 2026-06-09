@@ -27,8 +27,7 @@ workflows:
             -derivedDataPath ios/build \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            GENERATE_ASSET_SYMBOLS=NO
+            CODE_SIGNING_ALLOWED=NO
     artifacts:
       - ios/build/**/*.app
 
@@ -71,7 +70,6 @@ workflows:
             -scheme "$XCODE_SCHEME" \
             -configuration Release \
             -archivePath ios/build/App.xcarchive \
-            GENERATE_ASSET_SYMBOLS=NO \
             archive | xcpretty
 
           xcodebuild \
