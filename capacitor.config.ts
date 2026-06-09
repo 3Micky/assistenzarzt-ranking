@@ -7,17 +7,6 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: 'https',
   },
-  plugins: {
-    StatusBar: {
-      style: 'Dark',
-      backgroundColor: '#0a0a0a',
-    },
-    SplashScreen: {
-      launchShowDuration: 1500,
-      backgroundColor: '#f5f0e8',
-      showSpinner: false,
-    },
-  },
 };
 
 export default config;

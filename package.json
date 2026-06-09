@@ -11,8 +11,6 @@
   "dependencies": {
     "@capacitor/core": "^8.4.0",
     "@capacitor/ios": "^8.4.0",
-    "@capacitor/splash-screen": "^8.0.1",
-    "@capacitor/status-bar": "^8.0.2",
     "@fontsource/archivo-black": "^5.2.8",
     "@fontsource/inter": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",

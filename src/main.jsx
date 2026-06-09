@@ -10,14 +10,6 @@ import '@fontsource/jetbrains-mono/400.css'
 import '@fontsource/jetbrains-mono/700.css'
 import './index.css'
 import App from './App.jsx'
-import { StatusBar, Style } from '@capacitor/status-bar'
-import { Capacitor } from '@capacitor/core'
-
-// Initialize native features on native platforms only
-if (Capacitor.isNativePlatform()) {
-  StatusBar.setStyle({ style: Style.Dark })
-  StatusBar.setBackgroundColor({ color: '#0a0a0a' })
-}
 
 class ErrorBoundary extends Component {
   constructor(props) {
