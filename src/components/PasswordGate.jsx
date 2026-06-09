@@ -4,10 +4,12 @@ const SESSION_KEY = 'ar_unlocked'
 const PASSWORD    = 'be100aware.now'
 
 export default function PasswordGate({ children }) {
+  const isPublicLaunch = import.meta.env.VITE_PUBLIC_LAUNCH === 'true'
   const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem(SESSION_KEY) === '1')
   const [input, setInput]       = useState('')
   const [error, setError]       = useState(false)
 
+  if (isPublicLaunch) return children
   if (unlocked) return children
 
   function handleSubmit(e) {

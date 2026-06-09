@@ -134,3 +134,25 @@
     @apply bg-gradient-to-r from-hazard to-red-700 bg-clip-text text-transparent;
   }
 }
+
+/* ── iOS Capacitor: safe area + WebView fixes ─────────────────────────── */
+:root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+}
+
+body {
+  padding-top: var(--sat);
+  padding-bottom: var(--sab);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* Momentum scroll for all scrollable containers */
+.overflow-y-auto,
+.overflow-auto,
+.overflow-scroll {
+  -webkit-overflow-scrolling: touch;
+}

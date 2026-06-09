@@ -1,23 +1,38 @@
 # Handover: Assistenzarzt-Ranking
 
-> Letzte Session: 2026-05-28  
-> Branch: `main` | Commit: `3d00879`  
+> Letzte Session: 2026-06-09
+> Branch: `main` | Commit: siehe unten
 > Deploy: Vercel auto-deploy aktiv (assistenz-ranking.de)
 
 ---
 
 ## Was diese Session erreicht wurde
 
-1. **Map-Dots unterteilen sich beim Zoomen** — ab Zoom ≥ 2.5 werden echte Klinik-Dots (2.747 Koordinaten aus InEK-Daten) statt Stadt-Aggregate angezeigt
-2. **Zoom-to-Cursor** — Mausrad-Zoom folgt der Mausposition via `d3-geo` Projektions-Math
-3. **20 Referenz-Städte** auf der Map — klickbar, mit Hover-Labels (schwarze Schrift auf weißem Grund)
-4. **Mobile Viewport fix** — `overflow-x: hidden` + `max-width: 100vw` entfernt, die iOS Safari zum Zoomen zwangen
-5. **Klinik-Profile mobile** — Kriterien-Labels umbrechen jetzt (`break-words`), Grid auf `sm:grid-cols-2`
-6. **Bewertungsformular mobile** — `EnumField` Buttons kompakter (`px-2` statt `px-5` auf Mobile)
-7. **MapTooltip redesign** — alte `card-sm`/`text-slate-100`-Klassen (nicht im Design-System) ersetzt durch brutalistische Klassen; kein Riesentext mehr
-8. **Heatmap-Header Full-Bleed** — negative Margins (`mx-[-0.75rem]...`) damit `/// DACH-HEATMAP`-Strip die volle Breite spannt
-9. **Koordinaten ausgelagert** — `hospitalCoords.js` (140KB) statt `hospitals.js` (802KB) um Dateigröße zu halten
-10. **Google AI-SEO** — Strategie besprochen; `llms.txt` gelöscht (verstößt gegen Google Richtlinien)
+### iOS App (Capacitor) — vollständig integriert
+
+1. **Capacitor installiert** — `@capacitor/core`, `@capacitor/ios`, `@capacitor/status-bar`, `@capacitor/splash-screen`, `@capacitor/cli` (dev)
+2. **`capacitor.config.ts`** — erstellt mit App-ID `de.assistenzranking.app`, StatusBar dark (#0a0a0a), SplashScreen beige (#f5f0e8)
+3. **`ios/` Xcode-Projekt** — vollständig via `npx cap add ios` generiert, iOS 15.0 Deployment Target
+4. **`index.html`** — `viewport-fit=cover` + Apple-Meta-Tags (web-app-capable, status-bar-style, format-detection)
+5. **`src/index.css`** — iOS safe-area CSS-Variablen (`--sat/--sar/--sab/--sal`), `body` padding-top/bottom, `-webkit-tap-highlight-color: transparent`
+6. **`src/main.jsx`** — Capacitor StatusBar-Init bei `isNativePlatform()` (dark style, #0a0a0a Hintergrund)
+7. **`src/components/PasswordGate.jsx`** — `VITE_PUBLIC_LAUNCH=true` bypassed Gate komplett (für Production Build)
+8. **`.env.production`** — `VITE_PUBLIC_LAUNCH=true` (App Store / TestFlight: Gate deaktiviert)
+9. **`.env.development`** — `VITE_PUBLIC_LAUNCH=false` (lokale Dev: Gate aktiv)
+10. **App-Icon + Splash** — `AppIcon-512@2x.png` (1024×1024) + 3× `splash-2732x2732.png` aus Logo SVG generiert (beige Hintergrund, kein Alpha-Kanal)
+11. **Build + Sync** — `npm run build` ✓ + `npx cap sync ios` ✓
+
+### Xcode-Workflow (ab jetzt)
+
+```bash
+# Nach jeder Code-Änderung:
+npm run build && npx cap sync ios
+
+# Xcode öffnen:
+npx cap open ios
+# → Simulator: ▶ Run
+# → TestFlight: Product → Archive → Distribute App
+```
 
 ---
 
@@ -25,68 +40,82 @@
 
 | Problem | Priorität | Status |
 |---|---|---|
-| **PasswordGate** noch aktiv | **KRITISCH** | Blockiert Google Indexierung. Passwort: `be100aware.now`. Muss vor Launch entfernt werden. |
-| **Google Search Console** nicht verifiziert | **KRITISCH** | `public/google-site-verification-ERSETZEN.html` ist Platzhalter. Echten GSC-Code eintragen. |
-| **Map-Bubble-Überlappung** bei hohem Zoom | mittel | Berliner Raum: Charité + UKB + weitere Kliniken liegen nah beieinander. Lösung: Collision-Detection oder offset-Logik in `GeoMap.jsx` Marker-Rendering. |
-| **Bilder ohne `alt`-Texte** | niedrig | Logo im Header, Map-Flags etc. |
-| **Chunk-Größe** 1.7MB JS | niedrig | Build-Warning. Code-Splitting via dynamic imports möglich. |
-| **hospitals.js** vs `hospitalCoords.js` Sync | niedrig | Wenn neue Kliniken hinzukommen, muss `hospitalCoords.js` neu generiert werden aus InEK-Standortdaten. |
+| **Apple Developer Account** ($99/Jahr) registrieren | **KRITISCH** | Muss vor TestFlight/App Store. → developer.apple.com |
+| **App Store Connect** — neue App anlegen mit Bundle ID `de.assistenzranking.app` | **KRITISCH** | Nach Developer Account |
+| **PasswordGate** noch aktiv auf Website | **KRITISCH** | Blockiert Google Indexierung. Passwort: `be100aware.now` |
+| **Google Search Console** nicht verifiziert | **KRITISCH** | `public/google-site-verification-ERSETZEN.html` → echten GSC-Code eintragen |
+| **App Store Screenshots** erstellen | hoch | 6.7" + 6.1" aus iOS Simulator exportieren |
+| **App Store Review Vorbereitung** | hoch | Privacy Policy URL = `assistenz-ranking.de/datenschutz` ✓, Moderation = Melde-Button ✓ |
+| **1.7MB JS Bundle** — Code-Splitting | niedrig | Dynamic imports für `hospitals.js`, `hospitalCoords.js` |
+| **Map-Bubble-Überlappung** bei hohem Zoom | mittel | Berlin: Collision-Detection in `GeoMap.jsx` |
+| **Bilder ohne `alt`-Texte** | niedrig | Logo im Header |
 
 ---
 
 ## Dateien, die in dieser Session geändert wurden
 
 ```
-src/components/GeoMap/GeoMap.jsx          — Zoom-to-Cursor, Hospital-Dots, Ref-Cities
-src/components/GeoMap/MapTooltip.jsx      — Brutalist redesign, fix riesiger Text
-src/components/RatingForm/StepCriteria.jsx — Mobile-kompakte Enum-Buttons
-src/data/hospitalCoords.js                — NEU: 2.747 Koordinaten-Mapping
-src/data/cities.js                        — REFERENCE_CITIES hinzugefügt
-src/hooks/useRatings.js                   — hospitalData exportiert
-src/pages/HomePage.jsx                    — Full-bleed Heatmap-Section
-src/pages/KartePage.jsx                   — Full-bleed Heatmap-Section
-src/pages/KlinikProfilePage.jsx           — Mobile break-words für Kriterien
-src/App.jsx                               — Main-Padding erhöht (px-3 sm:px-4...)
-src/index.css                             — overflow-x:hidden entfernt
-```
-
----
-
-## Wichtige Commands
-
-```bash
-# Build prüfen
-npm run build
-
-# Deploy (Vercel auto-deployed bei Push auf main)
-git add src/... && git commit -m "..." && git push
-
-# Worktree sync (wenn Preview-Server in Claude Code genutzt wird)
-cd .claude/worktrees/kind-torvalds-3111a8 && git merge main --no-edit
-
-# PasswordGate bypass (Browser-Console)
-sessionStorage.setItem('ar_unlocked', '1')
+capacitor.config.ts                                    — NEU: Capacitor App-Konfiguration
+index.html                                             — viewport-fit=cover + Apple-Meta-Tags
+src/index.css                                          — iOS safe-area CSS-Block
+src/components/PasswordGate.jsx                        — VITE_PUBLIC_LAUNCH bypass
+src/main.jsx                                           — Capacitor StatusBar-Init
+.env.production                                        — NEU: VITE_PUBLIC_LAUNCH=true
+.env.development                                       — NEU: VITE_PUBLIC_LAUNCH=false
+ios/                                                   — NEU: vollständiges Xcode-Projekt
+ios/App/App/Assets.xcassets/AppIcon.appiconset/        — App-Icon 1024×1024 (kein Alpha)
+ios/App/App/Assets.xcassets/Splash.imageset/           — Splash 2732×2732 × 3 Varianten
+package.json                                           — @capacitor/* Abhängigkeiten hinzugefügt
 ```
 
 ---
 
 ## Architektur-Entscheidungen dieser Session
 
-- **Koordinaten separat**: `HOSPITAL_COORDS` in eigener Datei, nicht in `hospitals.js` eingebettet, um Ladezeit zu sparen
-- **Kein `overflow-x: hidden`**: Bewusst entfernt — iOS Safari interpretiert das als "Seite ist breiter als Viewport" und zoomt automatisch rein
-- **Kein `llms.txt`**: Google AI Optimization Guide empfiehlt ausdrücklich keine versteckten/optimierten Textdateien für AI-Bots
-- **SVG-Hover-Labels statt HTML-Tooltip**: Für Stadt-/Klinik-Namen direkt im SVG, skaliert mit Zoom (`fontSize: ${Math.max(7, 9/zoom)}px`)
+- **Capacitor statt React Native** — 80% Code-Reuse, schnellster Weg zum App Store, gleiche WebView-Engine wie Safari
+- **Bundle ID `de.assistenzranking.app`** — spiegelt Domain, unveränderlich nach App-Store-Submission
+- **VITE_PUBLIC_LAUNCH env-Flag** — saubere Trennung: Dev bleibt passwortgeschützt, Production-Build ist offen. Kein Code-Delete nötig.
+- **`isNativePlatform()` Guard** — StatusBar-Init läuft nur nativ, nie im Browser. Kein Crash-Risiko.
+- **Pillow für Icon-Generierung** — sips kann SVG→PNG, PIL für Background-Compositing (kein Alpha-Kanal für App Store)
+- **iOS 15.0 Deployment Target** — Capacitor 6.x erfordert 14+; 15.0 gibt Buffer und deckt >95% aktiver Geräte ab
 
 ---
 
 ## Nächste Schritte (empfohlen)
 
-1. **PasswordGate entfernen** → `src/components/PasswordGate.jsx` aus `App.jsx` entfernen oder per Env-Flag abschaltbar machen
-2. **GSC verifizieren** → Echten Google-Code in `public/google-site-verification-ERSETZEN.html` eintragen
-3. **Sitemap einreichen** → Nach PasswordGate-Entfernung: `assistenz-ranking.de/sitemap.xml` in GSC einreichen
-4. **Bing** → Bereits verifiziert (`BingSiteAuth.xml`), aber Sitemap auch dort einreichen
-5. **Map-Collision** → Berlin/München/Hamburg Clustering bei hohem Zoom verbessern
-6. **Analytics prüfen** → GoatCounter-Dashboard (`assistenz.goatcounter.com`) auf korrekte Tracking-Codes prüfen
+1. **Apple Developer Account** → [developer.apple.com/programs](https://developer.apple.com/programs) ($99/Jahr, 1-2 Tage Bearbeitung)
+2. **Xcode öffnen + Simulator testen** → `npx cap open ios` → iPhone 15 Simulator → alle Flows testen
+3. **App Store Connect** → neue App mit Bundle ID `de.assistenzranking.app`, Kategorie: Medical
+4. **App Store Screenshots** → Simulator 6.7" (iPhone 15 Pro Max) + 6.1" (iPhone 15) im Simulator
+5. **TestFlight** → Product → Archive → TestFlight einreichen, eigene Geräte testen
+6. **PasswordGate auf Website entfernen** → GSC verifizieren → Sitemap einreichen
+
+---
+
+## Wichtige Commands
+
+```bash
+# Workflow nach Code-Änderungen:
+npm run build && npx cap sync ios
+
+# Xcode öffnen:
+npx cap open ios
+
+# Lokale Dev (Gate aktiv):
+npm run dev
+
+# Deploy Website (Vercel auto-deploy):
+git add . && git commit -m "..." && git push
+
+# Worktree sync (Preview-Server):
+cd .claude/worktrees/kind-torvalds-3111a8 && git merge main --no-edit
+
+# PasswordGate bypass im Browser:
+sessionStorage.setItem('ar_unlocked', '1')
+
+# PasswordGate bypass für Production-Build (automatisch via .env.production):
+VITE_PUBLIC_LAUNCH=true npm run build
+```
 
 ---
 
@@ -97,3 +126,5 @@ sessionStorage.setItem('ar_unlocked', '1')
 - **Repo**: github.com/3Micky/assistenzarzt-ranking
 - **Deploy**: Vercel (auto-deploy main branch)
 - **DNS**: A-Record @ → 76.76.21.21 (united-domains)
+- **iOS Bundle ID**: de.assistenzranking.app
+- **iOS App Name**: Assistenz-Ranking
