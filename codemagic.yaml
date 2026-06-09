@@ -82,9 +82,11 @@ workflows:
       - ios/build/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
 
-    publishing:
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: true
-        beta_groups:
-          - Internal Tester
+    # publishing wird aktiviert sobald App Store Connect API-Key in
+    # Codemagic Team Settings → Integrations → App Store Connect hinterlegt ist.
+    # publishing:
+    #   app_store_connect:
+    #     auth: integration
+    #     submit_to_testflight: true
+    #     beta_groups:
+    #       - Internal Tester
