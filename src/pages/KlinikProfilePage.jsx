@@ -124,6 +124,7 @@ export default function KlinikProfilePage() {
 
   // Global ranking data for this hospital's position
   const ranked = useMemo(() => avgByHospital(ratings), [ratings])
+  const officialRankCount = ranked.filter((h) => h.isOfficial).length
 
   const profileSchema = useMemo(() => {
     if (!hospital || !data) return null
@@ -314,9 +315,12 @@ export default function KlinikProfilePage() {
           <div className="p-3 text-center">
             <div className="mono-label text-ink/50 mb-1">RANG</div>
             <div className="font-mono text-2xl font-bold text-ink">
-              {data.rank}
-              <span className="text-sm text-ink/40">/{ranked.length}</span>
+              {data.rank ?? '—'}
+              {data.rank != null && <span className="text-sm text-ink/40">/{officialRankCount}</span>}
             </div>
+            {!data.isOfficialRank && (
+              <div className="mono-label text-ink/40 mt-1">AB 3 BEW.</div>
+            )}
           </div>
           <div className="p-3 text-center">
             <div className="mono-label text-ink/50 mb-1">LAND</div>

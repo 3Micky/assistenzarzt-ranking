@@ -1,6 +1,11 @@
-import { overallScore } from './calculations.js'
+import { avgByHospital, hospitalNamesMatch, normalizeCriteria, overallScore, ratingValidity } from './calculations.js'
 import { searchHospitals } from './hospitalSearch.js'
 import { slugify } from './slugify.js'
+import { ALL_CRITERIA_KEYS, CRITERIA_ESSENTIAL, CRITERIA_MEDICAL, CRITERIA_NICE } from '../data/criteria.js'
+
+const CRITERIA_BY_KEY = new Map(
+  [...CRITERIA_ESSENTIAL, ...CRITERIA_MEDICAL, ...CRITERIA_NICE].map(criteria => [criteria.key, criteria])
+)
 
 /**
  * Findet ein Krankenhaus in der DACH-Datenbank anhand seines Slugs.
@@ -58,7 +63,7 @@ export function getHospitalBySlug(slug, ratings) {
  * }}
  */
 export function aggregateHospitalData(hospitalName, ratings) {
-  const allRatings = ratings.filter((r) => r.hospital === hospitalName)
+  const allRatings = ratings.filter((r) => hospitalNamesMatch(r.hospital, hospitalName))
   const count = allRatings.length
 
   if (count === 0) {
@@ -69,42 +74,36 @@ export function aggregateHospitalData(hospitalName, ratings) {
       specialties: [],
       yearRange: [null, null],
       allRatings: [],
-      rank: 0,
+      rank: null,
+      isOfficialRank: false,
+      rankingScore: 0,
     }
   }
 
-  const scores = allRatings.map((r) => overallScore(r.criteria))
-  const avgScore = Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10
+  const scores = allRatings
+    .filter((r) => ratingValidity(r.criteria).isValid)
+    .map((r) => overallScore(r.criteria))
+  const avgScore = scores.length > 0
+    ? Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10
+    : 0
 
   // Ranking berechnen
-  const hospitalScores = {}
-  ratings.forEach((r) => {
-    if (!hospitalScores[r.hospital]) hospitalScores[r.hospital] = []
-    hospitalScores[r.hospital].push(overallScore(r.criteria))
-  })
-  const ranked = Object.entries(hospitalScores)
-    .map(([name, vals]) => ({
-      name,
-      score: Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10,
-    }))
-    .sort((a, b) => b.score - a.score)
-  const rank = ranked.findIndex((h) => h.name === hospitalName) + 1
+  const ranked = avgByHospital(ratings)
+  const rankingEntry = ranked.find((h) => hospitalNamesMatch(h.hospital, hospitalName))
+  const rank = rankingEntry?.rank ?? null
 
   // Kriterien aggregieren
-  const criteriaKeys = new Set()
-  allRatings.forEach((r) => {
-    Object.keys(r.criteria).forEach((k) => criteriaKeys.add(k))
-  })
-
   const criteriaAverages = {}
-  criteriaKeys.forEach((key) => {
-    const rawValues = allRatings.map((r) => r.criteria[key]).filter((v) => v !== null && v !== undefined && v !== '')
+  ALL_CRITERIA_KEYS.forEach((key) => {
+    const definition = CRITERIA_BY_KEY.get(key)
+    const rawValues = allRatings
+      .map((r) => normalizeCriteria(r.criteria)[key])
+      .filter((v) => v !== null && v !== undefined && v !== '')
     if (rawValues.length === 0) return
 
-    const firstValue = rawValues[0]
-    const type = typeof firstValue === 'boolean'
+    const type = definition?.type === 'boolean'
       ? 'boolean'
-      : typeof firstValue === 'number'
+      : ['number', 'slider'].includes(definition?.type)
         ? 'number'
         : 'other'
 
@@ -156,6 +155,8 @@ export function aggregateHospitalData(hospitalName, ratings) {
     yearRange,
     allRatings,
     rank,
+    isOfficialRank: rankingEntry?.isOfficial ?? false,
+    rankingScore: rankingEntry?.score ?? 0,
   }
 }
 

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { fetchAllRatings, insertRating } from '../hooks/useSupabase.js'
+import { normalizeRating } from '../utils/calculations.js'
 
 export const useRatingsStore = create((set, get) => ({
   ratings: [],
@@ -10,7 +11,7 @@ export const useRatingsStore = create((set, get) => ({
     set({ isLoading: true })
     try {
       const ratings = await fetchAllRatings()
-      set({ ratings })
+      set({ ratings: ratings.map(normalizeRating) })
     } catch (error) {
       console.error('Hydration failed:', error)
     } finally {
@@ -20,10 +21,11 @@ export const useRatingsStore = create((set, get) => ({
 
   /** Add a new rating to Supabase */
   async addRating(rating) {
-    const result = await insertRating(rating)
+    const result = await insertRating(normalizeRating(rating))
     if (result) {
-      set((state) => ({ ratings: [result, ...state.ratings] }))
-      return result
+      const normalized = normalizeRating(result)
+      set((state) => ({ ratings: [normalized, ...state.ratings] }))
+      return normalized
     }
     return null
   },

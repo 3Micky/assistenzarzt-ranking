@@ -44,7 +44,7 @@ function NumberField({ label, hint, value, min, max, unit, onChange }) {
   )
 }
 
-export default function StepNiceToHave({ data, comment, onChange, onCommentChange, onBack, onSubmit }) {
+export default function StepNiceToHave({ data, comment, onChange, onCommentChange, onBack, onSubmit, submitError = '', isSubmitting = false }) {
   function set(key, val) { onChange({ ...data, [key]: val }) }
 
   return (
@@ -120,9 +120,17 @@ export default function StepNiceToHave({ data, comment, onChange, onCommentChang
 
       </div>
 
+      {submitError && (
+        <div className="border-t border-ink bg-hazard text-white px-4 py-3 font-mono text-[11.5px] uppercase tracking-wider">
+          {submitError}
+        </div>
+      )}
+
       <div className="flex border-t border-ink">
-        <button onClick={onBack}   className="btn-ghost-ink border-r border-ink">&lt;&lt;&lt; ZURÜCK</button>
-        <button onClick={onSubmit} className="btn-hazard">ABSENDEN &gt;&gt;&gt;</button>
+        <button onClick={onBack} disabled={isSubmitting} className="btn-ghost-ink border-r border-ink disabled:opacity-50">&lt;&lt;&lt; ZURÜCK</button>
+        <button onClick={onSubmit} disabled={isSubmitting} className="btn-hazard disabled:opacity-50">
+          {isSubmitting ? 'WIRD GESPEICHERT ...' : 'ABSENDEN >>>'}
+        </button>
       </div>
     </div>
   )
