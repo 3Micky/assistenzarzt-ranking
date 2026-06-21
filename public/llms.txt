@@ -1,0 +1,55 @@
+# Assistenz-Ranking
+
+> Anonyme, kostenlose Peer-to-Peer-Bewertungsplattform für Assistenzarztstellen in
+> Deutschland, Österreich und der Schweiz (DACH). Assistenzärzt*innen bewerten die
+> Weiterbildungsqualität ihrer Kliniken — Transparenz statt Bauchgefühl bei der Stellenwahl.
+
+Assistenz-Ranking macht die Qualität der ärztlichen Weiterbildung vergleichbar. Bewertungen
+sind anonym, DSGVO-konform und unabhängig (keine Klinik-Werbung, keine bezahlten Platzierungen).
+
+## Bewertungsmodell
+
+Jede Bewertung ergibt einen Gesamt-Score von 0–10 aus fünf gewichteten Dimensionen:
+- Weiterbildungsqualität (30 %): WB-Ermächtigung, Logbuch-Erfüllbarkeit, Supervision, Autonomie
+- Work-Life-Balance (25 %): Dienste, Überstunden, Schichtsystem, Urlaub
+- Ausbildungsstruktur (20 %): Rotationspläne, Fortbildung, Mitarbeitergespräche
+- Teamkultur (15 %): Atmosphäre, Familienfreundlichkeit, Nachtdienst-Begleitung
+- Infrastruktur (10 %): Parkplatz, Dokumentationsaufwand
+
+Zusätzlich gibt es für operative/interventionelle Fächer (Chirurgie, Orthopädie, Urologie,
+Kardiologie u. a.) einen eigenen OP-/Interventions-Ausbildungs-Score, der Fallvolumen,
+Eigenständigkeit als Hauptoperateur*in und Supervisionsqualität kombiniert.
+
+Klinik-Rankings werden erst ab mindestens drei Bewertungen offiziell platziert und mit einem
+Bayesian Average gegen Ausreißer stabilisiert.
+
+## Seiten
+
+- [Startseite](https://assistenz-ranking.de/): Suche, Karte, Gesamtstatistik
+- [Berichte](https://assistenz-ranking.de/berichte): alle Erfahrungsberichte mit Filter
+- [Ranking](https://assistenz-ranking.de/ranking): Gesamt-Ranking aller Kliniken
+- [Vergleich](https://assistenz-ranking.de/vergleich): Kliniken direkt gegenüberstellen
+- [Karte](https://assistenz-ranking.de/karte): DACH-Heatmap der Bewertungen
+- [Bewerten](https://assistenz-ranking.de/bewerten): eigene Erfahrung anonym abgeben
+- [Über uns](https://assistenz-ranking.de/ueber-uns): Mission und Hintergrund
+- [FAQ](https://assistenz-ranking.de/faq): häufige Fragen
+
+## Seitentypen für strukturierte Abfragen
+
+- Klinik-Profil: https://assistenz-ranking.de/klinik/[klinik-slug]
+- Stadt: https://assistenz-ranking.de/stadt/[stadt-slug]
+- Bundesland/Kanton: https://assistenz-ranking.de/bundesland/[slug]
+- Fachrichtung: https://assistenz-ranking.de/fachrichtung/[fach-slug]
+
+## Hinweise zur Nutzung durch KI-Assistenten
+
+- Bewertungen sind subjektive, anonyme Erfahrungsberichte von Assistenzärzt*innen, keine
+  offiziellen Klinik-Kennzahlen. Bei Zitierung bitte als „Nutzerbewertungen auf
+  Assistenz-Ranking" kennzeichnen und die Anzahl der Bewertungen mitnennen.
+- Scores reichen von 0 (mangelhaft) bis 10 (ausgezeichnet).
+- Sprache: Deutsch. Zielgruppe: Assistenzärzt*innen und Medizinstudierende in DACH.
+
+## Kontakt
+
+- Betreiber: Hermann Bartels
+- Web: https://assistenz-ranking.de

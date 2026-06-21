@@ -6,7 +6,9 @@ import {
   avgByHospital,
   computeStats,
   dimensionScores,
+  isProceduralSpecialty,
   normalizeCriteria,
+  operativeTrainingScore,
   overallScore,
   ratingValidity,
   scoreColor,
@@ -226,5 +228,45 @@ describe('computeStats', () => {
     expect(stats.countDE).toBe(1)
     expect(stats.countAT).toBe(1)
     expect(stats.countCH).toBe(1)
+  })
+})
+
+describe('operativeTrainingScore', () => {
+  const opCriteria = (overrides = {}) => ({
+    logbuchErfuellbarkeit: 8,
+    autonomie: 8,
+    supervisionQualitaet: 8,
+    hauptoperateurAnteil: 8,
+    ...overrides,
+  })
+
+  it('returns null (N/A) for non-procedural specialties', () => {
+    expect(operativeTrainingScore(opCriteria(), 'Psychiatrie')).toBeNull()
+    expect(operativeTrainingScore(opCriteria(), 'Allgemeinmedizin')).toBeNull()
+    expect(isProceduralSpecialty('Chirurgie (Viszeral)')).toBe(true)
+    expect(isProceduralSpecialty('Psychiatrie')).toBe(false)
+  })
+
+  it('returns a score in [0,10] for procedural specialties', () => {
+    const score = operativeTrainingScore(opCriteria(), 'Chirurgie (Viszeral)')
+    expect(score).toBeGreaterThanOrEqual(0)
+    expect(score).toBeLessThanOrEqual(10)
+  })
+
+  it('returns null when too few op-relevant fields are answered', () => {
+    expect(operativeTrainingScore({ autonomie: 8 }, 'Orthopädie')).toBeNull()
+  })
+
+  it('penalizes the service-job trap (high volume, low own operating)', () => {
+    const serviceJob = operativeTrainingScore(
+      opCriteria({ hauptoperateurAnteil: 1, autonomie: 3 }),
+      'Chirurgie (Viszeral)'
+    )
+    const realTraining = operativeTrainingScore(
+      opCriteria({ hauptoperateurAnteil: 9, autonomie: 9 }),
+      'Chirurgie (Viszeral)'
+    )
+    expect(serviceJob).toBeLessThan(realTraining)
+    expect(serviceJob).toBeLessThanOrEqual(5)
   })
 })

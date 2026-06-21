@@ -32,23 +32,29 @@ function BoolField({ label, hint, value, onChange, yesLabel = 'JA', noLabel = 'N
   )
 }
 
-function NumberField({ label, hint, value, min, max, unit, onChange }) {
+function NumberField({ label, hint, value, min, max, unit, normalCase, onChange }) {
+  const caseClass = normalCase ? ' !normal-case' : ''
   return (
     <div className="bg-canvas-alt rounded p-3">
-      <div className="mono-label mb-1">{label}</div>
+      <div className={`mono-label mb-1${caseClass}`}>{label}</div>
       {hint && <div className="text-xs text-ink/70 mb-2">{hint}</div>}
       <div className="flex items-center gap-2">
         <input type="number" min={min} max={max} value={value ?? ''}
           onChange={e => onChange(e.target.value === '' ? null : +e.target.value)}
           className="input-brutalist font-mono text-lg font-bold w-24 tabular-nums" />
-        {unit && <span className="mono-label text-xs">{unit}</span>}
+        {unit && <span className={`mono-label text-xs${caseClass}`}>{unit}</span>}
       </div>
     </div>
   )
 }
 
-export default function StepMedical({ data, onChange, onBack, onNext }) {
+import { isProceduralSpecialty, procedureType } from '../../utils/calculations.js'
+
+export default function StepMedical({ data, specialty, onChange, onBack, onNext }) {
   function set(key, val) { onChange({ ...data, [key]: val }) }
+
+  const istProzedural = isProceduralSpecialty(specialty)
+  const eingriffWort = procedureType(specialty) === 'interventionell' ? 'Interventionen' : 'Eingriffe'
 
   return (
     <div>
@@ -65,11 +71,15 @@ export default function StepMedical({ data, onChange, onBack, onNext }) {
           onChange={v => set('wbeJahre', v)}
         />
 
-        <NumberField
-          label="OPS / MONAT"
-          value={data.opsProMonat} min={0} max={50} unit="OPS"
-          onChange={v => set('opsProMonat', v)}
-        />
+        {istProzedural && (
+          <NumberField
+            label="OPs / MONAT"
+            hint={`Durchschnittliche Anzahl ${eingriffWort} pro Monat (eigene + assistiert)`}
+            value={data.opsProMonat} min={0} max={50} unit="OPs"
+            normalCase
+            onChange={v => set('opsProMonat', v)}
+          />
+        )}
 
         {/* Rotationen */}
         <div className="bg-canvas-alt rounded p-3">
@@ -119,32 +129,47 @@ export default function StepMedical({ data, onChange, onBack, onNext }) {
           invertLabel={['Immer überwacht', 'Volle Selbstständigkeit']}
         />
 
-        {/* Fortbildung & Lehre */}
-        <BoolField
-          label="FORTBILDUNG: FREISTELLUNG"
-          value={data.fortbildungFreistellung}
-          onChange={v => set('fortbildungFreistellung', v)}
-        />
-
-        <BoolField
-          label="FORTBILDUNG: BEZAHLT"
-          value={data.fortbildungBezahlt}
-          onChange={v => set('fortbildungBezahlt', v)}
-        />
-
-        <BoolField
-          label="LEHRTÄTIGKEIT VORHANDEN"
-          value={data.lehreTaetig}
-          onChange={v => set('lehreTaetig', v)}
-        />
-
-        {data.lehreTaetig === true && (
-          <BoolField
-            label="FREISTELLUNG FÜR LEHRE"
-            value={data.lehreFreistellung}
-            onChange={v => set('lehreFreistellung', v)}
+        {istProzedural && (
+          <SliderField
+            label="ANTEIL ALS HAUPTOPERATEUR*IN"
+            hint={`Wie oft selbst ${eingriffWort} durchführen?`}
+            value={data.hauptoperateurAnteil}
+            onChange={v => set('hauptoperateurAnteil', v)}
+            invertLabel={['Nur Assistenz', 'Meist selbst']}
           />
         )}
+
+        {/* Fortbildung & Lehre — gruppiert */}
+        <div className="sm:col-span-2 border border-ink/20 rounded p-3 bg-canvas">
+          <div className="mono-label mb-2">FORTBILDUNG &amp; LEHRE</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <BoolField
+              label="FORTBILDUNG: FREISTELLUNG"
+              value={data.fortbildungFreistellung}
+              onChange={v => set('fortbildungFreistellung', v)}
+            />
+
+            <BoolField
+              label="FORTBILDUNG: BEZAHLT"
+              value={data.fortbildungBezahlt}
+              onChange={v => set('fortbildungBezahlt', v)}
+            />
+
+            <BoolField
+              label="LEHRTÄTIGKEIT VORHANDEN"
+              value={data.lehreTaetig}
+              onChange={v => set('lehreTaetig', v)}
+            />
+
+            {data.lehreTaetig === true && (
+              <BoolField
+                label="FREISTELLUNG FÜR LEHRE"
+                value={data.lehreFreistellung}
+                onChange={v => set('lehreFreistellung', v)}
+              />
+            )}
+          </div>
+        </div>
 
         <NumberField
           label="MITARBEITERGESPRÄCHE / JAHR"

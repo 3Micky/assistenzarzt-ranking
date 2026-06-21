@@ -1,5 +1,6 @@
 import { matchHospitalName } from './hospitalSearch.js'
 import { HOSPITAL_COORDS } from '../data/hospitalCoords.js'
+import { SPECIALTY_PROCEDURE_TYPE } from '../data/criteria.js'
 
 export const CRITERIA_SCHEMA_VERSION = 2
 export const MIN_ANSWERED_CORE_CRITERIA = 5
@@ -235,6 +236,7 @@ export function normalizeCriteria(criteria = {}) {
     logbuchErfuellbarkeit: normalizeSlider(c.logbuchErfuellbarkeit),
     supervisionQualitaet: normalizeSlider(c.supervisionQualitaet),
     autonomie: normalizeSlider(c.autonomie),
+    hauptoperateurAnteil: normalizeSlider(c.hauptoperateurAnteil),
     mitarbeitergespraeche: normalizeNumber(c.mitarbeitergespraeche, 0, 12),
     dokumentationsaufwand: normalizeSlider(c.dokumentationsaufwand),
     urlaubsgenehmigung: normalizeSlider(c.urlaubsgenehmigung),
@@ -316,6 +318,79 @@ export function overallScore(criteria) {
 
 function validOverallScore(criteria) {
   return ratingValidity(criteria).isValid ? overallScore(criteria) : null
+}
+
+export const MIN_ANSWERED_OP_CRITERIA = 3
+
+/** Gewichtetes Mittel, das nur beantwortete (non-null) Komponenten berücksichtigt. */
+function weightedMeanNullAware(entries) {
+  const present = entries.filter(([value]) => value != null)
+  const weightSum = present.reduce((sum, [, weight]) => sum + weight, 0)
+  if (weightSum <= 0) return null
+  return present.reduce((sum, [value, weight]) => sum + value * weight, 0) / weightSum
+}
+
+/**
+ * @param {string} specialty
+ * @returns {'operativ'|'interventionell'|'mixed'|null}
+ */
+export function procedureType(specialty) {
+  return SPECIALTY_PROCEDURE_TYPE[specialty] ?? null
+}
+
+export function isProceduralSpecialty(specialty) {
+  return procedureType(specialty) != null
+}
+
+/**
+ * OP-/Interventions-Ausbildungs-Score (0-10) — nur für prozedurale Fächer.
+ * Wiederverwendung bestehender Felder (logbuchErfuellbarkeit, autonomie,
+ * supervisionQualitaet) + einziges neues Feld hauptoperateurAnteil als
+ * multiplikatives Gate gegen die "Service-Job-Falle".
+ *
+ * @param {object} criteria
+ * @param {string} specialty
+ * @returns {number|null} null = N/A (nicht-prozedurales Fach oder zu wenig Daten)
+ */
+export function operativeTrainingScore(criteria, specialty) {
+  if (!isProceduralSpecialty(specialty)) return null
+
+  const c = normalizeCriteria(criteria)
+  const logbuch = sliderScore(c.logbuchErfuellbarkeit)
+  const autonomie = sliderScore(c.autonomie)
+  const supervision = sliderScore(c.supervisionQualitaet)
+  const hauptOp = sliderScore(c.hauptoperateurAnteil)
+
+  // Mindestens 3 beantwortete OP-relevante Felder, sonst N/A
+  const answered = [logbuch, autonomie, supervision, hauptOp].filter(v => v != null).length
+  if (answered < MIN_ANSWERED_OP_CRITERIA) return null
+
+  // Volumen/WBO × Eigenständigkeits-Gate: ohne Hauptoperateur-Angabe kein Gate
+  const gate = hauptOp == null ? 1 : 0.4 + 0.6 * (hauptOp / 10)
+  const volumeQuality = logbuch == null ? null : logbuch * gate
+
+  const score = weightedMeanNullAware([
+    [volumeQuality, 0.45],
+    [autonomie,     0.30],
+    [supervision,   0.25],
+  ])
+  if (score == null) return null
+
+  // Sicherheitsnetz: kaum Eigenleistung + niedrige Autonomie → gedeckelt
+  const capped = (hauptOp != null && hauptOp <= 2 && autonomie != null && autonomie <= 4)
+    ? Math.min(score, 5)
+    : score
+
+  return round1(capped)
+}
+
+/** Aggregierter OP-Score je (Klinik, Fachrichtung) über alle passenden Bewertungen. */
+export function operativeTrainingScoreForRatings(ratings, specialty) {
+  if (!isProceduralSpecialty(specialty)) return null
+  const scores = ratings
+    .map(rating => operativeTrainingScore(rating.criteria, specialty))
+    .filter(score => score != null)
+  return average(scores)
 }
 
 function average(values) {

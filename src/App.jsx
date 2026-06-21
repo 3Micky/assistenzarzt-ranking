@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import PasswordGate  from './components/PasswordGate.jsx'
 import Header        from './components/Layout/Header.jsx'
@@ -20,12 +20,19 @@ import BundeslandPage     from './pages/BundeslandPage.jsx'
 import FachrichtungPage   from './pages/FachrichtungPage.jsx'
 import { useRatingsStore } from './store/ratingsStore.js'
 
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => { window.scrollTo(0, 0) }, [pathname])
+  return null
+}
+
 export default function App() {
   const hydrate = useRatingsStore((s) => s.hydrate)
   useEffect(() => { hydrate() }, [hydrate])
 
   return (
     <PasswordGate>
+    <ScrollToTop />
     <div className="min-h-screen flex flex-col bg-canvas">
       <Header />
       <main className="flex-1 px-3 sm:px-4 md:px-6 lg:px-8">

@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useRatingsStore } from '../store/ratingsStore.js'
-import { scoreColor, scoreLabel, overallScore, avgByHospital } from '../utils/calculations.js'
+import { scoreColor, scoreLabel, overallScore, avgByHospital, operativeTrainingScore } from '../utils/calculations.js'
 import { getHospitalBySlug, aggregateHospitalData, hospitalProfileSchema } from '../utils/hospitalProfile.js'
 import { slugify } from '../utils/slugify.js'
 import { CRITERIA_ESSENTIAL, CRITERIA_MEDICAL, CRITERIA_NICE } from '../data/criteria.js'
@@ -81,6 +81,7 @@ function CriteriaSection({ title, criteria, averages }) {
 function ReviewRow({ rating }) {
   const navigate = useNavigate()
   const score = overallScore(rating.criteria)
+  const opScore = operativeTrainingScore(rating.criteria, rating.specialty)
   const date = rating.timestamp
     ? new Date(rating.timestamp).toLocaleDateString('de-DE', { year: 'numeric', month: 'short' })
     : null
@@ -99,6 +100,11 @@ function ReviewRow({ rating }) {
         <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mb-1">
           {rating.specialty && (
             <span className="mono-label text-hazard break-words max-w-full">{rating.specialty}</span>
+          )}
+          {opScore != null && (
+            <span className="mono-label text-ink/70 border border-ink/20 px-1.5 py-0.5" title="OP-/Interventions-Ausbildungs-Score">
+              OP {opScore}
+            </span>
           )}
           {date && <span className="mono-label text-ink/50">{date}</span>}
         </div>

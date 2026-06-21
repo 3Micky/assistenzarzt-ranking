@@ -28,6 +28,7 @@ export const CRITERIA_MEDICAL = [
   { key: 'logbuchErfuellbarkeit',   label: 'Logbuch-Erfüllbarkeit',         type: 'slider',  min: 1, max: 10 },
   { key: 'supervisionQualitaet',    label: 'Supervision-Qualität',          type: 'slider',  min: 1, max: 10 },
   { key: 'autonomie',               label: 'Autonomie / Selbstständigkeit',  type: 'slider',  min: 1, max: 10 },
+  { key: 'hauptoperateurAnteil',    label: 'Anteil als Hauptoperateur*in',  type: 'slider',  min: 1, max: 10 },
   { key: 'mitarbeitergespraeche',   label: 'Mitarbeitergespräche / Jahr',   type: 'number',  min: 0, max: 12 },
   { key: 'dokumentationsaufwand',   label: 'Dokumentationsaufwand',         type: 'slider',  min: 1, max: 10 },
 ]
@@ -70,6 +71,7 @@ export const DEFAULT_CRITERIA = {
   logbuchErfuellbarkeit:    null,
   supervisionQualitaet:     null,
   autonomie:                null,
+  hauptoperateurAnteil:     null,
   nachtdienstBegleitung:    null,
   fortbildungFreistellung:  null,
   fortbildungBezahlt:       null,
@@ -96,6 +98,28 @@ export const SPECIALTIES = [
   'Orthopädie', 'Psychiatrie', 'Radiologie', 'Rheumatologie',
   'Urologie', 'Sonstige',
 ]
+
+/**
+ * Prozedurale Fachrichtungen — nur hier ist der OP-/Interventions-Score sinnvoll.
+ * 'operativ' = klassisch operierende Fächer, 'interventionell' = katheter-/endoskopiebasiert,
+ * 'mixed' = beides. Alle übrigen Fächer → kein OP-Score (N/A, nicht 0).
+ */
+export const SPECIALTY_PROCEDURE_TYPE = {
+  'Chirurgie (Allgemein)': 'operativ',
+  'Chirurgie (Unfall)':    'operativ',
+  'Chirurgie (Viszeral)':  'operativ',
+  'Neurochirurgie':        'operativ',
+  'Orthopädie':            'operativ',
+  'Urologie':              'operativ',
+  'Frauenheilkunde':       'operativ',
+  'HNO':                   'operativ',
+  'Augenheilkunde':        'operativ',
+  'Kardiologie':           'interventionell',
+  'Gastroenterologie':     'interventionell',
+  'Radiologie':            'interventionell',
+  'Notfallmedizin':        'mixed',
+  'Dermatologie':          'mixed',
+}
 
 export const REGIONS = {
   DE: [

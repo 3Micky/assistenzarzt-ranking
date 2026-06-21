@@ -121,8 +121,8 @@ export default function StepHospital({ data, onChange, onNext, initialSearchMode
     setKlinikQuery('')
   }
 
-  // Nur Klinikname + Land sind Pflicht — alles andere (Fachrichtung, Jahr) ist freiwillig
-  const canProceed = data.hospital?.trim() && data.country
+  // Klinikname, Land + Fachrichtung sind Pflicht — Jahr bleibt freiwillig
+  const canProceed = data.hospital?.trim() && data.country && data.specialty
 
   const currentYear = new Date().getFullYear()
   const years = Array.from({ length: currentYear - 1999 }, (_, i) => currentYear - i)
@@ -290,12 +290,17 @@ export default function StepHospital({ data, onChange, onNext, initialSearchMode
         {/* Fachrichtung */}
         <div className="ink-grid mb-4" style={{ gridTemplateColumns: '1fr' }}>
           <div className="bg-canvas p-3">
-            <div className="mono-label mb-1">FACHRICHTUNG</div>
-            <select className="select-brutalist" value={data.specialty}
+            <div className="mono-label mb-1">FACHRICHTUNG · PFLICHT</div>
+            <select className="select-brutalist" value={data.specialty || ''}
               onChange={e => onChange({ ...data, specialty: e.target.value })}>
               <option value="">— Wählen —</option>
               {SPECIALTIES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
+            {!data.specialty && (
+              <div className="mt-1 font-mono text-[11.5px] tracking-widest uppercase text-hazard">
+                Fachrichtung wählen, um fortzufahren
+              </div>
+            )}
           </div>
         </div>
 

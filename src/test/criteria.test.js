@@ -40,8 +40,8 @@ describe('criteria', () => {
       ...CRITERIA_NICE.map(c => c.key),
     ]
     expect(ALL_CRITERIA_KEYS).toEqual(expected)
-    expect(ALL_CRITERIA_KEYS).toHaveLength(29)
-    expect(new Set(ALL_CRITERIA_KEYS).size).toBe(29)
+    expect(ALL_CRITERIA_KEYS).toHaveLength(30)
+    expect(new Set(ALL_CRITERIA_KEYS).size).toBe(30)
   })
 
   it('specialties and regions are populated', () => {
