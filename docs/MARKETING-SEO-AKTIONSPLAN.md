@@ -166,3 +166,22 @@ durchbrechen die „leere Plattform"-Wahrnehmung. Qualität vor Quantität — e
 | Bewertungen total | 100 | 500 | 2.000 |
 | AI-Zitierungen (Perplexity/ChatGPT) | erste | regelmäßig | etabliert |
 | Backlinks | 5 | 20 | 50 |
+
+---
+
+## Referenz (aus der früheren SEO-Strategie)
+
+### Keyword-Buckets
+- **Transactional** (höchste Prio): `[Klinik] Erfahrungen Assistenzarzt`, `[Klinik] Weiterbildung Bewertung`, `Assistenzarzt [Stadt]`, `Beste Klinik Weiterbildung [Fach]`
+- **Informational** (Blog): `Assistenzarzt Gehalt [Jahr]`, `Bewerbung Assistenzarzt Muster`, `Weiterbildung Innere Medizin Dauer`, `Arbeitszeit Assistenzarzt`, `PJ Schweiz Voraussetzungen`, `TV-Ärzte erklärt`
+- **Brand**: `assistenz ranking`, `assistenzarzt ranking`, `assistenzdoc`
+
+### Konkurrenz & USP
+- Konkurrenten: klinikradar.de (Patienten), operation-karriere.de (Stellen+Content), jameda (Patienten), viamedici (Studi-Community)
+- **Lücke/USP**: Assistenzarzt-spezifisch (nicht Patientensicht), niedrigschwellig + intelligent, DACH statt nur DE, anonym + transparent. → In Title/Description konsequent „Assistenzarzt/Weiterbildung/Erfahrungsberichte".
+
+### Tooling & Budget (~20 €/Monat)
+Vercel Hobby (0 €), Supabase Free (0 €), GoatCounter (0 €), Google Search Console (0 €), Bing Webmaster (0 €), Ahrefs Webmaster Tools (0 €, eigene Domain). Reserve ~20 €.
+
+### E-E-A-T (YMYL: Medizin-Nähe)
+Impressum, Datenschutz, AGB, Über-uns existieren ✓. Anonymität der Bewertenden ↔ Trust der Plattform (Moderation via Melde-Button, transparente Regeln).
