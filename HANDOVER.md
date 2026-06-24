@@ -1,7 +1,7 @@
 # Handover: Assistenzarzt-Ranking
 
 > Letzte Session: 2026-06-24
-> Branch: `main` | Commit: `b6531d5`
+> Branch: `main` | Commit: `19a3a50`
 > Deploy: Vercel auto-deploy (assistenz-ranking.de) — **aktuell passwortgeschützt (Private Beta)**
 
 ---
@@ -9,50 +9,67 @@
 ## Aktueller Zustand (Kurzfassung)
 
 - Die **komplette fertige App** ist auf `main` und in Produktion deployt.
-- Die Production-Domain ist **serverseitig passwortgeschützt** (siehe „Beta-Schutz"). Passwort: `be100aware.now`.
-- Zum öffentlichen Launch: `SITE_PRIVATE=false` in Vercel setzen + Redeploy (dann ist auch der Zeitpunkt für Prerendering/SEO, siehe [docs/MARKETING-SEO-AKTIONSPLAN.md](docs/MARKETING-SEO-AKTIONSPLAN.md)).
+- Die Production-Domain ist **serverseitig passwortgeschützt** (Cookie-Login). Passwort: in Vercel als `SITE_PASSWORD` hinterlegt — bitte in Passwortmanager sichern.
+- Zum öffentlichen Launch: `SITE_PRIVATE=false` in Vercel setzen + Redeploy.
+- **Security Hardening ist live** (seit 2026-06-24): Turnstile CAPTCHA, Upstash Rate-Limiting, sichere Write-Route, DB-Constraints, Security-Headers.
 
 ---
 
-## Was diese Session erreicht wurde
+## Was in den letzten Sessions erreicht wurde
 
-### 1. Bewertungslogik v2 (großer Refactor — [src/utils/calculations.js](src/utils/calculations.js))
-Behobene echte Bugs:
-- `schichtsystem` wirkt jetzt im Score (alter Key `dienstsystem` war tot → immer 5).
-- `nachtdienstBegleitung` als Slider statt Boolean ausgewertet.
-- Score auf [0,10] geclamped (vorher waren Werte wie −32/46 möglich).
-- Farbe + Label aus **einer** zentralen Quelle (`SCORE_BANDS`).
-- Speichern (`RatingForm`) wartet `addRating()` ab + zeigt Fehler statt immer „Erfolg".
-Strukturell:
-- `normalizeCriteria()` als Legacy-Adapter: liest alte (`dienstsystem`, Boolean-Felder) **und** neue Rows verlustfrei; Prod-Daten werden nicht migriert, nur beim Lesen normalisiert.
-- Fehlende Werte = `null` = unbeantwortet → aus dem Dimensionsmittel ausgeschlossen (kein künstliches 5,0). Ungültig bei < 5 beantworteten Kernfragen.
-- Dimensions-Extraktoren einmal definiert, von Score + Radar gemeinsam genutzt.
-- Neukalibrierung: Mitarbeitergespräche 1/Jahr → 6,5; `wbeJahre` gegen 6 Soll-Jahre.
-- Ranking: Mindestens 3 Bewertungen für offizielle Platzierung + Bayesian Average (Prior 4).
+### 1. Bewertungslogik v2 ([src/utils/calculations.js](src/utils/calculations.js))
+- `schichtsystem`/`nachtdienstBegleitung` Bugs behoben, Score auf [0,10] geclamped
+- `normalizeCriteria()` als Legacy-Adapter, `SCORE_BANDS` als einzige Quelle für Farbe + Label
+- Null-aware: fehlende Werte aus Dimensionsmittel ausgeschlossen, ungültig bei < 5 Kernfragen
+- Bayesian Average, min. 3 Bewertungen für offizielles Ranking
 
-### 2. OP-/Interventions-Ausbildungs-Score (neu)
-- `operativeTrainingScore(criteria, specialty)` — eigener Sub-Score (0–10), **nur für prozedurale Fächer** (`SPECIALTY_PROCEDURE_TYPE` in criteria.js: operativ/interventionell/mixed), sonst `null` (N/A).
-- Effizient: 1 neues Feld `hauptoperateurAnteil` (Slider), Rest aus Bestand (`logbuchErfuellbarkeit`, `autonomie`, `supervisionQualitaet`). Multiplikatives Gate + Cap-Regel gegen die „Service-Job-Falle".
-- Fließt **nicht** in `overallScore` (separater Anzeige-Score, Badge auf KlinikProfilePage).
+### 2. OP-/Interventions-Score
+- `operativeTrainingScore(criteria, specialty)` — nur prozedurale Fächer, fließt nicht in `overallScore`
+- Neues Feld `hauptoperateurAnteil` (Slider), multiplikatives Gate gegen Service-Job-Falle
 
 ### 3. Formular-UX
-- Fachrichtung in Schritt 1 ist jetzt **Pflicht**.
-- Fortbildung/Lehre-Felder in Schritt 3 gruppiert („FORTBILDUNG & LEHRE").
-- „OPs / MONAT" nur bei prozeduralen Fächern, kleines „s", mit erklärendem Hint.
+- Fachrichtung in Schritt 1 Pflicht, Fortbildung/Lehre gruppiert, OPs/MONAT nur bei prozeduralen Fächern
 
-### 4. Scroll-Restoration (gesamte Website)
-- `ScrollToTop` in App.jsx (bei jedem Routenwechsel nach oben) + `useEffect` auf `step` in RatingForm (Formular-Schritte).
+### 4. Scroll-Restoration
+- `ScrollToTop` in App.jsx + `useEffect` auf `step` in RatingForm
 
 ### 5. Marketing/SEO
-- [docs/MARKETING-SEO-AKTIONSPLAN.md](docs/MARKETING-SEO-AKTIONSPLAN.md) erstellt (SEO-Audit, AI-SEO, Programmatic SEO, Launch, Cold-Start).
-- `public/llms.txt` erstellt (fehlte trotz CLAUDE.md-Behauptung).
-- **Befund:** Site ist Client-Side-SPA ohne Prerendering → Crawler/AI-Bots sehen leere Lade-Seite. Prerendering ist *der* SEO-Hebel für den Launch.
+- [docs/MARKETING-SEO-AKTIONSPLAN.md](docs/MARKETING-SEO-AKTIONSPLAN.md) erstellt
+- `public/llms.txt` erstellt
+- **Kritischer Befund:** SPA ohne Prerendering → Crawler sehen leere Seite
 
-### 6. Beta-Schutz (serverseitig — [middleware.js](middleware.js))
-- Vercel Edge Middleware mit **Cookie-Login** (kein Basic Auth — Vercel strippt `WWW-Authenticate`, dann zeigt der Browser keinen Dialog).
-- Blockt jeden Request (HTML, Assets, /api, Sitemaps) am Edge, bevor Inhalt ausgeliefert wird. Auf Hobby-Plan der einzige kostenlose Weg, die Production-Domain zu schützen (Vercel Password Protection = Pro+ / 150 €/Mon).
-- Cookie speichert SHA-256(Passwort), nicht das Passwort. Env: `SITE_PASSWORD`, `SITE_PRIVATE`.
-- **Live verifiziert:** ohne Login kein App-Inhalt, falsches PW abgewiesen, mit PW Zugang.
+### 6. Beta-Schutz ([middleware.js](middleware.js))
+- Vercel Edge Middleware, Cookie-Login (kein Basic Auth), SHA-256-Token
+- Fail-closed: kein Fallback-Passwort — ohne `SITE_PASSWORD` immer gesperrt
+
+### 7. Security Hardening (2026-06-24)
+- **middleware.js**: Timing-safe Vergleich, 7d Cookie, Upstash Login-Rate-Limit, Upstash-Init in try/catch (Fallback: Login funktioniert auch ohne Redis)
+- **api/ratings.js**: neue server-only Write-Route — Turnstile-Verify, Upstash Rate-Limit, Service-Role-Insert
+- **api/_lib/validateRating.js**: geteilter Server-Validator (gespiegelt in DB-Constraints)
+- **api/melde.js**: Allowlist-CORS, HTML-Escape, Turnstile + Rate-Limit
+- **src/store/ratingsStore.js**: `addRating` POST an `/api/ratings` (kein direkter Anon-Insert mehr)
+- **src/components/TurnstileWidget.jsx**: Cloudflare Turnstile Widget
+- **vercel.json**: Security-Headers (X-Frame-Options, CSP-Report-Only, COOP etc.)
+- **scripts/harden-db.sql**: REVOKE INSERT anon, CHECK Constraints NOT VALID — **bereits in Supabase ausgeführt**
+- 28/28 Tests grün, Build ✓
+
+---
+
+## Env-Variablen (alle in Vercel Production gesetzt)
+
+| Variable | Typ | Zweck |
+|---|---|---|
+| `SITE_PASSWORD` | Secret | Beta-Passwort |
+| `SITE_PRIVATE` | — | nicht gesetzt = geschützt; `false` = Launch |
+| `VITE_TURNSTILE_SITE_KEY` | Public (VITE_) | Cloudflare Turnstile Widget |
+| `TURNSTILE_SECRET_KEY` | Secret | Turnstile Server-Verify |
+| `UPSTASH_REDIS_REST_URL` | Secret | Rate-Limiting |
+| `UPSTASH_REDIS_REST_TOKEN` | Secret | Rate-Limiting |
+| `SUPABASE_SERVICE_ROLE_KEY` | Secret | Server-only Write-Zugriff |
+| `VITE_SUPABASE_URL` | Public | Supabase Projekt-URL |
+| `VITE_SUPABASE_KEY` | Public | Supabase Anon-Key (Reads) |
+| `RESEND_API_KEY` | Secret | E-Mail (Melde-Funktion) |
+| `MELDE_EMPFAENGER` | Secret | Melde-E-Mail-Adresse |
 
 ---
 
@@ -60,38 +77,42 @@ Strukturell:
 
 | Punkt | Prio | Status |
 |---|---|---|
-| Eigenes `SITE_PASSWORD` in Vercel setzen (Fallback `be100aware.now` steht im Repo) | mittel | offen (Dashboard-Aktion) |
-| **Prerendering** (vite-react-ssg) — Voraussetzung für SEO/AI-Sichtbarkeit | hoch | offen, vor Launch |
+| **SITE_PASSWORD** in eigenes Passwort ändern | hoch | offen — aktuell temporäres PW |
+| **Upstash-URL prüfen** (Format: `https://xxxxx.upstash.io`) | mittel | UrlError im Log gesehen — Fallback aktiv, aber Redis evtl. nicht verbunden |
+| **Prerendering** (vite-react-ssg) — Voraussetzung für SEO | hoch | offen, vor Launch |
 | Google Search Console verifizieren + Sitemaps einreichen | hoch | offen |
 | 50–100 echte Seed-Bewertungen (Cold-Start) | hoch | offen |
 | `AggregateRating`/`Review`-Schema je Klinikseite | mittel | offen |
 | 1,78 MB JS-Bundle → Code-Splitting | niedrig | offen |
-| iOS-App (Capacitor) | — | **pausiert** (Code liegt im Repo) |
-
-### Agent-Guardrails
-- Lokale SkillSpector-Install-Guardrails für Codex und Claude angelegt.
-- Codex-Skill liegt unter `skills/codex/skillspector-install-guard/`, weil die repo-interne `.codex/`-Struktur in dieser Umgebung nicht beschreibbar war.
-- Claude-Skill liegt unter `.claude/skills/skillspector-install-guard/`.
-- Projektweite Regeln ergänzt: `AGENTS.md` für Codex, `CLAUDE.md` für Claude.
-- Shared Verhalten: vor Install von Skills/MCP/Plugins zuerst SkillSpector-Scan, `HIGH`/`CRITICAL` blockieren, `MEDIUM` braucht Freigabe.
-- Cybersecurity-Skill-Pack geprüft: für diese Website nur passive, einzeln geprüfte Skills erwägen. SkillSpector (Static-only) bewertet `performing-security-headers-audit` mit 13/LOW und `performing-ssl-tls-security-assessment` mit 18/LOW; aktive DAST/SAST-, Access-Control-, CORS- und Secret-Scanning-Skills aus dem Pack wurden wegen HIGH/CRITICAL blockiert.
-- Codex-Systemskill `imagegen` auf Nutzerwunsch aus `~/.codex/skills/.system/` entfernt.
-- Drei einzeln geprüfte defensive Skills für Codex und Claude installiert: `performing-security-headers-audit`, `performing-ssl-tls-security-assessment`, `performing-web-application-vulnerability-triage`.
-- Security-Audit (lokal + Live, 2026-06-24): dokumentiertes Fallback-Beta-Passwort ist live aktiv; App-Responses haben außer HSTS keine zentralen Browser-Sicherheitsheader; Supabase erlaubt unbeschränkte anonyme Inserts ohne DB-Constraints/Rate-Limit; `/api/melde` hat Wildcard-CORS, kein Rate-Limit und ungeescapte HTML-Eingaben; `npm audit --omit=dev` meldet 9 Advisories (6 high, 3 moderate). Positiv: HTTPS-Redirect, gültiges Zertifikat, TLS 1.2/1.3 und sichere Beta-Cookie-Flags.
+| iOS-App (Capacitor) | — | **pausiert** |
 
 ---
 
 ## Wichtige Commands
 
 ```bash
-npm run dev                 # lokaler Dev-Server (Gate via VITE_PUBLIC_LAUNCH)
+npm run dev                 # lokaler Dev-Server
 npm run build               # Production-Build
-npx vitest run              # Tests (zuletzt 23/23 grün)
-git push origin main        # → Vercel auto-deploy (Production)
+npx vitest run              # Tests (28/28 grün)
+git push origin main        # → Vercel auto-deploy
 
-# Live-Check Beta-Schutz:
-curl -s -o /dev/null -w "%{http_code}\n" https://assistenz-ranking.de/   # → Login-Seite
+# Passwort zurücksetzen:
+vercel env rm SITE_PASSWORD production --yes
+vercel env add SITE_PASSWORD production --value "neues-passwort" --yes
+git commit --allow-empty -m "chore: redeploy" && git push origin main
+
+# Live-Check:
+curl -sI https://assistenz-ranking.de/ | grep -iE "(x-frame|x-content|referrer)"
 ```
 
 ## Launch (ein Schritt)
 `SITE_PRIVATE=false` in Vercel (Production) + Redeploy → Schloss auf.
+
+---
+
+## Agent-Guardrails
+- Lokale SkillSpector-Install-Guardrails für Codex und Claude aktiv.
+- Claude-Skill: `.claude/skills/skillspector-install-guard/`
+- Codex-Skill: `skills/codex/skillspector-install-guard/`
+- Projektweite Regeln: `AGENTS.md` (Codex), `CLAUDE.md` (Claude)
+- Vor Install von Skills/MCP/Plugins: SkillSpector-Scan, `HIGH`/`CRITICAL` blockieren, `MEDIUM` braucht Freigabe.
