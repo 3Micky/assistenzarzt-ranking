@@ -4,6 +4,13 @@
 > Ziel: Transparenz über Weiterbildungsqualität. Side-Project von Hermann Bartels (hbartels22@gmail.com).
 > **Aktueller Stand & Session-Log:** siehe [HANDOVER.md](HANDOVER.md). **Marketing/SEO:** [docs/MARKETING-SEO-AKTIONSPLAN.md](docs/MARKETING-SEO-AKTIONSPLAN.md).
 
+## Agent-Sicherheitsregel
+- Vor jedem Install, Update, Approval oder jeder Empfehlung für fremde Skills, MCP-Server, Plugins, Connectoren oder Agent-Repos zuerst den lokalen Skill `.claude/skills/skillspector-install-guard/SKILL.md` verwenden.
+- Scan ausführen mit `bash .claude/skills/skillspector-install-guard/scripts/scan-before-install.sh <target>`.
+- `HIGH`/`CRITICAL`, `safe_to_install=false` oder Scanfehler blockieren den Install.
+- Bei `MEDIUM` zuerst Findings zusammenfassen und explizite Freigabe einholen.
+- Wenn nur ein Static-Scan lief, das im Ergebnis klar benennen.
+
 ## Stack
 React 18 + Vite 5 · Tailwind v3 (brutalistisches Design) · React Router v6 · Zustand v4 · Recharts v2 ·
 react-simple-maps v3 (+ topojson-client, d3-scale) · Supabase (PostgreSQL) via `src/store/ratingsStore.js` ·

@@ -1,3 +1,5 @@
+import TurnstileWidget from '../TurnstileWidget.jsx'
+
 function SliderField({ label, value, invertLabel, onChange }) {
   return (
     <div className="bg-canvas-alt rounded p-3">
@@ -44,8 +46,9 @@ function NumberField({ label, hint, value, min, max, unit, onChange }) {
   )
 }
 
-export default function StepNiceToHave({ data, comment, onChange, onCommentChange, onBack, onSubmit, submitError = '', isSubmitting = false }) {
+export default function StepNiceToHave({ data, comment, onChange, onCommentChange, onBack, onSubmit, submitError = '', isSubmitting = false, turnstileToken = '', onTurnstileTokenChange, turnstileResetKey = 0 }) {
   function set(key, val) { onChange({ ...data, [key]: val }) }
+  const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY
 
   return (
     <div>
@@ -107,6 +110,7 @@ export default function StepNiceToHave({ data, comment, onChange, onCommentChang
           <div className="mono-label mb-2">BENEFITS (OPTIONAL)</div>
           <input className="input-brutalist w-full" placeholder="z.B. Jobticket, Kantine, Kinderbetreuung…"
             value={data.benefits ?? ''}
+            maxLength={500}
             onChange={e => set('benefits', e.target.value)} />
         </div>
 
@@ -115,7 +119,17 @@ export default function StepNiceToHave({ data, comment, onChange, onCommentChang
           <textarea rows={3} className="input-brutalist resize-y w-full"
             placeholder="Freitext — was noch wichtig ist…"
             value={comment}
+            maxLength={2000}
             onChange={e => onCommentChange(e.target.value)} />
+        </div>
+
+        <div className="bg-canvas-alt rounded p-3 sm:col-span-2">
+          <div className="mono-label mb-2">BOT-SCHUTZ</div>
+          <TurnstileWidget
+            siteKey={turnstileSiteKey}
+            onTokenChange={onTurnstileTokenChange}
+            resetKey={turnstileResetKey}
+          />
         </div>
 
       </div>
@@ -128,7 +142,7 @@ export default function StepNiceToHave({ data, comment, onChange, onCommentChang
 
       <div className="flex border-t border-ink">
         <button onClick={onBack} disabled={isSubmitting} className="btn-ghost-ink border-r border-ink disabled:opacity-50">&lt;&lt;&lt; ZURÜCK</button>
-        <button onClick={onSubmit} disabled={isSubmitting} className="btn-hazard disabled:opacity-50">
+        <button onClick={onSubmit} disabled={isSubmitting || !turnstileToken} className="btn-hazard disabled:opacity-50">
           {isSubmitting ? 'WIRD GESPEICHERT ...' : 'ABSENDEN >>>'}
         </button>
       </div>

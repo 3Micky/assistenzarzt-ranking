@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { fetchAllRatings, insertRating } from '../hooks/useSupabase.js'
+import { fetchAllRatings } from '../hooks/useSupabase.js'
 import { normalizeRating } from '../utils/calculations.js'
 
 export const useRatingsStore = create((set, get) => ({
@@ -19,15 +19,28 @@ export const useRatingsStore = create((set, get) => ({
     }
   },
 
-  /** Add a new rating to Supabase */
-  async addRating(rating) {
-    const result = await insertRating(normalizeRating(rating))
-    if (result) {
-      const normalized = normalizeRating(result)
-      set((state) => ({ ratings: [normalized, ...state.ratings] }))
-      return normalized
+  /** Add a new rating through the protected server route */
+  async addRating(rating, turnstileToken) {
+    try {
+      const response = await fetch('/api/ratings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...rating, turnstileToken }),
+      })
+      const result = await response.json()
+
+      if (response.ok && result.rating) {
+        const normalized = normalizeRating(result.rating)
+        set((state) => ({ ratings: [normalized, ...state.ratings] }))
+        return normalized
+      }
+
+      console.error('Bewertung speichern fehlgeschlagen:', result.error, result.details)
+      return null
+    } catch (error) {
+      console.error('Bewertung speichern fehlgeschlagen:', error)
+      return null
     }
-    return null
   },
 
   /** Clear local state (not used in normal flow) */
