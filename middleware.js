@@ -64,20 +64,20 @@ async function loginAllowed(request) {
   const token = process.env.UPSTASH_REDIS_REST_TOKEN
   if (!url || !token) return true
 
-  if (!loginRateLimit) {
-    loginRateLimit = new Ratelimit({
-      redis: new Redis({ url, token }),
-      limiter: Ratelimit.slidingWindow(10, '15 m'),
-      analytics: true,
-      prefix: 'beta-login',
-    })
-  }
-
   try {
+    if (!loginRateLimit) {
+      loginRateLimit = new Ratelimit({
+        redis: new Redis({ url, token }),
+        limiter: Ratelimit.slidingWindow(10, '15 m'),
+        analytics: true,
+        prefix: 'beta-login',
+      })
+    }
     const result = await loginRateLimit.limit(getClientIp(request))
     return result.success
   } catch (error) {
     console.error('Beta-Login Rate-Limit fehlgeschlagen:', error)
+    loginRateLimit = null // reset so next request retries initialization
     return true
   }
 }
