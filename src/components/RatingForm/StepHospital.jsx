@@ -121,8 +121,8 @@ export default function StepHospital({ data, onChange, onNext, initialSearchMode
     setKlinikQuery('')
   }
 
-  // Klinikname, Land + Fachrichtung sind Pflicht — Jahr bleibt freiwillig
-  const canProceed = data.hospital?.trim() && data.country && data.specialty
+  // Standortdaten werden serverseitig gegen Land/Region geprüft.
+  const canProceed = data.hospital?.trim() && data.city?.trim() && data.country && data.region && data.specialty
 
   const currentYear = new Date().getFullYear()
   const years = Array.from({ length: currentYear - 1999 }, (_, i) => currentYear - i)

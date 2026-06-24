@@ -1,6 +1,6 @@
 # Handover: Assistenzarzt-Ranking
 
-> Letzte Session: 2026-06-21
+> Letzte Session: 2026-06-24
 > Branch: `main` | Commit: `b6531d5`
 > Deploy: Vercel auto-deploy (assistenz-ranking.de) — **aktuell passwortgeschützt (Private Beta)**
 
@@ -67,6 +67,17 @@ Strukturell:
 | `AggregateRating`/`Review`-Schema je Klinikseite | mittel | offen |
 | 1,78 MB JS-Bundle → Code-Splitting | niedrig | offen |
 | iOS-App (Capacitor) | — | **pausiert** (Code liegt im Repo) |
+
+### Agent-Guardrails
+- Lokale SkillSpector-Install-Guardrails für Codex und Claude angelegt.
+- Codex-Skill liegt unter `skills/codex/skillspector-install-guard/`, weil die repo-interne `.codex/`-Struktur in dieser Umgebung nicht beschreibbar war.
+- Claude-Skill liegt unter `.claude/skills/skillspector-install-guard/`.
+- Projektweite Regeln ergänzt: `AGENTS.md` für Codex, `CLAUDE.md` für Claude.
+- Shared Verhalten: vor Install von Skills/MCP/Plugins zuerst SkillSpector-Scan, `HIGH`/`CRITICAL` blockieren, `MEDIUM` braucht Freigabe.
+- Cybersecurity-Skill-Pack geprüft: für diese Website nur passive, einzeln geprüfte Skills erwägen. SkillSpector (Static-only) bewertet `performing-security-headers-audit` mit 13/LOW und `performing-ssl-tls-security-assessment` mit 18/LOW; aktive DAST/SAST-, Access-Control-, CORS- und Secret-Scanning-Skills aus dem Pack wurden wegen HIGH/CRITICAL blockiert.
+- Codex-Systemskill `imagegen` auf Nutzerwunsch aus `~/.codex/skills/.system/` entfernt.
+- Drei einzeln geprüfte defensive Skills für Codex und Claude installiert: `performing-security-headers-audit`, `performing-ssl-tls-security-assessment`, `performing-web-application-vulnerability-triage`.
+- Security-Audit (lokal + Live, 2026-06-24): dokumentiertes Fallback-Beta-Passwort ist live aktiv; App-Responses haben außer HSTS keine zentralen Browser-Sicherheitsheader; Supabase erlaubt unbeschränkte anonyme Inserts ohne DB-Constraints/Rate-Limit; `/api/melde` hat Wildcard-CORS, kein Rate-Limit und ungeescapte HTML-Eingaben; `npm audit --omit=dev` meldet 9 Advisories (6 high, 3 moderate). Positiv: HTTPS-Redirect, gültiges Zertifikat, TLS 1.2/1.3 und sichere Beta-Cookie-Flags.
 
 ---
 

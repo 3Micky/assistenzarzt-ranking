@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { v4 as uuidv4 } from 'uuid'
 import StepHospital    from './StepHospital.jsx'
 import StepCriteria    from './StepCriteria.jsx'
 import StepMedical     from './StepMedical.jsx'
@@ -22,10 +21,17 @@ export default function RatingForm({ prefill = null, initialSearchMode = 'schnel
   const [comment, setComment]     = useState('')
   const [submitError, setSubmitError] = useState('')
   const [isSubmitting, setSubmitting] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState('')
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0)
   const addRating = useRatingsStore((s) => s.addRating)
 
   async function handleSubmit() {
     setSubmitError('')
+    if (!turnstileToken) {
+      setSubmitError('Bitte bestätige zuerst, dass du kein Bot bist.')
+      return
+    }
+
     const validity = ratingValidity(criteriaData)
     if (!validity.isValid) {
       setSubmitError(`Bitte beantworte mindestens ${validity.requiredCore} Kernfragen. Aktuell beantwortet: ${validity.answeredCore}.`)
@@ -34,16 +40,23 @@ export default function RatingForm({ prefill = null, initialSearchMode = 'schnel
 
     setSubmitting(true)
     try {
+      const { schemaVersion: _schemaVersion, ...criteria } = normalizeCriteria(criteriaData)
       const result = await addRating({
-        id: uuidv4(),
-        timestamp: new Date().toISOString(),
-        ...hospitalData,
-        criteria: normalizeCriteria(criteriaData),
+        hospital: hospitalData.hospital,
+        city: hospitalData.city,
+        country: hospitalData.country,
+        region: hospitalData.region,
+        specialty: hospitalData.specialty,
+        yearFrom: hospitalData.yearFrom,
+        yearTo: hospitalData.yearTo,
+        criteria,
         comment,
-      })
+      }, turnstileToken)
 
       if (!result) {
         setSubmitError('Die Bewertung konnte nicht gespeichert werden. Bitte später erneut versuchen.')
+        setTurnstileToken('')
+        setTurnstileResetKey(key => key + 1)
         return
       }
 
@@ -59,6 +72,8 @@ export default function RatingForm({ prefill = null, initialSearchMode = 'schnel
   function reset() {
     setStep(1); setHosp(DEFAULT_HOSPITAL); setCrit({ ...DEFAULT_CRITERIA }); setComment('')
     setSubmitError('')
+    setTurnstileToken('')
+    setTurnstileResetKey(key => key + 1)
     // Nach dem Zurücksetzen URL-Params entfernen damit kein altes Prefill erneut greift
     window.history.replaceState(null, '', window.location.pathname)
   }
@@ -76,7 +91,7 @@ export default function RatingForm({ prefill = null, initialSearchMode = 'schnel
       {step === 1 && <StepHospital   data={hospitalData} onChange={setHosp} onNext={() => setStep(2)} initialSearchMode={initialSearchMode} />}
       {step === 2 && <StepCriteria   data={criteriaData} onChange={setCrit} onBack={() => setStep(1)} onNext={() => setStep(3)} />}
       {step === 3 && <StepMedical    data={criteriaData} specialty={hospitalData.specialty} onChange={setCrit} onBack={() => setStep(2)} onNext={() => setStep(4)} />}
-      {step === 4 && <StepNiceToHave data={criteriaData} comment={comment} onChange={setCrit} onCommentChange={setComment} onBack={() => setStep(3)} onSubmit={handleSubmit} submitError={submitError} isSubmitting={isSubmitting} />}
+      {step === 4 && <StepNiceToHave data={criteriaData} comment={comment} onChange={setCrit} onCommentChange={setComment} onBack={() => setStep(3)} onSubmit={handleSubmit} submitError={submitError} isSubmitting={isSubmitting} turnstileToken={turnstileToken} onTurnstileTokenChange={setTurnstileToken} turnstileResetKey={turnstileResetKey} />}
       {step === TOTAL_STEPS && <StepDone hospital={hospitalData.hospital} onNew={reset} />}
     </div>
   )
