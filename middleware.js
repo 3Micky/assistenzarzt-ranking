@@ -132,6 +132,10 @@ function loginPage({ error = false, misconfigured = false, rateLimited = false }
       'Content-Type': 'text/html; charset=utf-8',
       'Cache-Control': 'no-store',
       'X-Robots-Tag': 'noindex, nofollow, noarchive',
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+      'Referrer-Policy': 'strict-origin-when-cross-origin',
+      'Cross-Origin-Opener-Policy': 'same-origin',
       ...(rateLimited ? { 'Retry-After': '900' } : {}),
     },
   })
@@ -163,6 +167,10 @@ export default async function middleware(request) {
           'Set-Cookie': `${COOKIE}=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${MAX_AGE}`,
           'Cache-Control': 'no-store',
           'X-Robots-Tag': 'noindex, nofollow, noarchive',
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options': 'DENY',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Cross-Origin-Opener-Policy': 'same-origin',
         },
       })
     }
