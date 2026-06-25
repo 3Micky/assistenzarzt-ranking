@@ -1,14 +1,14 @@
-import { Helmet } from 'react-helmet-async'
+import { Head } from 'vite-react-ssg'
 
 export default function DatenschutzPage() {
   return (
     <div className="max-w-2xl mx-auto px-6 py-10">
-      <Helmet>
+      <Head>
         <title>Datenschutzerklärung | assistenz-ranking.de</title>
         <meta name="description" content="Datenschutzerklärung der Bewertungsplattform assistenz-ranking.de — DSGVO-konform, keine Cookies, keine Tracker." />
         <link rel="canonical" href="https://assistenz-ranking.de/datenschutz" />
         <meta name="robots" content="noindex, follow" />
-      </Helmet>
+      </Head>
       <div className="mono-label-red mb-2">[ RECHTLICHES ]</div>
       <h1 className="font-display text-3xl text-ink uppercase tracking-tight mb-6">Datenschutzerklärung</h1>
 

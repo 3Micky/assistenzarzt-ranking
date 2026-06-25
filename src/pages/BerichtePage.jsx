@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Helmet } from 'react-helmet-async'
+import { Head } from 'vite-react-ssg'
 import { useSearchParams } from 'react-router-dom'
 import { useRatingsStore } from '../store/ratingsStore.js'
 import { overallScore } from '../utils/calculations.js'
@@ -37,14 +37,14 @@ export default function BerichtePage() {
 
   return (
     <div>
-      <Helmet>
+      <Head>
         <title>Erfahrungsberichte Assistenzärzte | Kliniken DACH | assistenz-ranking.de</title>
         <meta name="description" content="Alle anonymen Erfahrungsberichte von Assistenzärztinnen und Assistenzärzten aus Deutschland, Österreich und der Schweiz — filtern nach Klinik, Stadt und Fachrichtung." />
         <link rel="canonical" href="https://assistenz-ranking.de/berichte" />
         <meta property="og:url" content="https://assistenz-ranking.de/berichte" />
         <meta property="og:title" content="Erfahrungsberichte Assistenzärzte | DACH" />
         <meta property="og:description" content="Anonyme Bewertungen von Assistenzarztstellen — nach Klinik, Stadt und Fachrichtung filtern." />
-      </Helmet>
+      </Head>
       <div className="register-strip border-b border-ink">
         <span>/// BERICHTE LESEN</span>
         <span className="text-canvas/60">ALLE BEWERTUNGEN</span>

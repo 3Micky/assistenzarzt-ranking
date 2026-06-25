@@ -3,7 +3,7 @@ import {
   Legend, ResponsiveContainer, Tooltip,
 } from 'recharts'
 import { useRatings } from '../../hooks/useRatings.js'
-import { overallScore, scoreColor } from '../../utils/calculations.js'
+import { averageScoreForRatings, scoreColor } from '../../utils/calculations.js'
 import { matchHospitalName } from '../../utils/hospitalSearch.js'
 
 const COLORS = ['#0EA5E9', '#E61919', '#22C55E']
@@ -32,9 +32,7 @@ export default function RadarComparison({ slots = [] }) {
       matchHospitalName(r.hospital, slot.hospital) &&
       (slot.specialty ? r.specialty === slot.specialty : true)
     )
-    const avg = relevant.length === 0
-      ? 0
-      : Math.round((relevant.reduce((sum, r) => sum + overallScore(r.criteria), 0) / relevant.length) * 10) / 10
+    const avg = averageScoreForRatings(relevant) ?? 0
     return { label: labels[i], avg, color: COLORS[i % COLORS.length] }
   })
 

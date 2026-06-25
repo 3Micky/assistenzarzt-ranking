@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import StepHospital    from './StepHospital.jsx'
-import StepCriteria    from './StepCriteria.jsx'
-import StepMedical     from './StepMedical.jsx'
+import StepCore        from './StepCore.jsx'
 import StepNiceToHave  from './StepNiceToHave.jsx'
 import StepDone        from './StepDone.jsx'
 import { useRatingsStore } from '../../store/ratingsStore.js'
@@ -9,9 +8,9 @@ import { DEFAULT_CRITERIA } from '../../data/criteria.js'
 import { normalizeCriteria, ratingValidity } from '../../utils/calculations.js'
 
 const DEFAULT_HOSPITAL = { hospital: '', city: '', country: 'DE', region: '', specialty: '', year: new Date().getFullYear(), yearFrom: new Date().getFullYear(), yearTo: 'fortlaufend' }
-const TOTAL_STEPS = 5
+const TOTAL_STEPS = 4
 
-export default function RatingForm({ prefill = null, initialSearchMode = 'schnell' }) {
+export default function RatingForm({ prefill = null }) {
   const [step, setStep]           = useState(1)
   useEffect(() => { window.scrollTo(0, 0) }, [step])
   const [hospitalData, setHosp]   = useState(() =>
@@ -40,7 +39,7 @@ export default function RatingForm({ prefill = null, initialSearchMode = 'schnel
 
     setSubmitting(true)
     try {
-      const { schemaVersion: _schemaVersion, ...criteria } = normalizeCriteria(criteriaData)
+      const criteria = normalizeCriteria(criteriaData)
       const result = await addRating({
         hospital: hospitalData.hospital,
         city: hospitalData.city,
@@ -88,10 +87,38 @@ export default function RatingForm({ prefill = null, initialSearchMode = 'schnel
         </div>
       )}
 
-      {step === 1 && <StepHospital   data={hospitalData} onChange={setHosp} onNext={() => setStep(2)} initialSearchMode={initialSearchMode} />}
-      {step === 2 && <StepCriteria   data={criteriaData} onChange={setCrit} onBack={() => setStep(1)} onNext={() => setStep(3)} />}
-      {step === 3 && <StepMedical    data={criteriaData} specialty={hospitalData.specialty} onChange={setCrit} onBack={() => setStep(2)} onNext={() => setStep(4)} />}
-      {step === 4 && <StepNiceToHave data={criteriaData} comment={comment} onChange={setCrit} onCommentChange={setComment} onBack={() => setStep(3)} onSubmit={handleSubmit} submitError={submitError} isSubmitting={isSubmitting} turnstileToken={turnstileToken} onTurnstileTokenChange={setTurnstileToken} turnstileResetKey={turnstileResetKey} />}
+      {step === 1 && (
+        <StepHospital
+          data={hospitalData}
+          criteria={criteriaData}
+          onChange={setHosp}
+          onCriteriaChange={setCrit}
+          onNext={() => setStep(2)}
+        />
+      )}
+      {step === 2 && (
+        <StepCore
+          data={criteriaData}
+          onChange={setCrit}
+          onBack={() => setStep(1)}
+          onNext={() => setStep(3)}
+        />
+      )}
+      {step === 3 && (
+        <StepNiceToHave
+          data={criteriaData}
+          comment={comment}
+          onChange={setCrit}
+          onCommentChange={setComment}
+          onBack={() => setStep(2)}
+          onSubmit={handleSubmit}
+          submitError={submitError}
+          isSubmitting={isSubmitting}
+          turnstileToken={turnstileToken}
+          onTurnstileTokenChange={setTurnstileToken}
+          turnstileResetKey={turnstileResetKey}
+        />
+      )}
       {step === TOTAL_STEPS && <StepDone hospital={hospitalData.hospital} onNew={reset} />}
     </div>
   )

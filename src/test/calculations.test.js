@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   MIN_OFFICIAL_RATINGS,
+  CRITERIA_SCHEMA_VERSION,
   SCORE_BANDS,
   SCORE_DIMENSIONS,
   avgByHospital,
@@ -10,10 +11,24 @@ import {
   normalizeCriteria,
   operativeTrainingScore,
   overallScore,
+  recommendationStats,
   ratingValidity,
   scoreColor,
   scoreLabel,
 } from '../utils/calculations.js'
+
+const v3Criteria = (overrides = {}) => ({
+  schemaVersion: 3,
+  weiterbildungsjahr: 3,
+  weiterbildungsziele: 5,
+  supervision: 4,
+  selbststaendigkeit: 4,
+  arbeitsbelastung: 3,
+  teamFuehrung: 5,
+  ausbildungsstruktur: 4,
+  weiterempfehlung: 'Ja',
+  ...overrides,
+})
 
 const goodCriteria = (overrides = {}) => ({
   wbeJahre: 6,
@@ -84,6 +99,13 @@ describe('normalization', () => {
     expect(normalized.nachtdienstBegleitung).toBe(10)
     expect(normalized).not.toHaveProperty('dienstsystem')
   })
+
+  it('preserves the v3 schema and clamps its five-point core answers', () => {
+    const normalized = normalizeCriteria(v3Criteria({ supervision: 99, teamFuehrung: -4 }))
+    expect(normalized.schemaVersion).toBe(CRITERIA_SCHEMA_VERSION)
+    expect(normalized.supervision).toBe(5)
+    expect(normalized.teamFuehrung).toBe(1)
+  })
 })
 
 describe('overallScore', () => {
@@ -107,12 +129,27 @@ describe('overallScore', () => {
     expect(ratingValidity({}).isValid).toBe(false)
     expect(overallScore({})).toBe(0)
     expect(dimensionScores({})).toEqual({
-      weiterbildung: null,
-      workLife: null,
-      struktur: null,
-      teamkultur: null,
-      infrastruktur: null,
+      weiterbildungsziele: null,
+      supervision: null,
+      selbststaendigkeit: null,
+      arbeitsbelastung: null,
+      teamFuehrung: null,
+      ausbildungsstruktur: null,
     })
+  })
+
+  it('scores v3 as the equal mean of at least five core answers', () => {
+    expect(overallScore(v3Criteria())).toBe(8.3)
+    expect(ratingValidity(v3Criteria({ ausbildungsstruktur: null })).isValid).toBe(true)
+    expect(overallScore(v3Criteria({
+      weiterbildungsziele: null,
+      supervision: null,
+    }))).toBe(0)
+  })
+
+  it('does not let recommendation change the v3 score', () => {
+    expect(overallScore(v3Criteria({ weiterempfehlung: 'Ja' })))
+      .toBe(overallScore(v3Criteria({ weiterempfehlung: 'Nein' })))
   })
 
   it('recalibrates one employee review per year to a usable score', () => {
@@ -193,10 +230,10 @@ describe('score bands', () => {
 describe('avgByHospital', () => {
   it('requires enough ratings for official placement and always exposes counts', () => {
     const ratings = [
-      mockRating({ id: 'a1', hospital: 'Alpha Klinik', criteria: goodCriteria() }),
-      mockRating({ id: 'b1', hospital: 'Beta Klinik', criteria: goodCriteria({ workLifeBalance: 7 }) }),
-      mockRating({ id: 'b2', hospital: 'Beta Klinikum', criteria: goodCriteria({ workLifeBalance: 7 }) }),
-      mockRating({ id: 'b3', hospital: 'Beta Klinik', criteria: goodCriteria({ workLifeBalance: 7 }) }),
+      mockRating({ id: 'a1', hospital: 'Alpha Klinik', criteria: v3Criteria() }),
+      mockRating({ id: 'b1', hospital: 'Beta Klinik', criteria: v3Criteria({ arbeitsbelastung: 4 }) }),
+      mockRating({ id: 'b2', hospital: 'Beta Klinikum', criteria: v3Criteria({ arbeitsbelastung: 4 }) }),
+      mockRating({ id: 'b3', hospital: 'Beta Klinik', criteria: v3Criteria({ arbeitsbelastung: 4 }) }),
     ]
     const ranked = avgByHospital(ratings)
     const alpha = ranked.find(r => r.hospital === 'Alpha Klinik')
@@ -208,6 +245,23 @@ describe('avgByHospital', () => {
     expect(beta.count).toBeGreaterThanOrEqual(MIN_OFFICIAL_RATINGS)
     expect(beta.isOfficial).toBe(true)
     expect(beta.rank).toBe(1)
+  })
+
+  it('uses only v3 ratings for official ranking while preserving legacy display scores', () => {
+    const ratings = [
+      mockRating({ id: 'legacy', hospital: 'Alpha Klinik', criteria: goodCriteria() }),
+      mockRating({ id: 'v3-1', hospital: 'Beta Klinik', criteria: v3Criteria() }),
+      mockRating({ id: 'v3-2', hospital: 'Beta Klinik', criteria: v3Criteria() }),
+      mockRating({ id: 'v3-3', hospital: 'Beta Klinik', criteria: v3Criteria() }),
+    ]
+    const ranked = avgByHospital(ratings)
+    const alpha = ranked.find(row => row.hospital === 'Alpha Klinik')
+    const beta = ranked.find(row => row.hospital === 'Beta Klinik')
+
+    expect(alpha.scoreVersion).toBe(2)
+    expect(alpha.isOfficial).toBe(false)
+    expect(beta.scoreVersion).toBe(3)
+    expect(beta.isOfficial).toBe(true)
   })
 })
 
@@ -228,6 +282,20 @@ describe('computeStats', () => {
     expect(stats.countDE).toBe(1)
     expect(stats.countAT).toBe(1)
     expect(stats.countCH).toBe(1)
+  })
+})
+
+describe('recommendationStats', () => {
+  it('counts only v3 recommendations and reports the clear yes share', () => {
+    const stats = recommendationStats([
+      mockRating({ criteria: goodCriteria() }),
+      mockRating({ criteria: v3Criteria({ weiterempfehlung: 'Ja' }) }),
+      mockRating({ criteria: v3Criteria({ weiterempfehlung: 'Mit Einschränkungen' }) }),
+      mockRating({ criteria: v3Criteria({ weiterempfehlung: 'Nein' }) }),
+    ])
+    expect(stats.count).toBe(3)
+    expect(stats.yes).toBe(1)
+    expect(stats.yesPercent).toBe(33)
   })
 })
 

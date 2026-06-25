@@ -11,11 +11,15 @@ function validPayload(overrides = {}) {
     yearFrom: 2024,
     yearTo: 'fortlaufend',
     criteria: {
-      arbeitszeitenVon: '07:00',
-      diensteProMonat: 4,
-      ueberstundenAufschreiben: true,
-      workLifeBalance: 7,
-      benefits: 'Jobticket',
+      schemaVersion: 3,
+      weiterbildungsjahr: 3,
+      weiterbildungsziele: 5,
+      supervision: 4,
+      selbststaendigkeit: 4,
+      arbeitsbelastung: 3,
+      teamFuehrung: 5,
+      ausbildungsstruktur: 4,
+      weiterempfehlung: 'Ja',
     },
     comment: 'Sachlicher Erfahrungsbericht.',
     ...overrides,
@@ -35,6 +39,22 @@ describe('validateRatingPayload', () => {
     }))
     expect(result.valid).toBe(false)
     expect(result.errors.join(' ')).toContain('adminOverride')
+  })
+
+  it('requires v3 metadata, recommendation, and five core answers', () => {
+    const result = validateRatingPayload(validPayload({
+      criteria: {
+        schemaVersion: 3,
+        weiterbildungsjahr: 2,
+        weiterbildungsziele: 5,
+        supervision: 4,
+        selbststaendigkeit: 4,
+        arbeitsbelastung: 3,
+      },
+    }))
+    expect(result.valid).toBe(false)
+    expect(result.errors.join(' ')).toContain('weiterempfehlung')
+    expect(result.errors.join(' ')).toContain('5 der 6')
   })
 
   it('rejects over-length text', () => {

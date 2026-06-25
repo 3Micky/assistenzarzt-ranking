@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async'
+import { Head } from 'vite-react-ssg'
 import { Link } from 'react-router-dom'
 import SearchWidget from '../components/Search/SearchWidget.jsx'
 import GeoMap from '../components/GeoMap/GeoMap.jsx'
@@ -7,14 +7,14 @@ import StatsBar from '../components/Dashboard/StatsBar.jsx'
 export default function HomePage() {
   return (
     <div>
-      <Helmet>
+      <Head>
         <title>Assistenzarzt-Ranking | Anonyme Bewertungen DACH</title>
         <meta name="description" content="Anonyme Bewertungen von Assistenzarztstellen in Deutschland, Österreich und der Schweiz. Kliniken vergleichen, Erfahrungen lesen und schreiben." />
         <link rel="canonical" href="https://assistenz-ranking.de/" />
         <meta property="og:url" content="https://assistenz-ranking.de/" />
         <meta property="og:title" content="Assistenzarzt-Ranking | Anonyme Bewertungen DACH" />
         <meta property="og:description" content="Anonyme Bewertungen von Assistenzarztstellen in Deutschland, Österreich und der Schweiz. Kliniken ehrlich vergleichen." />
-      </Helmet>
+      </Head>
       {/* Hero */}
       <div className="border-b border-ink px-6 pt-8 pb-6">
         <div className="mono-label-red mb-2">[ TRANSPARENT. ANONYM. FÜR ALLE. ]</div>
@@ -55,7 +55,7 @@ export default function HomePage() {
           <div>
             <dt className="font-semibold text-ink mb-1">Was ist das Assistenz-Ranking?</dt>
             <dd className="text-sm text-ink/80 leading-relaxed">
-              Das Assistenz-Ranking ist eine anonyme Bewertungsplattform für Assistenzarztstellen in Deutschland, Österreich und der Schweiz. Ärzt*innen bewerten Kliniken anhand von sechs Kriterien-Dimensionen — für ein ausgewogenes, datenbasiertes Gesamtbild jeder Station.
+              Das Assistenz-Ranking ist eine anonyme Bewertungsplattform für Assistenzarztstellen in Deutschland, Österreich und der Schweiz. Sechs kurze Kernfragen ergeben ein verständliches Bild der Weiterbildung — ohne Anmeldung und in etwa zwei Minuten.
             </dd>
           </div>
           <div>
@@ -67,7 +67,7 @@ export default function HomePage() {
           <div>
             <dt className="font-semibold text-ink mb-1">Nach welchen Kriterien werden Kliniken bewertet?</dt>
             <dd className="text-sm text-ink/80 leading-relaxed">
-              Jede Bewertung durchläuft sechs Dimensionen, die im Spider-Chart verglichen werden: Weiterbildung (Supervision, Logbuch, Weiterbildungsdauer), Autonomie (Selbstständigkeit im Alltag), Work-Life (Arbeitsbelastung, Dienste, Überstunden), Teamklima (Atmosphäre, Familienfreundlichkeit, Begleitung), Struktur (Rotationspläne, Fortbildung, Mitarbeitergespräche) und Infrastruktur (Parkplatz, Dokumentationsaufwand). Aus diesen sechs Faktoren errechnet sich ein gewichteter Gesamt-Score.
+              Bewertet werden Weiterbildungsziele, Supervision, passende Selbstständigkeit, Arbeitsbelastung, Team und Führung sowie Ausbildungsstruktur. Die sechs Antworten zählen gleich stark; „nicht beurteilbar“ wird nicht als schlechte Antwort gewertet.
             </dd>
           </div>
         </dl>

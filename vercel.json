@@ -3,6 +3,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
+  "cleanUrls": true,
   "headers": [
     {
       "source": "/(.*)",
@@ -47,8 +48,8 @@
     }
   ],
   "rewrites": [
+    { "source": "/sitemap-index.xml",    "destination": "/api/sitemap-index" },
     { "source": "/sitemap.xml",          "destination": "/api/sitemap" },
-    { "source": "/sitemap-kliniken.xml", "destination": "/api/sitemap-kliniken" },
-    { "source": "/((?!api/).*)",         "destination": "/index.html" }
+    { "source": "/sitemap-kliniken.xml", "destination": "/api/sitemap-kliniken" }
   ]
 }

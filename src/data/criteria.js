@@ -1,5 +1,6 @@
 /**
  * Schritt 2: Strukturdaten — objektive Fakten zur Stelle
+ * Legacy-Schema v2. Wird für bestehende Bewertungen weiter angezeigt.
  */
 export const CRITERIA_ESSENTIAL = [
   { key: 'arbeitszeitenVon',         label: 'Arbeitszeiten von',           type: 'time'    },
@@ -14,6 +15,7 @@ export const CRITERIA_ESSENTIAL = [
 
 /**
  * Schritt 3: Ausbildung & Klinischer Alltag — spezifisch-rationale Felder
+ * Legacy-Schema v2. Wird für bestehende Bewertungen weiter angezeigt.
  */
 export const CRITERIA_MEDICAL = [
   { key: 'wbeJahre',                label: 'WBE-Jahre am Haus',             type: 'number',  min: 0, max: 12 },
@@ -35,6 +37,7 @@ export const CRITERIA_MEDICAL = [
 
 /**
  * Schritt 4: Team, Leben & Extras — Subjektives, Emotionales, Nice-to-have
+ * Legacy-Schema v2. Wird für bestehende Bewertungen weiter angezeigt.
  */
 export const CRITERIA_NICE = [
   { key: 'urlaubsgenehmigung',              label: 'Urlaubsgenehmigung',           type: 'slider',  min: 1, max: 10 },
@@ -46,47 +49,106 @@ export const CRITERIA_NICE = [
   { key: 'benefits',                        label: 'Benefits',                    type: 'text'                 },
 ]
 
+export const SCALE_5_OPTIONS = [
+  { value: 1, shortLabel: 'Sehr schlecht' },
+  { value: 2, shortLabel: 'Eher schlecht' },
+  { value: 3, shortLabel: 'Mittel' },
+  { value: 4, shortLabel: 'Eher gut' },
+  { value: 5, shortLabel: 'Sehr gut' },
+]
+
+/**
+ * Schnellformular v3: Diese sechs Fragen bilden allein den neuen Gesamt-Score.
+ */
+export const CRITERIA_CORE_V3 = [
+  {
+    key: 'weiterbildungsziele',
+    label: 'Weiterbildungsziele',
+    question: 'Konntest du die vorgesehenen Weiterbildungsinhalte und Logbuchziele erreichen?',
+    type: 'scale5',
+    min: 1,
+    max: 5,
+  },
+  {
+    key: 'supervision',
+    label: 'Supervision',
+    question: 'Wie zuverlässig war fachärztliche oder oberärztliche Unterstützung verfügbar?',
+    type: 'scale5',
+    min: 1,
+    max: 5,
+  },
+  {
+    key: 'selbststaendigkeit',
+    label: 'Passende Selbstständigkeit',
+    question: 'Wie gut passte deine Selbstständigkeit zu deinem Weiterbildungsstand?',
+    type: 'scale5',
+    min: 1,
+    max: 5,
+  },
+  {
+    key: 'arbeitsbelastung',
+    label: 'Arbeitsbelastung',
+    question: 'Wie gut waren Arbeitszeit, Dienste und Erholung insgesamt vereinbar?',
+    type: 'scale5',
+    min: 1,
+    max: 5,
+  },
+  {
+    key: 'teamFuehrung',
+    label: 'Team und Führung',
+    question: 'Wie respektvoll und unterstützend waren Team und Vorgesetzte?',
+    type: 'scale5',
+    min: 1,
+    max: 5,
+  },
+  {
+    key: 'ausbildungsstruktur',
+    label: 'Ausbildungsstruktur',
+    question: 'Wie zuverlässig wurden Einarbeitung, Rotationen und Fortbildung umgesetzt?',
+    type: 'scale5',
+    min: 1,
+    max: 5,
+  },
+]
+
+export const CRITERIA_CONTEXT_V3 = [
+  {
+    key: 'weiterbildungsjahr',
+    label: 'Weiterbildungsjahr',
+    type: 'number',
+    min: 1,
+    max: 12,
+  },
+  {
+    key: 'weiterempfehlung',
+    label: 'Weiterempfehlung',
+    type: 'enum',
+    options: ['Ja', 'Mit Einschränkungen', 'Nein'],
+  },
+]
+
 export const ALL_CRITERIA_KEYS = [
   ...CRITERIA_ESSENTIAL.map(c => c.key),
   ...CRITERIA_MEDICAL.map(c => c.key),
   ...CRITERIA_NICE.map(c => c.key),
+  ...CRITERIA_CORE_V3.map(c => c.key),
+  ...CRITERIA_CONTEXT_V3.map(c => c.key),
 ]
 
-/** Default-Werte für ein leeres Formular */
+/** Erlaubte JSON-Schlüssel inklusive Schema-Metadatum. */
+export const ALLOWED_CRITERIA_KEYS = ['schemaVersion', ...ALL_CRITERIA_KEYS]
+
+/** Default-Werte für das Schnellformular v3. */
 export const DEFAULT_CRITERIA = {
-  // Schritt 2: Arbeitszeit & Dienste
-  arbeitszeitenVon:         '07:00',
-  arbeitszeitenBis:         '16:00',
-  diensteProMonat:          null,
-  schichtsystem:            null,
-  ueberstundenAufschreiben: null,
-  ueberstundenAusgleich:    null,
-  urlaubsgenehmigung:       null,
-  workLifeBalance:          null,
-  // Schritt 3: Weiterbildung & Klinischer Alltag
-  wbeJahre:                 null,
-  opsProMonat:              null,
-  rotationsplaene:          null,
-  rotationsplaeneText:      '',
-  logbuchErfuellbarkeit:    null,
-  supervisionQualitaet:     null,
-  autonomie:                null,
-  hauptoperateurAnteil:     null,
-  nachtdienstBegleitung:    null,
-  fortbildungFreistellung:  null,
-  fortbildungBezahlt:       null,
-  lehreTaetig:              null,
-  lehreFreistellung:        null,
-  // Schritt 4: Abteilung, Team & Soziales
-  abteilungsgroesse:        null,
-  personalschluessel:       null,
-  dokumentationsaufwand:    null,
-  mitarbeitergespraeche:    null,
-  teamAtmosphaere:          null,
-  schwangerschaft:          null,
-  schwangerschaftFamilienfreundlich: null,
-  parkplatz:                null,
-  benefits:                 '',
+  schemaVersion: 3,
+  weiterbildungsjahr: null,
+  weiterbildungsziele: null,
+  supervision: null,
+  selbststaendigkeit: null,
+  arbeitsbelastung: null,
+  teamFuehrung: null,
+  ausbildungsstruktur: null,
+  weiterempfehlung: null,
 }
 
 export const SPECIALTIES = [

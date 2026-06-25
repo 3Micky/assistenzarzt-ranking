@@ -1,5 +1,20 @@
 # Handover: Assistenzarzt-Ranking
 
+## Update 2026-06-25 — Schnellformular v3
+
+- Bewertungsformular lokal auf drei Schritte und ca. 90–120 Sekunden reduziert:
+  Arbeitsplatz → sechs Kernfragen → Empfehlung/Veröffentlichung.
+- Neue Bewertungen verwenden `criteria.schemaVersion = 3`.
+- Sechs gleich gewichtete 5-Punkt-Kernfragen; mindestens fünf Antworten erforderlich.
+- Weiterempfehlung wird separat gespeichert und nicht in den Score eingerechnet.
+- Bestehende v2-Bewertungen bleiben lesbar und behalten ihre bisherige Berechnung.
+- Nur v3-Bewertungen zählen künftig für einen offiziellen Rankingplatz.
+- API-Validator, Klinikprofile, Berichtdetails, FAQ und Tests sind angepasst.
+- Vor Deploy zwingend einmal
+  [`scripts/migrate-rating-v3.sql`](scripts/migrate-rating-v3.sql) im Supabase SQL
+  Editor ausführen. Danach Anwendung deployen.
+- Lokaler Stand: 34/34 Tests grün, Production-Build erfolgreich.
+
 > Letzte Session: 2026-06-24
 > Branch: `main` | Commit: `19a3a50`
 > Deploy: Vercel auto-deploy (assistenz-ranking.de) — **aktuell passwortgeschützt (Private Beta)**

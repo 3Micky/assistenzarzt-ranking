@@ -1,13 +1,25 @@
 import { useState } from 'react'
-import { Helmet } from 'react-helmet-async'
+import { Head } from 'vite-react-ssg'
 import { useParams, Link } from 'react-router-dom'
 import { useRatingsStore } from '../store/ratingsStore.js'
-import { overallScore, scoreColor, scoreLabel } from '../utils/calculations.js'
+import { isCurrentCriteria, overallScore, scoreColor, scoreLabel } from '../utils/calculations.js'
 import { slugify } from '../utils/slugify.js'
-import { CRITERIA_ESSENTIAL, CRITERIA_MEDICAL, CRITERIA_NICE } from '../data/criteria.js'
+import {
+  CRITERIA_CONTEXT_V3,
+  CRITERIA_CORE_V3,
+  CRITERIA_ESSENTIAL,
+  CRITERIA_MEDICAL,
+  CRITERIA_NICE,
+  SCALE_5_OPTIONS,
+} from '../data/criteria.js'
 import MeldeModal from '../components/Berichte/MeldeModal.jsx'
 
 const COUNTRY_NAMES = { DE: 'Deutschland', AT: 'Österreich', CH: 'Schweiz' }
+
+function appendCityIfMissing(name, city) {
+  if (!city) return name
+  return name.toLowerCase().includes(city.toLowerCase()) ? name : `${name} ${city}`
+}
 
 function renderValue(type, value, key) {
   if (value === null || value === undefined || value === '') return <span className="text-ink/50">—</span>
@@ -22,6 +34,10 @@ function renderValue(type, value, key) {
     return (
       <span className="font-bold" style={{ color: scoreColor(value) }}>{value} / 10</span>
     )
+  }
+  if (type === 'scale5') {
+    const label = SCALE_5_OPTIONS.find(option => option.value === value)?.shortLabel ?? value
+    return <span className="font-bold" style={{ color: scoreColor(value * 2) }}>{label} · {value}/5</span>
   }
   if (type === 'time') return <span>{value}</span>
   if (type === 'number') return <span className="font-bold">{value}</span>
@@ -63,14 +79,15 @@ export default function BerichteDetailPage() {
   }
 
   const score = overallScore(rating.criteria)
+  const isV3 = isCurrentCriteria(rating.criteria)
   const date  = rating.timestamp ? new Date(rating.timestamp).toLocaleDateString('de-DE', { year: 'numeric', month: 'long' }) : null
   const country = COUNTRY_NAMES[rating.country] ?? rating.country
-  const metaTitle = `${rating.hospital}${rating.city ? ` ${rating.city}` : ''} — Erfahrungsbericht Assistenzarzt | assistenz-ranking.de`
+  const metaTitle = `${appendCityIfMissing(rating.hospital, rating.city)} — Erfahrungsbericht Assistenzarzt | assistenz-ranking.de`
   const metaDesc  = `Anonymer Erfahrungsbericht: ${rating.hospital}${rating.city ? `, ${rating.city}` : ''}${rating.specialty ? ` · ${rating.specialty}` : ''}. Gesamtscore: ${score}/10. Bewertung auf assistenz-ranking.de.`
 
   return (
     <div className="max-w-3xl mx-auto my-6 border border-ink overflow-hidden">
-      <Helmet>
+      <Head>
         <title>{metaTitle}</title>
         <meta name="description" content={metaDesc} />
         <link rel="canonical" href={`https://assistenz-ranking.de/berichte/${rating.id}`} />
@@ -78,7 +95,7 @@ export default function BerichteDetailPage() {
         <meta property="og:title" content={metaTitle} />
         <meta property="og:description" content={metaDesc} />
         <meta name="robots" content="index, follow" />
-      </Helmet>
+      </Head>
       {meldeOpen && <MeldeModal rating={rating} onClose={() => setMeldeOpen(false)} />}
 
       {/* Header */}
@@ -119,21 +136,38 @@ export default function BerichteDetailPage() {
       </div>
 
       {/* Criteria sections */}
-      <CriteriaSection
-        title="/// PFLICHT-KRITERIEN"
-        criteria={CRITERIA_ESSENTIAL}
-        values={rating.criteria}
-      />
-      <CriteriaSection
-        title="/// WEITERBILDUNG & AUSBILDUNGSQUALITÄT"
-        criteria={CRITERIA_MEDICAL}
-        values={rating.criteria}
-      />
-      <CriteriaSection
-        title="/// NICE-TO-HAVE"
-        criteria={CRITERIA_NICE}
-        values={rating.criteria}
-      />
+      {isV3 ? (
+        <>
+          <CriteriaSection
+            title="/// KERNBEWERTUNG"
+            criteria={CRITERIA_CORE_V3}
+            values={rating.criteria}
+          />
+          <CriteriaSection
+            title="/// KONTEXT"
+            criteria={CRITERIA_CONTEXT_V3}
+            values={rating.criteria}
+          />
+        </>
+      ) : (
+        <>
+          <CriteriaSection
+            title="/// PFLICHT-KRITERIEN · LEGACY V2"
+            criteria={CRITERIA_ESSENTIAL}
+            values={rating.criteria}
+          />
+          <CriteriaSection
+            title="/// WEITERBILDUNG & AUSBILDUNGSQUALITÄT"
+            criteria={CRITERIA_MEDICAL}
+            values={rating.criteria}
+          />
+          <CriteriaSection
+            title="/// NICE-TO-HAVE"
+            criteria={CRITERIA_NICE}
+            values={rating.criteria}
+          />
+        </>
+      )}
 
       {/* CTA Bar */}
       <div className="ink-grid border-b border-ink" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>

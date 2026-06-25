@@ -1,5 +1,7 @@
 import {
-  ALL_CRITERIA_KEYS,
+  ALLOWED_CRITERIA_KEYS,
+  CRITERIA_CONTEXT_V3,
+  CRITERIA_CORE_V3,
   CRITERIA_ESSENTIAL,
   CRITERIA_MEDICAL,
   CRITERIA_NICE,
@@ -23,9 +25,15 @@ export const TEXT_LIMITS = {
 
 const COUNTRIES = new Set(['DE', 'AT', 'CH'])
 const SPECIALTY_SET = new Set(SPECIALTIES)
-const CRITERIA_KEY_SET = new Set(ALL_CRITERIA_KEYS)
+const CRITERIA_KEY_SET = new Set(ALLOWED_CRITERIA_KEYS)
 const CRITERIA_DEFINITIONS = new Map(
-  [...CRITERIA_ESSENTIAL, ...CRITERIA_MEDICAL, ...CRITERIA_NICE]
+  [
+    ...CRITERIA_ESSENTIAL,
+    ...CRITERIA_MEDICAL,
+    ...CRITERIA_NICE,
+    ...CRITERIA_CORE_V3,
+    ...CRITERIA_CONTEXT_V3,
+  ]
     .map(criterion => [criterion.key, criterion])
 )
 const RATING_FIELDS = new Set([
@@ -77,11 +85,15 @@ function validateString(errors, field, value, { required = true, min = 1, max })
 
 function validateCriterion(errors, key, value) {
   if (value == null) return
+  if (key === 'schemaVersion') {
+    if (value !== 3) errors.push('criteria.schemaVersion muss 3 sein.')
+    return
+  }
 
   const definition = CRITERIA_DEFINITIONS.get(key)
   if (!definition) return
 
-  if (definition.type === 'number' || definition.type === 'slider') {
+  if (definition.type === 'number' || definition.type === 'slider' || definition.type === 'scale5') {
     if (typeof value !== 'number' || !Number.isFinite(value)) {
       errors.push(`criteria.${key} muss eine Zahl sein.`)
       return
@@ -181,6 +193,22 @@ export function validateRatingPayload(payload, options = {}) {
         continue
       }
       validateCriterion(errors, key, value)
+    }
+
+    if (payload.criteria.schemaVersion !== 3) {
+      errors.push('criteria.schemaVersion ist erforderlich.')
+    }
+    if (!Number.isInteger(payload.criteria.weiterbildungsjahr)) {
+      errors.push('criteria.weiterbildungsjahr ist erforderlich.')
+    }
+    if (!['Ja', 'Mit Einschränkungen', 'Nein'].includes(payload.criteria.weiterempfehlung)) {
+      errors.push('criteria.weiterempfehlung ist erforderlich.')
+    }
+    const answeredCore = CRITERIA_CORE_V3
+      .filter(criterion => payload.criteria[criterion.key] != null)
+      .length
+    if (answeredCore < 5) {
+      errors.push('Mindestens 5 der 6 Kernfragen müssen beantwortet sein.')
     }
   }
 

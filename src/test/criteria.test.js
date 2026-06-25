@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import {
   ALL_CRITERIA_KEYS,
+  ALLOWED_CRITERIA_KEYS,
+  CRITERIA_CONTEXT_V3,
+  CRITERIA_CORE_V3,
   CRITERIA_ESSENTIAL,
   CRITERIA_MEDICAL,
   CRITERIA_NICE,
@@ -38,10 +41,22 @@ describe('criteria', () => {
       ...CRITERIA_ESSENTIAL.map(c => c.key),
       ...CRITERIA_MEDICAL.map(c => c.key),
       ...CRITERIA_NICE.map(c => c.key),
+      ...CRITERIA_CORE_V3.map(c => c.key),
+      ...CRITERIA_CONTEXT_V3.map(c => c.key),
     ]
     expect(ALL_CRITERIA_KEYS).toEqual(expected)
-    expect(ALL_CRITERIA_KEYS).toHaveLength(30)
-    expect(new Set(ALL_CRITERIA_KEYS).size).toBe(30)
+    expect(ALL_CRITERIA_KEYS).toHaveLength(38)
+    expect(new Set(ALL_CRITERIA_KEYS).size).toBe(38)
+    expect(ALLOWED_CRITERIA_KEYS).toContain('schemaVersion')
+  })
+
+  it('defines exactly six v3 core questions on a five-point scale', () => {
+    expect(CRITERIA_CORE_V3).toHaveLength(6)
+    CRITERIA_CORE_V3.forEach(criterion => {
+      expect(criterion.type).toBe('scale5')
+      expect(criterion.min).toBe(1)
+      expect(criterion.max).toBe(5)
+    })
   })
 
   it('specialties and regions are populated', () => {

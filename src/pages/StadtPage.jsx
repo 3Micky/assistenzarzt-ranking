@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
-import { Helmet } from 'react-helmet-async'
+import { Head } from 'vite-react-ssg'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useRatingsStore } from '../store/ratingsStore.js'
-import { avgByHospital, overallScore, scoreColor, scoreLabel } from '../utils/calculations.js'
+import { averageScoreForRatings, avgByHospital, scoreColor, scoreLabel } from '../utils/calculations.js'
 import { slugify } from '../utils/slugify.js'
 import { getCitiesForFilters } from '../utils/hospitalSearch.js'
 
@@ -32,8 +32,7 @@ export default function StadtPage() {
 
   const avgScore = useMemo(() => {
     if (!cityRatings.length) return null
-    const scores = cityRatings.map(r => overallScore(r.criteria)).filter(s => s > 0)
-    return scores.length ? Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10 : null
+    return averageScoreForRatings(cityRatings)
   }, [cityRatings])
 
   const country = cityRatings[0]?.country ?? null
@@ -83,7 +82,7 @@ export default function StadtPage() {
 
   return (
     <div className="max-w-3xl mx-auto my-6 border border-ink">
-      <Helmet>
+      <Head>
         <title>{metaTitle}</title>
         <meta name="description" content={metaDesc} />
         <link rel="canonical" href={`https://assistenz-ranking.de/stadt/${slug}`} />
@@ -93,7 +92,7 @@ export default function StadtPage() {
         {breadcrumbSchema && (
           <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
         )}
-      </Helmet>
+      </Head>
 
       {/* Register Strip */}
       <div className="register-strip border-b border-ink flex justify-between items-center">

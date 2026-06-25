@@ -1,13 +1,18 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const SESSION_KEY = 'ar_unlocked'
 const PASSWORD    = 'be100aware.now'
 
 export default function PasswordGate({ children }) {
   const isPublicLaunch = import.meta.env.VITE_PUBLIC_LAUNCH === 'true'
-  const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem(SESSION_KEY) === '1')
+  const [unlocked, setUnlocked] = useState(false)
   const [input, setInput]       = useState('')
   const [error, setError]       = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    setUnlocked(window.sessionStorage.getItem(SESSION_KEY) === '1')
+  }, [])
 
   if (isPublicLaunch) return children
   if (unlocked) return children
@@ -15,7 +20,7 @@ export default function PasswordGate({ children }) {
   function handleSubmit(e) {
     e.preventDefault()
     if (input === PASSWORD) {
-      sessionStorage.setItem(SESSION_KEY, '1')
+      window.sessionStorage.setItem(SESSION_KEY, '1')
       setUnlocked(true)
     } else {
       setError(true)

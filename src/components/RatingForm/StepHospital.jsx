@@ -1,27 +1,31 @@
-import { useState, useRef, useEffect } from 'react'
-import { REGIONS, SPECIALTIES, COUNTRY_FLAGS } from '../../data/criteria.js'
+import { useEffect, useRef, useState } from 'react'
+import { COUNTRY_FLAGS, REGIONS, SPECIALTIES } from '../../data/criteria.js'
 import { useRatingsStore } from '../../store/ratingsStore.js'
-import { searchHospitals, getCitiesForFilters } from '../../utils/hospitalSearch.js'
+import { getCitiesForFilters, searchHospitals } from '../../utils/hospitalSearch.js'
 
-/** Schließt ein Dropdown wenn außerhalb geklickt wird */
 function useClickOutside(ref, onClose) {
   useEffect(() => {
-    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose() }
+    const handler = (event) => {
+      if (ref.current && !ref.current.contains(event.target)) onClose()
+    }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [ref, onClose])
 }
 
-/** Kleines wiederverwendbares Dropdown-Panel */
 function DropdownList({ items, onSelect, renderItem }) {
-  if (!items || items.length === 0) return null
+  if (!items?.length) return null
   return (
     <div className="absolute top-full left-0 right-0 z-50 border border-ink border-t-0 bg-white max-h-60 overflow-y-auto">
-      {items.map((item, i) => (
+      {items.map((item, index) => (
         <button
-          key={i}
-          onMouseDown={e => { e.preventDefault(); onSelect(item) }}
-          className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 border-b border-ink/10 last:border-b-0 hover:bg-canvas-alt text-left"
+          type="button"
+          key={index}
+          onMouseDown={(event) => {
+            event.preventDefault()
+            onSelect(item)
+          }}
+          className="w-full flex items-center gap-3 px-3 py-3 border-b border-ink/10 last:border-b-0 hover:bg-canvas-alt text-left"
         >
           {renderItem(item)}
         </button>
@@ -30,297 +34,249 @@ function DropdownList({ items, onSelect, renderItem }) {
   )
 }
 
-export default function StepHospital({ data, onChange, onNext, initialSearchMode = 'schnell' }) {
-  const [searchMode, setSearchMode] = useState(initialSearchMode)
+export default function StepHospital({
+  data,
+  criteria,
+  onChange,
+  onCriteriaChange,
+  onNext,
+}) {
+  const currentYear = new Date().getFullYear()
+  const [query, setQuery] = useState(data.hospital || '')
+  const [open, setOpen] = useState(false)
+  const [manualOpen, setManualOpen] = useState(false)
+  const searchRef = useRef(null)
+  useClickOutside(searchRef, () => setOpen(false))
 
-  // ── Schnellsuche ──────────────────────────────────────────────────────────
-  const [schnellQuery, setSchnellQuery] = useState(data.hospital || '')
-  const [schnellOpen, setSchnellOpen]   = useState(false)
-  const schnellRef                       = useRef(null)
-  useClickOutside(schnellRef, () => setSchnellOpen(false))
-
-  // ── Genaue Suche ─────────────────────────────────────────────────────────
-  const [cityQuery, setCityQuery]         = useState(data.city || '')
-  const [cityOpen, setCityOpen]           = useState(false)
-  const [klinikQuery, setKlinikQuery]     = useState(data.hospital || '')
-  const [klinikOpen, setKlinikOpen]       = useState(false)
-  const cityRef                            = useRef(null)
-  const klinikRef                          = useRef(null)
-  useClickOutside(cityRef,    () => setCityOpen(false))
-  useClickOutside(klinikRef,  () => setKlinikOpen(false))
-
-  const ratings  = useRatingsStore((s) => s.ratings)
-  const ratedSet = new Set(ratings.map(r => r.hospital))
-
-  // ── Schnellsuche Results ──────────────────────────────────────────────────
-  const schnellResults = schnellQuery.trim().length >= 2
-    ? searchHospitals(schnellQuery, ratedSet, {}, 8)
+  const ratings = useRatingsStore(state => state.ratings)
+  const ratedSet = new Set(ratings.map(rating => rating.hospital))
+  const results = query.trim().length >= 2
+    ? searchHospitals(query, ratedSet, {}, 8)
     : []
 
-  function selectSchnell(h) {
-    setSchnellQuery(h.name)
-    setSchnellOpen(false)
-    onChange({
-      ...data,
-      hospital: h.name,
-      city:     h.city    || data.city,
-      region:   h.region  || data.region,
-      country:  h.country || data.country || 'DE',
-    })
-  }
+  const period = data.yearTo === 'fortlaufend'
+    ? 'aktuell'
+    : data.yearFrom === currentYear - 1 && Number(data.yearTo) === currentYear - 1
+      ? 'letztes-jahr'
+      : 'frueher'
+  const earlierYears = Array.from({ length: currentYear - 1999 }, (_, index) => currentYear - index)
 
-  // ── Genaue Suche: verfügbare Städte (gefiltert nach Land + Region) ────────
   const availableCities = getCitiesForFilters({
     country: data.country || undefined,
-    region:  data.region  || undefined,
+    region: data.region || undefined,
   })
-  const cityResults = cityQuery.trim().length >= 1
-    ? availableCities.filter(c => c.toLowerCase().includes(cityQuery.toLowerCase())).slice(0, 8)
-    : availableCities.slice(0, 8)
 
-  function selectCity(city) {
-    setCityQuery(city)
-    setCityOpen(false)
-    onChange({ ...data, city })
-  }
-
-  // ── Genaue Suche: Klinik-Suche (gefiltert nach Land + Region + Stadt) ─────
-  const klinikResults = klinikQuery.trim().length >= 1
-    ? searchHospitals(klinikQuery, ratedSet, {
-        country: data.country || undefined,
-        region:  data.region  || undefined,
-        city:    cityQuery.trim() || undefined,
-      }, 8)
-    : []
-
-  function selectKlinik(h) {
-    setKlinikQuery(h.name)
-    setKlinikOpen(false)
-    // Auto-fill Stadt, Region, Land aus dem gewählten Krankenhaus
+  function selectHospital(hospital) {
+    setQuery(hospital.name)
+    setOpen(false)
     onChange({
       ...data,
-      hospital: h.name,
-      city:     h.city    || data.city,
-      region:   h.region  || data.region,
-      country:  h.country || data.country || 'DE',
+      hospital: hospital.name,
+      city: hospital.city || '',
+      region: hospital.region || '',
+      country: hospital.country || 'DE',
     })
-    setCityQuery(h.city || data.city || '')
   }
 
-  // Wenn Land wechselt → Region + Stadt + Klinik zurücksetzen
-  function handleCountryChange(country) {
-    onChange({ ...data, country, region: '', city: '', hospital: '' })
-    setCityQuery('')
-    setKlinikQuery('')
+  function setPeriod(value) {
+    if (value === 'aktuell') {
+      onChange({ ...data, yearFrom: currentYear, yearTo: 'fortlaufend' })
+      return
+    }
+    if (value === 'letztes-jahr') {
+      onChange({ ...data, yearFrom: currentYear - 1, yearTo: currentYear - 1 })
+      return
+    }
+    const year = data.yearTo === 'fortlaufend' ? currentYear - 2 : Number(data.yearFrom || currentYear - 2)
+    onChange({ ...data, yearFrom: year, yearTo: year })
   }
 
-  // Wenn Bundesland wechselt → Stadt + Klinik zurücksetzen
-  function handleRegionChange(region) {
-    onChange({ ...data, region, city: '', hospital: '' })
-    setCityQuery('')
-    setKlinikQuery('')
-  }
-
-  // Standortdaten werden serverseitig gegen Land/Region geprüft.
-  const canProceed = data.hospital?.trim() && data.city?.trim() && data.country && data.region && data.specialty
-
-  const currentYear = new Date().getFullYear()
-  const years = Array.from({ length: currentYear - 1999 }, (_, i) => currentYear - i)
+  const canProceed = Boolean(
+    data.hospital?.trim()
+    && data.city?.trim()
+    && data.country
+    && data.region
+    && data.specialty
+    && criteria.weiterbildungsjahr
+  )
 
   return (
     <div>
-      <div className="register-strip border-b border-ink">
-        SCHRITT 1 VON 5 /// KLINIK WÄHLEN
+      <div className="register-strip border-b border-ink flex justify-between">
+        <span>SCHRITT 1 VON 3 /// ARBEITSPLATZ</span>
+        <span className="text-canvas/60">CA. 2 MINUTEN GESAMT</span>
       </div>
 
-      {/* Mode toggle */}
-      <div className="ink-grid border-b border-ink" style={{ gridTemplateColumns: '1fr 1fr' }}>
-        <button onClick={() => setSearchMode('schnell')} className={searchMode === 'schnell' ? 'tab-active' : 'tab-inactive'}>SCHNELLSUCHE</button>
-        <button onClick={() => setSearchMode('genau')}   className={searchMode === 'genau'   ? 'tab-active' : 'tab-inactive'}>GENAUE SUCHE</button>
-      </div>
-
-      <div className="p-5">
-
-        {/* ── SCHNELLSUCHE ─────────────────────────────────────────────────── */}
-        {searchMode === 'schnell' && (
-          <div className="relative mb-4" ref={schnellRef}>
-            <input
-              className="input-brutalist"
-              placeholder='z.B. „St. Joseph Berlin" oder „Charité"'
-              value={schnellQuery}
-              onChange={e => {
-                setSchnellQuery(e.target.value)
-                onChange({ ...data, hospital: e.target.value })
-                setSchnellOpen(true)
-              }}
-              onFocus={() => setSchnellOpen(true)}
-              autoComplete="off"
+      <div className="p-5 space-y-4">
+        <div ref={searchRef} className="relative">
+          <label className="mono-label block mb-2">KLINIK · PFLICHT</label>
+          <input
+            className="input-brutalist"
+            placeholder='z. B. „Charité" oder „Klinik Nauen"'
+            value={query}
+            onChange={(event) => {
+              const hospital = event.target.value
+              setQuery(hospital)
+              setOpen(true)
+              onChange({ ...data, hospital, city: '', region: '' })
+            }}
+            onFocus={() => setOpen(true)}
+            autoComplete="off"
+          />
+          {open && (
+            <DropdownList
+              items={results}
+              onSelect={selectHospital}
+              renderItem={hospital => (
+                <>
+                  <span className="text-sm font-bold text-ink flex-1">{hospital.name}</span>
+                  <span className="font-mono text-[11.5px] text-ink/60 flex-shrink-0">
+                    {hospital.city} {COUNTRY_FLAGS[hospital.country]}
+                  </span>
+                </>
+              )}
             />
-            {schnellOpen && (
-              <DropdownList
-                items={schnellResults}
-                onSelect={selectSchnell}
-                renderItem={h => (
-                  <>
-                    <span className="font-mono text-[11.5px] tracking-widest text-hazard min-w-[56px] uppercase">
-                      KLINIK
-                    </span>
-                    <span className="text-sm sm:text-xs font-bold text-ink flex-1">{h.name}</span>
-                    <span className="font-mono text-[11.5px] text-ink/60 flex-shrink-0 flex items-center gap-1">
-                      {h.city && <span>{h.city}</span>}
-                      {h.hasRatings === false && <span className="text-ink/50">NEU</span>}
-                      <span>{COUNTRY_FLAGS[h.country]}</span>
-                    </span>
-                  </>
-                )}
-              />
-            )}
-          </div>
-        )}
-
-        {/* ── GENAUE SUCHE ─────────────────────────────────────────────────── */}
-        {searchMode === 'genau' && (
-          <div className="ink-grid mb-4" style={{ gridTemplateColumns: '1fr 1fr' }}>
-
-            {/* 01 Land */}
-            <div className="bg-canvas p-3">
-              <div className="mono-label mb-1">01 /// LAND</div>
-              <select className="select-brutalist" value={data.country || ''}
-                onChange={e => handleCountryChange(e.target.value)}>
-                <option value="">— Wählen —</option>
-                <option value="DE">DE · Deutschland</option>
-                <option value="AT">AT · Österreich</option>
-                <option value="CH">CH · Schweiz</option>
-              </select>
+          )}
+          {data.city && (
+            <div className="mt-2 font-mono text-[11.5px] uppercase tracking-wider text-ink/60">
+              ✓ {data.city} · {data.region} · {data.country}
             </div>
-
-            {/* 02 Bundesland / Kanton */}
-            <div className="bg-canvas p-3">
-              <div className="mono-label mb-1">02 /// BUNDESLAND / KANTON</div>
-              <select className="select-brutalist" value={data.region || ''}
-                onChange={e => handleRegionChange(e.target.value)}
-                disabled={!data.country}>
-                <option value="">— Wählen —</option>
-                {(REGIONS[data.country] || []).map(r => <option key={r} value={r}>{r}</option>)}
-              </select>
-            </div>
-
-            {/* 03 Stadt — Dropdown aus DB */}
-            <div className="bg-canvas p-3 relative" ref={cityRef}>
-              <div className="mono-label mb-1">03 /// STADT</div>
-              <input
-                className="input-brutalist"
-                value={cityQuery}
-                onChange={e => {
-                  setCityQuery(e.target.value)
-                  onChange({ ...data, city: e.target.value })
-                  setCityOpen(true)
-                }}
-                onFocus={() => setCityOpen(true)}
-                placeholder={data.country ? 'Stadt eingeben…' : 'Erst Land wählen'}
-                disabled={!data.country}
-                autoComplete="off"
-              />
-              {cityOpen && cityResults.length > 0 && (
-                <DropdownList
-                  items={cityResults}
-                  onSelect={selectCity}
-                  renderItem={city => (
-                    <span className="text-xs font-bold text-ink">{city}</span>
-                  )}
-                />
-              )}
-            </div>
-
-            {/* 04 Klinik — Dropdown aus DB */}
-            <div className="bg-canvas p-3 relative" ref={klinikRef}>
-              <div className="mono-label mb-1">04 /// KLINIK</div>
-              <input
-                className="input-brutalist"
-                value={klinikQuery}
-                onChange={e => {
-                  setKlinikQuery(e.target.value)
-                  onChange({ ...data, hospital: e.target.value })
-                  setKlinikOpen(true)
-                }}
-                onFocus={() => klinikQuery.length >= 1 && setKlinikOpen(true)}
-                placeholder={data.country ? 'Klinikname eingeben…' : 'Erst Land wählen'}
-                disabled={!data.country}
-                autoComplete="off"
-              />
-              {klinikOpen && klinikResults.length > 0 && (
-                <DropdownList
-                  items={klinikResults}
-                  onSelect={selectKlinik}
-                  renderItem={h => (
-                    <>
-                      <span className="text-sm sm:text-xs font-bold text-ink flex-1">{h.name}</span>
-                      <span className="font-mono text-[11.5px] text-ink/60 flex-shrink-0 flex items-center gap-1">
-                        {h.city}
-                        {h.hasRatings === false && <span className="text-ink/50 ml-1">NEU</span>}
-                      </span>
-                    </>
-                  )}
-                />
-              )}
-            </div>
-
-          </div>
-        )}
-
-        {/* Arbeitszeitraum */}
-        <div className="ink-grid mb-4" style={{ gridTemplateColumns: '1fr 1fr' }}>
-          <div className="bg-canvas p-3">
-            <div className="mono-label mb-1">VON JAHR</div>
-            <select className="select-brutalist" value={data.yearFrom ?? currentYear}
-              onChange={e => onChange({ ...data, yearFrom: +e.target.value })}>
-              {years.map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
-          </div>
-          <div className="bg-canvas p-3">
-            <div className="mono-label mb-1">BIS JAHR</div>
-            <select className="select-brutalist" value={data.yearTo ?? 'fortlaufend'}
-              onChange={e => onChange({ ...data, yearTo: e.target.value === 'fortlaufend' ? 'fortlaufend' : +e.target.value })}>
-              <option value="fortlaufend">FORTLAUFEND</option>
-              {years.map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
-          </div>
+          )}
         </div>
 
-        {/* Fachrichtung */}
-        <div className="ink-grid mb-4" style={{ gridTemplateColumns: '1fr' }}>
+        <button
+          type="button"
+          onClick={() => setManualOpen(value => !value)}
+          className="font-mono text-[11.5px] uppercase tracking-widest text-ink/60 hover:text-hazard"
+        >
+          {manualOpen ? '− ORTSEINGABE SCHLIESSEN' : '+ KLINIK NICHT GEFUNDEN? ORT MANUELL ANGEBEN'}
+        </button>
+
+        {manualOpen && (
+          <div className="ink-grid grid-cols-1 sm:grid-cols-3">
+            <div className="bg-canvas p-3">
+              <label className="mono-label block mb-1">LAND</label>
+              <select
+                className="select-brutalist"
+                value={data.country || ''}
+                onChange={(event) => onChange({
+                  ...data,
+                  country: event.target.value,
+                  region: '',
+                  city: '',
+                })}
+              >
+                <option value="">— Wählen —</option>
+                <option value="DE">Deutschland</option>
+                <option value="AT">Österreich</option>
+                <option value="CH">Schweiz</option>
+              </select>
+            </div>
+            <div className="bg-canvas p-3">
+              <label className="mono-label block mb-1">REGION</label>
+              <select
+                className="select-brutalist"
+                value={data.region || ''}
+                disabled={!data.country}
+                onChange={(event) => onChange({ ...data, region: event.target.value, city: '' })}
+              >
+                <option value="">— Wählen —</option>
+                {(REGIONS[data.country] || []).map(region => (
+                  <option key={region} value={region}>{region}</option>
+                ))}
+              </select>
+            </div>
+            <div className="bg-canvas p-3">
+              <label className="mono-label block mb-1">STADT</label>
+              <input
+                className="input-brutalist"
+                list="rating-city-options"
+                value={data.city || ''}
+                disabled={!data.country}
+                onChange={(event) => onChange({ ...data, city: event.target.value })}
+              />
+              <datalist id="rating-city-options">
+                {availableCities.slice(0, 300).map(city => <option key={city} value={city} />)}
+              </datalist>
+            </div>
+          </div>
+        )}
+
+        <div className="ink-grid grid-cols-1 sm:grid-cols-2">
           <div className="bg-canvas p-3">
-            <div className="mono-label mb-1">FACHRICHTUNG · PFLICHT</div>
-            <select className="select-brutalist" value={data.specialty || ''}
-              onChange={e => onChange({ ...data, specialty: e.target.value })}>
+            <label className="mono-label block mb-1">FACHRICHTUNG · PFLICHT</label>
+            <select
+              className="select-brutalist"
+              value={data.specialty || ''}
+              onChange={(event) => onChange({ ...data, specialty: event.target.value })}
+            >
               <option value="">— Wählen —</option>
-              {SPECIALTIES.map(s => <option key={s} value={s}>{s}</option>)}
+              {SPECIALTIES.map(specialty => (
+                <option key={specialty} value={specialty}>{specialty}</option>
+              ))}
             </select>
-            {!data.specialty && (
-              <div className="mt-1 font-mono text-[11.5px] tracking-widest uppercase text-hazard">
-                Fachrichtung wählen, um fortzufahren
-              </div>
-            )}
+          </div>
+          <div className="bg-canvas p-3">
+            <label className="mono-label block mb-1">WEITERBILDUNGSJAHR · PFLICHT</label>
+            <select
+              className="select-brutalist"
+              value={criteria.weiterbildungsjahr ?? ''}
+              onChange={(event) => onCriteriaChange({
+                ...criteria,
+                weiterbildungsjahr: event.target.value ? Number(event.target.value) : null,
+              })}
+            >
+              <option value="">— Wählen —</option>
+              {Array.from({ length: 10 }, (_, index) => index + 1).map(year => (
+                <option key={year} value={year}>{year}. Weiterbildungsjahr</option>
+              ))}
+              <option value="11">Fachärzt*in / danach</option>
+            </select>
           </div>
         </div>
 
-        {/* Ausgewählte Klinik als Zusammenfassung */}
-        {data.hospital && (
-          <div className="mb-4 px-3 py-2 bg-canvas border border-ink/20 font-mono text-[11.5px] uppercase tracking-widest text-ink/80">
-            ✓ {data.hospital}
-            {data.city   && ` · ${data.city}`}
-            {data.region && ` · ${data.region}`}
-            {data.country && ` · ${data.country}`}
-            {data.yearFrom && ` · ${data.yearFrom} – ${data.yearTo === 'fortlaufend' ? 'FORTLAUFEND' : data.yearTo}`}
+        <div>
+          <div className="mono-label mb-2">ZEITRAUM · PFLICHT</div>
+          <div className="grid grid-cols-3 gap-1">
+            {[
+              ['aktuell', 'Aktuell'],
+              ['letztes-jahr', String(currentYear - 1)],
+              ['frueher', 'Früher'],
+            ].map(([value, label]) => (
+              <button
+                type="button"
+                key={value}
+                onClick={() => setPeriod(value)}
+                className={period === value ? 'tab-active' : 'tab-inactive'}
+              >
+                {label.toUpperCase()}
+              </button>
+            ))}
           </div>
-        )}
-
-        <div className="flex border-t border-ink mt-4 -mx-5 -mb-5">
-          <div className="flex-1 bg-canvas" />
-          <button onClick={onNext} disabled={!canProceed} className="btn-hazard disabled:opacity-30">
-            WEITER &gt;&gt;&gt;
-          </button>
+          {period === 'frueher' && (
+            <select
+              className="select-brutalist mt-2"
+              value={data.yearFrom}
+              onChange={(event) => {
+                const year = Number(event.target.value)
+                onChange({ ...data, yearFrom: year, yearTo: year })
+              }}
+            >
+              {earlierYears.map(year => <option key={year} value={year}>{year}</option>)}
+            </select>
+          )}
         </div>
+
+        <div className="text-xs text-ink/65">
+          Anonym, ohne Anmeldung. Wir veröffentlichen keine personenbezogenen Angaben.
+        </div>
+      </div>
+
+      <div className="flex border-t border-ink">
+        <div className="flex-1 bg-canvas" />
+        <button type="button" onClick={onNext} disabled={!canProceed} className="btn-hazard disabled:opacity-30">
+          WEITER &gt;&gt;&gt;
+        </button>
       </div>
     </div>
   )

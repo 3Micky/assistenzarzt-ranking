@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
+import { Head } from 'vite-react-ssg'
 import RatingForm from '../components/RatingForm/RatingForm.jsx'
 
 export default function BewertungPage() {
@@ -12,23 +12,22 @@ export default function BewertungPage() {
     city:       searchParams.get('city')       || '',
     region:     searchParams.get('region')     || '',
     country:    searchParams.get('country')    || 'DE',
+    specialty:  searchParams.get('specialty')  || '',
   } : null
-  const initialSearchMode = searchParams.get('searchMode') || 'schnell'
-
   return (
     <div className="px-4 py-6">
-      <Helmet>
+      <Head>
         <title>Klinik bewerten | Erfahrung teilen | assistenz-ranking.de</title>
-        <meta name="description" content="Teile deine Erfahrung als Assistenzärztin oder Assistenzarzt — anonym, in wenigen Minuten. Hilf anderen bei der Wahl der richtigen Klinik." />
+        <meta name="description" content="Teile deine Erfahrung als Assistenzärztin oder Assistenzarzt — anonym, ohne Anmeldung und in etwa zwei Minuten." />
         <link rel="canonical" href="https://assistenz-ranking.de/bewerten" />
         <meta property="og:url" content="https://assistenz-ranking.de/bewerten" />
         <meta property="og:title" content="Klinik bewerten | Assistenzarzt-Erfahrung teilen" />
-        <meta property="og:description" content="Anonym und in wenigen Minuten — teile deine Erfahrung als Assistenzärztin oder Assistenzarzt." />
-      </Helmet>
+        <meta property="og:description" content="Anonym, ohne Anmeldung und in etwa zwei Minuten — teile deine Erfahrung als Assistenzärztin oder Assistenzarzt." />
+      </Head>
       <div className="register-strip border border-ink mb-6 max-w-3xl mx-auto">
         <span>/// BEWERTUNG SCHREIBEN</span>
       </div>
-      <RatingForm prefill={prefill} initialSearchMode={initialSearchMode} />
+      <RatingForm prefill={prefill} />
     </div>
   )
 }

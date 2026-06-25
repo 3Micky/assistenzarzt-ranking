@@ -1,18 +1,18 @@
-import { Helmet } from 'react-helmet-async'
+import { Head } from 'vite-react-ssg'
 import GeoMap from '../components/GeoMap/GeoMap.jsx'
 import StatsBar from '../components/Dashboard/StatsBar.jsx'
 
 export default function KartePage() {
   return (
     <div>
-      <Helmet>
+      <Head>
         <title>Klinik-Heatmap DACH | Assistenzarzt-Bewertungen nach Region | assistenz-ranking.de</title>
         <meta name="description" content="Interaktive Heatmap: Wie gut sind Assistenzarztstellen in deiner Region? Bewertungen aus Deutschland, Österreich und der Schweiz auf einen Blick." />
         <link rel="canonical" href="https://assistenz-ranking.de/karte" />
         <meta property="og:url" content="https://assistenz-ranking.de/karte" />
         <meta property="og:title" content="Klinik-Heatmap DACH | Assistenzarzt-Bewertungen" />
         <meta property="og:description" content="Interaktive Heatmap der Assistenzarzt-Bewertungen in Deutschland, Österreich und der Schweiz." />
-      </Helmet>
+      </Head>
       <div className="mx-[-0.75rem] sm:mx-[-1rem] md:mx-[-1.5rem] lg:mx-[-2rem]">
         <div className="register-strip border-b border-ink w-full">
           <span>/// DACH-HEATMAP</span>

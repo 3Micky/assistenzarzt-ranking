@@ -1,8 +1,13 @@
 import { create } from 'zustand'
-import { fetchAllRatings } from '../hooks/useSupabase.js'
+import { useRouteLoaderData } from 'react-router-dom'
+import { fetchAllRatings } from '../lib/ratingsData.js'
 import { normalizeRating } from '../utils/calculations.js'
 
-export const useRatingsStore = create((set, get) => ({
+export function primeRatingsStore(ratings = []) {
+  useRatingsStore.setState({ ratings, isLoading: false })
+}
+
+const baseRatingsStore = create((set, get) => ({
   ratings: [],
   isLoading: false,
 
@@ -11,7 +16,7 @@ export const useRatingsStore = create((set, get) => ({
     set({ isLoading: true })
     try {
       const ratings = await fetchAllRatings()
-      set({ ratings: ratings.map(normalizeRating) })
+      set({ ratings })
     } catch (error) {
       console.error('Hydration failed:', error)
     } finally {
@@ -48,3 +53,22 @@ export const useRatingsStore = create((set, get) => ({
     set({ ratings: [] })
   },
 }))
+
+export function useRatingsStore(selector) {
+  const stateFromStore = baseRatingsStore(selector)
+  const loaderData = useRouteLoaderData('root')
+
+  if (!loaderData?.ratings) {
+    return stateFromStore
+  }
+
+  return selector({
+    ...baseRatingsStore.getState(),
+    ratings: loaderData.ratings,
+    isLoading: false,
+  })
+}
+
+useRatingsStore.getState = baseRatingsStore.getState
+useRatingsStore.setState = baseRatingsStore.setState
+useRatingsStore.subscribe = baseRatingsStore.subscribe

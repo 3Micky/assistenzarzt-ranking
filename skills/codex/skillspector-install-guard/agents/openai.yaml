@@ -1,0 +1,7 @@
+interface:
+  display_name: "Skill Install Guard"
+  short_description: "Scan skills and MCPs before install"
+  default_prompt: "Use $skillspector-install-guard to scan this skill or MCP package before installing it."
+
+policy:
+  allow_implicit_invocation: true

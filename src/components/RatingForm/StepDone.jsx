@@ -4,7 +4,7 @@ export default function StepDone({ hospital, onNew }) {
   return (
     <div>
       <div className="register-strip border-b border-ink">
-        SCHRITT 4 VON 4 /// BESTÄTIGUNG
+        /// BESTÄTIGUNG
       </div>
       <div className="p-8 border-b border-ink">
         <div className="mono-label-red mb-3">[ GESPEICHERT ]</div>

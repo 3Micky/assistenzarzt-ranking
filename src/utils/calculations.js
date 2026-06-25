@@ -1,8 +1,9 @@
 import { matchHospitalName } from './hospitalSearch.js'
 import { HOSPITAL_COORDS } from '../data/hospitalCoords.js'
-import { SPECIALTY_PROCEDURE_TYPE } from '../data/criteria.js'
+import { CRITERIA_CORE_V3, SPECIALTY_PROCEDURE_TYPE } from '../data/criteria.js'
 
-export const CRITERIA_SCHEMA_VERSION = 2
+export const CRITERIA_SCHEMA_VERSION = 3
+export const LEGACY_CRITERIA_SCHEMA_VERSION = 2
 export const MIN_ANSWERED_CORE_CRITERIA = 5
 export const MIN_OFFICIAL_RATINGS = 3
 export const BAYESIAN_PRIOR_RATINGS = 4
@@ -24,7 +25,7 @@ export const SCORE_BANDS = [
   { min: 0, label: 'Mangelhaft', color: '#EF4444' },
 ]
 
-const CORE_SCORE_KEYS = [
+const LEGACY_CORE_SCORE_KEYS = [
   'wbeJahre',
   'logbuchErfuellbarkeit',
   'supervisionQualitaet',
@@ -43,7 +44,7 @@ const CORE_SCORE_KEYS = [
   'dokumentationsaufwand',
 ]
 
-const SCORE_FIELDS = {
+const LEGACY_SCORE_FIELDS = {
   wbeJahre: c => scoreWbe(c.wbeJahre),
   logbuchErfuellbarkeit: c => sliderScore(c.logbuchErfuellbarkeit),
   supervisionQualitaet: c => sliderScore(c.supervisionQualitaet),
@@ -64,7 +65,7 @@ const SCORE_FIELDS = {
   dokumentationsaufwand: c => sliderScore(c.dokumentationsaufwand),
 }
 
-const DIMENSION_DEFINITIONS = [
+const LEGACY_DIMENSION_DEFINITIONS = [
   {
     key: 'weiterbildung',
     label: 'Weiterbildung',
@@ -97,9 +98,31 @@ const DIMENSION_DEFINITIONS = [
   },
 ]
 
-export const SCORE_DIMENSIONS = DIMENSION_DEFINITIONS.map((dimension) => ({
+const LEGACY_SCORE_DIMENSIONS = LEGACY_DIMENSION_DEFINITIONS.map((dimension) => ({
   ...dimension,
-  extract: criteria => dimensionMean(criteria, dimension.fields),
+  extract: criteria => legacyDimensionMean(criteria, dimension.fields),
+}))
+
+export const V3_CORE_KEYS = CRITERIA_CORE_V3.map(criterion => criterion.key)
+
+const V3_DIMENSION_LABELS = {
+  weiterbildungsziele: 'Weiterbildungsziele',
+  supervision: 'Supervision',
+  selbststaendigkeit: 'Selbstständigkeit',
+  arbeitsbelastung: 'Arbeitsbelastung',
+  teamFuehrung: 'Team & Führung',
+  ausbildungsstruktur: 'Struktur',
+}
+
+/**
+ * Gemeinsame Radar-Achsen. Für v3 werden die sechs Kernfragen direkt verwendet;
+ * für v2 werden fachlich möglichst nahe Legacy-Werte angezeigt.
+ */
+export const SCORE_DIMENSIONS = V3_CORE_KEYS.map((key) => ({
+  key,
+  label: V3_DIMENSION_LABELS[key],
+  weight: 1 / V3_CORE_KEYS.length,
+  extract: criteria => comparableDimensionScore(criteria, key),
 }))
 
 function isMissing(value) {
@@ -180,6 +203,11 @@ function normalizeSlider(value) {
   return number == null ? null : clamp(number, 1, 10)
 }
 
+function normalizeScale5(value) {
+  const number = toNumber(value)
+  return number == null ? null : clamp(number, 1, 5)
+}
+
 function normalizeNumber(value, min = Number.NEGATIVE_INFINITY, max = Number.POSITIVE_INFINITY) {
   const number = toNumber(value)
   return number == null ? null : clamp(number, min, max)
@@ -203,8 +231,15 @@ function nullableTextValue(value) {
   return typeof value === 'string' && value !== '' ? value : null
 }
 
+export function criteriaSchemaVersion(criteria = {}) {
+  const explicitVersion = toNumber(criteria?.schemaVersion)
+  if (explicitVersion === CRITERIA_SCHEMA_VERSION) return CRITERIA_SCHEMA_VERSION
+  if (V3_CORE_KEYS.some(key => !isMissing(criteria?.[key]))) return CRITERIA_SCHEMA_VERSION
+  return LEGACY_CRITERIA_SCHEMA_VERSION
+}
+
 /**
- * Canonical v2 criteria shape used by all scoring reads.
+ * Canonical criteria shape used by all reads.
  * Legacy rows are adapted in-memory; stored Supabase rows are not mutated.
  *
  * @param {object|null|undefined} criteria
@@ -212,10 +247,19 @@ function nullableTextValue(value) {
  */
 export function normalizeCriteria(criteria = {}) {
   const c = criteria ?? {}
+  const schemaVersion = criteriaSchemaVersion(c)
   const schichtsystem = normalizeDienstsystem(c.schichtsystem ?? c.dienstsystem)
 
   return {
-    schemaVersion: CRITERIA_SCHEMA_VERSION,
+    schemaVersion,
+    weiterbildungsjahr: normalizeNumber(c.weiterbildungsjahr, 1, 12),
+    weiterbildungsziele: normalizeScale5(c.weiterbildungsziele),
+    supervision: normalizeScale5(c.supervision),
+    selbststaendigkeit: normalizeScale5(c.selbststaendigkeit),
+    arbeitsbelastung: normalizeScale5(c.arbeitsbelastung),
+    teamFuehrung: normalizeScale5(c.teamFuehrung),
+    ausbildungsstruktur: normalizeScale5(c.ausbildungsstruktur),
+    weiterempfehlung: validEnum(c.weiterempfehlung, ['Ja', 'Mit Einschränkungen', 'Nein']),
     arbeitszeitenVon: nullableTextValue(c.arbeitszeitenVon),
     arbeitszeitenBis: nullableTextValue(c.arbeitszeitenBis),
     diensteProMonat: normalizeNumber(c.diensteProMonat, 0, 31),
@@ -260,19 +304,45 @@ export function normalizeRating(rating) {
   }
 }
 
-function scoredField(criteria, key) {
+function legacyScoredField(criteria, key) {
   const c = normalizeCriteria(criteria)
-  return SCORE_FIELDS[key]?.(c) ?? null
+  return LEGACY_SCORE_FIELDS[key]?.(c) ?? null
 }
 
-function dimensionMean(criteria, fields) {
+function legacyDimensionMean(criteria, fields) {
   const c = normalizeCriteria(criteria)
   const values = fields
-    .map(field => SCORE_FIELDS[field]?.(c) ?? null)
+    .map(field => LEGACY_SCORE_FIELDS[field]?.(c) ?? null)
     .filter(value => value != null)
 
   if (values.length === 0) return null
   return round1(values.reduce((sum, value) => sum + value, 0) / values.length)
+}
+
+function legacyDimensionScore(criteria, key) {
+  return LEGACY_SCORE_DIMENSIONS.find(dimension => dimension.key === key)?.extract(criteria) ?? null
+}
+
+function scale5To10(value) {
+  const normalized = normalizeScale5(value)
+  return normalized == null ? null : normalized * 2
+}
+
+function comparableDimensionScore(criteria, key) {
+  const c = normalizeCriteria(criteria)
+  if (c.schemaVersion === CRITERIA_SCHEMA_VERSION) {
+    return scale5To10(c[key])
+  }
+
+  if (key === 'weiterbildungsziele') {
+    return legacyDimensionScore(c, 'weiterbildung')
+  }
+  if (key === 'supervision') return sliderScore(c.supervisionQualitaet)
+  if (key === 'selbststaendigkeit') return sliderScore(c.autonomie)
+  if (key === 'arbeitsbelastung') return legacyDimensionScore(c, 'workLife')
+  if (key === 'teamFuehrung') return sliderScore(c.teamAtmosphaere)
+  if (key === 'ausbildungsstruktur') return legacyDimensionScore(c, 'struktur')
+  return null
 }
 
 export function dimensionScores(criteria) {
@@ -282,7 +352,11 @@ export function dimensionScores(criteria) {
 }
 
 export function answeredCoreCount(criteria) {
-  return CORE_SCORE_KEYS.filter(key => scoredField(criteria, key) != null).length
+  const c = normalizeCriteria(criteria)
+  if (c.schemaVersion === CRITERIA_SCHEMA_VERSION) {
+    return V3_CORE_KEYS.filter(key => c[key] != null).length
+  }
+  return LEGACY_CORE_SCORE_KEYS.filter(key => legacyScoredField(c, key) != null).length
 }
 
 export function ratingValidity(criteria) {
@@ -295,17 +369,24 @@ export function ratingValidity(criteria) {
 }
 
 /**
- * 5-Dimensionen-Composite-Score (0-10).
- * Gewichtung: Weiterbildung 30% · WLB 25% · Ausbildungsstruktur 20% · Teamkultur 15% · Infrastruktur 10%
+ * Schema v3: gleich gewichteter Mittelwert der sechs Kernfragen, auf 0-10 skaliert.
+ * Schema v2: historischer 5-Dimensionen-Composite bleibt unverändert lesbar.
  */
 export function overallScore(criteria) {
   const validity = ratingValidity(criteria)
   if (!validity.isValid) return 0
 
-  const dimensions = SCORE_DIMENSIONS
-    .map(dimension => ({ ...dimension, score: dimension.extract(criteria) }))
-    .filter(dimension => dimension.score != null)
+  const c = normalizeCriteria(criteria)
+  if (c.schemaVersion === CRITERIA_SCHEMA_VERSION) {
+    const values = V3_CORE_KEYS
+      .map(key => c[key])
+      .filter(value => value != null)
+    return round1((values.reduce((sum, value) => sum + value, 0) / values.length) * 2)
+  }
 
+  const dimensions = LEGACY_SCORE_DIMENSIONS
+    .map(dimension => ({ ...dimension, score: dimension.extract(c) }))
+    .filter(dimension => dimension.score != null)
   const weightSum = dimensions.reduce((sum, dimension) => sum + dimension.weight, 0)
   if (weightSum <= 0) return 0
 
@@ -399,6 +480,21 @@ function average(values) {
   return round1(scores.reduce((sum, value) => sum + value, 0) / scores.length)
 }
 
+export function averageScoreForRatings(ratings) {
+  const currentScores = ratings
+    .filter(rating => isCurrentCriteria(rating.criteria))
+    .map(rating => validOverallScore(rating.criteria))
+    .filter(score => score != null)
+  if (currentScores.length > 0) return average(currentScores)
+
+  return average(
+    ratings
+      .filter(rating => !isCurrentCriteria(rating.criteria))
+      .map(rating => validOverallScore(rating.criteria))
+      .filter(score => score != null)
+  )
+}
+
 export function scoreColor(score) {
   const value = clampScore(score) ?? 0
   return SCORE_BANDS.find(band => value >= band.min)?.color ?? SCORE_BANDS.at(-1).color
@@ -407,6 +503,30 @@ export function scoreColor(score) {
 export function scoreLabel(score) {
   const value = clampScore(score) ?? 0
   return SCORE_BANDS.find(band => value >= band.min)?.label ?? SCORE_BANDS.at(-1).label
+}
+
+export function isCurrentCriteria(criteria) {
+  return criteriaSchemaVersion(criteria) === CRITERIA_SCHEMA_VERSION
+}
+
+export function recommendationStats(ratings) {
+  const values = ratings
+    .filter(rating => isCurrentCriteria(rating.criteria))
+    .map(rating => normalizeCriteria(rating.criteria).weiterempfehlung)
+    .filter(Boolean)
+
+  if (values.length === 0) return { count: 0, yes: 0, limited: 0, no: 0, yesPercent: null }
+
+  const yes = values.filter(value => value === 'Ja').length
+  const limited = values.filter(value => value === 'Mit Einschränkungen').length
+  const no = values.filter(value => value === 'Nein').length
+  return {
+    count: values.length,
+    yes,
+    limited,
+    no,
+    yesPercent: Math.round((yes / values.length) * 100),
+  }
 }
 
 export function hospitalNamesMatch(left, right) {
@@ -437,20 +557,30 @@ export function groupRatingsByHospital(ratings) {
 }
 
 function globalScoreMean(ratings) {
-  return average(ratings.map(rating => validOverallScore(rating.criteria))) ?? 5
+  return average(
+    ratings
+      .filter(rating => isCurrentCriteria(rating.criteria))
+      .map(rating => validOverallScore(rating.criteria))
+  ) ?? 5
 }
 
 export function avgByHospital(ratings) {
   const globalMean = globalScoreMean(ratings)
   const groups = groupRatingsByHospital(ratings)
   const rows = groups.map((group) => {
-    const scores = group.ratings
+    const currentScores = group.ratings
+      .filter(rating => isCurrentCriteria(rating.criteria))
       .map(rating => validOverallScore(rating.criteria))
       .filter(score => score != null)
-    const rawScore = average(scores) ?? 0
-    const bayesianScore = scores.length === 0
-      ? 0
-      : round1((rawScore * scores.length + globalMean * BAYESIAN_PRIOR_RATINGS) / (scores.length + BAYESIAN_PRIOR_RATINGS))
+    const legacyScores = group.ratings
+      .filter(rating => !isCurrentCriteria(rating.criteria))
+      .map(rating => validOverallScore(rating.criteria))
+      .filter(score => score != null)
+    const displayedScores = currentScores.length > 0 ? currentScores : legacyScores
+    const rawScore = average(displayedScores) ?? 0
+    const bayesianScore = currentScores.length === 0
+      ? rawScore
+      : round1((rawScore * currentScores.length + globalMean * BAYESIAN_PRIOR_RATINGS) / (currentScores.length + BAYESIAN_PRIOR_RATINGS))
 
     return {
       hospital: group.hospital,
@@ -459,8 +589,10 @@ export function avgByHospital(ratings) {
       score: bayesianScore,
       rawScore,
       count: group.ratings.length,
-      scoreCount: scores.length,
-      isOfficial: scores.length >= MIN_OFFICIAL_RATINGS,
+      scoreCount: currentScores.length,
+      legacyScoreCount: legacyScores.length,
+      scoreVersion: currentScores.length > 0 ? CRITERIA_SCHEMA_VERSION : LEGACY_CRITERIA_SCHEMA_VERSION,
+      isOfficial: currentScores.length >= MIN_OFFICIAL_RATINGS,
       rank: null,
     }
   })
@@ -485,10 +617,9 @@ export function avgByHospital(ratings) {
 export function avgByCity(ratings, citiesData) {
   const map = {}
   ratings.forEach((rating) => {
-    if (!map[rating.city]) map[rating.city] = { city: rating.city, country: rating.country, scores: [], count: 0 }
-    const score = validOverallScore(rating.criteria)
+    if (!map[rating.city]) map[rating.city] = { city: rating.city, country: rating.country, ratings: [], count: 0 }
     map[rating.city].count += 1
-    if (score != null) map[rating.city].scores.push(score)
+    map[rating.city].ratings.push(rating)
   })
   return Object.values(map)
     .map((city) => {
@@ -497,7 +628,7 @@ export function avgByCity(ratings, citiesData) {
         city: city.city,
         country: city.country,
         coordinates: cityInfo?.coordinates ?? null,
-        score: average(city.scores) ?? 0,
+        score: averageScoreForRatings(city.ratings) ?? 0,
         count: city.count,
       }
     })
@@ -521,7 +652,11 @@ export function avgByHospitalWithCoords(ratings) {
 }
 
 function averageDimension(ratings, extract) {
-  return average(ratings.map(rating => extract(rating.criteria))) ?? 0
+  const currentRatings = ratings.filter(rating => isCurrentCriteria(rating.criteria))
+  const selectedRatings = currentRatings.length > 0
+    ? currentRatings
+    : ratings.filter(rating => !isCurrentCriteria(rating.criteria))
+  return average(selectedRatings.map(rating => extract(rating.criteria))) ?? 0
 }
 
 /** Radar data auf Basis derselben 5 Dimensionen wie der Gesamtscore */
@@ -569,7 +704,7 @@ export function radarDataBySpecialty(pairs, ratings) {
 
 export function computeStats(ratings) {
   if (ratings.length === 0) return { total: 0, avgScore: 0, topHospital: '—', countDE: 0, countAT: 0, countCH: 0 }
-  const avgScore = average(ratings.map(rating => validOverallScore(rating.criteria))) ?? 0
+  const avgScore = averageScoreForRatings(ratings) ?? 0
   const top = avgByHospital(ratings).find(hospital => hospital.isOfficial) ?? avgByHospital(ratings)[0]
   return {
     total: ratings.length,

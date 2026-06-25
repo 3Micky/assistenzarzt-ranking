@@ -1,17 +1,17 @@
-import { Helmet } from 'react-helmet-async'
+import { Head } from 'vite-react-ssg'
 import { Link } from 'react-router-dom'
 
 export default function UeberUnsPage() {
   return (
     <div className="max-w-3xl mx-auto my-6 border border-ink">
-      <Helmet>
+      <Head>
         <title>Über uns — Assistenz-Ranking | assistenz-ranking.de</title>
         <meta name="description" content="Assistenz-Ranking ist eine unabhängige, anonyme Bewertungsplattform für Assistenzarztstellen in Deutschland, Österreich und der Schweiz. Peer-to-peer, kostenlos, DSGVO-konform." />
         <link rel="canonical" href="https://assistenz-ranking.de/ueber-uns" />
         <meta property="og:title" content="Über uns — Assistenz-Ranking" />
         <meta property="og:description" content="Wer steckt hinter Assistenz-Ranking? Mission, Funktionsweise und Kontakt." />
         <meta name="robots" content="index, follow" />
-      </Helmet>
+      </Head>
 
       <div className="register-strip border-b border-ink">/// ÜBER UNS</div>
 

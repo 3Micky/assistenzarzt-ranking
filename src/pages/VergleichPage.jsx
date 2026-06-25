@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Helmet } from 'react-helmet-async'
+import { Head } from 'vite-react-ssg'
 import { useSearchParams } from 'react-router-dom'
 import { useRatingsStore } from '../store/ratingsStore.js'
 import { searchHospitals, matchHospitalName } from '../utils/hospitalSearch.js'
@@ -151,14 +151,14 @@ export default function VergleichPage() {
 
   return (
     <div>
-      <Helmet>
+      <Head>
         <title>Klinik-Vergleich | Bis zu 3 Kliniken vergleichen | assistenz-ranking.de</title>
         <meta name="description" content="Vergleiche bis zu 3 Kliniken direkt nebeneinander — optional nach Fachrichtung gefiltert. Weiterbildungsqualität, Arbeitsklima, Überstunden und mehr aus anonymen Assistenzarzt-Bewertungen." />
         <link rel="canonical" href="https://assistenz-ranking.de/vergleich" />
         <meta property="og:url" content="https://assistenz-ranking.de/vergleich" />
         <meta property="og:title" content="Klinik-Vergleich für Assistenzärzte | DACH" />
         <meta property="og:description" content="Bis zu 3 Kliniken direkt vergleichen — optional nach Fachrichtung. Weiterbildung, Klima, Gehalt aus anonymen Bewertungen." />
-      </Helmet>
+      </Head>
 
       <div className="register-strip border-b border-ink">
         <span>/// KLINIK-VERGLEICH</span>

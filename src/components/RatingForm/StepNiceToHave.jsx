@@ -1,129 +1,64 @@
 import TurnstileWidget from '../TurnstileWidget.jsx'
 
-function SliderField({ label, value, invertLabel, onChange }) {
-  return (
-    <div className="bg-canvas-alt rounded p-3">
-      <div className="mono-label mb-2">
-        {label} &nbsp;<span className="text-hazard font-bold">{value ?? 5}</span>/10
-      </div>
-      <input type="range" min={1} max={10} value={value ?? 5}
-        onChange={e => onChange(+e.target.value)}
-        className="slider-brutalist w-full" />
-      {invertLabel && (
-        <div className="flex justify-between text-[11.5px] text-ink/70 mt-1">
-          <span>{invertLabel[0]}</span><span>{invertLabel[1]}</span>
-        </div>
-      )}
-    </div>
-  )
-}
+const RECOMMENDATIONS = ['Ja', 'Mit Einschränkungen', 'Nein']
 
-function BoolField({ label, hint, value, onChange, yesLabel = 'JA', noLabel = 'NEIN' }) {
-  return (
-    <div className="bg-canvas-alt rounded p-3">
-      <div className="mono-label mb-1">{label}</div>
-      {hint && <div className="text-xs text-ink/70 mb-2">{hint}</div>}
-      <div className="grid grid-cols-2 gap-1">
-        <button onClick={() => onChange(true)}  className={value === true  ? 'toggle-yes-active' : 'toggle-inactive'}>{yesLabel}</button>
-        <button onClick={() => onChange(false)} className={value === false ? 'toggle-no-active'  : 'toggle-inactive'}>{noLabel}</button>
-      </div>
-    </div>
-  )
-}
-
-function NumberField({ label, hint, value, min, max, unit, onChange }) {
-  return (
-    <div className="bg-canvas-alt rounded p-3">
-      <div className="mono-label mb-1">{label}</div>
-      {hint && <div className="text-xs text-ink/70 mb-2">{hint}</div>}
-      <div className="flex items-center gap-2">
-        <input type="number" min={min} max={max} value={value ?? ''}
-          onChange={e => onChange(e.target.value === '' ? null : +e.target.value)}
-          className="input-brutalist font-mono text-lg font-bold w-24 tabular-nums" />
-        {unit && <span className="mono-label text-xs">{unit}</span>}
-      </div>
-    </div>
-  )
-}
-
-export default function StepNiceToHave({ data, comment, onChange, onCommentChange, onBack, onSubmit, submitError = '', isSubmitting = false, turnstileToken = '', onTurnstileTokenChange, turnstileResetKey = 0 }) {
-  function set(key, val) { onChange({ ...data, [key]: val }) }
+export default function StepNiceToHave({
+  data,
+  comment,
+  onChange,
+  onCommentChange,
+  onBack,
+  onSubmit,
+  submitError = '',
+  isSubmitting = false,
+  turnstileToken = '',
+  onTurnstileTokenChange,
+  turnstileResetKey = 0,
+}) {
   const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY
+  const canSubmit = Boolean(data.weiterempfehlung && turnstileToken && !isSubmitting)
 
   return (
     <div>
       <div className="register-strip border-b border-ink">
-        SCHRITT 4 VON 5 /// ABTEILUNG, TEAM &amp; SOZIALES
+        SCHRITT 3 VON 3 /// VERÖFFENTLICHEN
       </div>
 
-      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-
-        <SliderField
-          label="URLAUBSGENEHMIGUNG"
-          value={data.urlaubsgenehmigung}
-          onChange={v => set('urlaubsgenehmigung', v)}
-          invertLabel={['Schwierig', 'Problemlos genehmigt']}
-        />
-
-        <SliderField
-          label="WORK-LIFE-BALANCE"
-          value={data.workLifeBalance}
-          onChange={v => set('workLifeBalance', v)}
-          invertLabel={['Kaum Erholung', 'Gute Balance']}
-        />
-
-        <SliderField
-          label="TEAM-ATMOSPHÄRE"
-          value={data.teamAtmosphaere}
-          onChange={v => set('teamAtmosphaere', v)}
-          invertLabel={['Toxisches Klima', 'Exzellentes Team']}
-        />
-
-        {/* Schwangerschaft & Familie */}
-        <div className="bg-canvas-alt rounded p-3">
-          <div className="mono-label mb-2">SCHWANGERSCHAFT (POLICY)</div>
-          <div className="grid grid-cols-1 gap-1">
-            {['Sofortiges Arbeitsverbot', 'Individuelle Lösung', 'Normal weiterarbeiten'].map(opt => (
-              <button key={opt} onClick={() => set('schwangerschaft', opt)}
-                className={data.schwangerschaft === opt ? 'tab-active' : 'tab-inactive'}>
-                {opt.toUpperCase()}
+      <div className="p-4 space-y-4">
+        <fieldset className="bg-canvas-alt rounded p-4">
+          <legend className="mono-label-red mb-2">
+            WÜRDEST DU DIESE ABTEILUNG FÜR DIE WEITERBILDUNG EMPFEHLEN?
+          </legend>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-1">
+            {RECOMMENDATIONS.map(option => (
+              <button
+                type="button"
+                key={option}
+                onClick={() => onChange({ ...data, weiterempfehlung: option })}
+                className={data.weiterempfehlung === option ? 'tab-active min-h-11' : 'tab-inactive min-h-11'}
+              >
+                {option.toUpperCase()}
               </button>
             ))}
           </div>
-        </div>
+        </fieldset>
 
-        <BoolField
-          label="SCHWANGERSCHAFT / ELTERNZEIT"
-          value={data.schwangerschaftFamilienfreundlich}
-          onChange={v => set('schwangerschaftFamilienfreundlich', v)}
-          yesLabel="FAMILIENFREUNDLICH" noLabel="PROBLEMATISCH"
-        />
-
-        <BoolField
-          label="PARKPLATZ"
-          value={data.parkplatz}
-          onChange={v => set('parkplatz', v)}
-        />
-
-        {/* Benefits & Kommentar */}
-        <div className="bg-canvas-alt rounded p-3 sm:col-span-2">
-          <div className="mono-label mb-2">BENEFITS (OPTIONAL)</div>
-          <input className="input-brutalist w-full" placeholder="z.B. Jobticket, Kantine, Kinderbetreuung…"
-            value={data.benefits ?? ''}
-            maxLength={500}
-            onChange={e => set('benefits', e.target.value)} />
-        </div>
-
-        <div className="bg-canvas-alt rounded p-3 sm:col-span-2">
-          <div className="mono-label mb-2">KOMMENTAR (OPTIONAL)</div>
-          <textarea rows={3} className="input-brutalist resize-y w-full"
-            placeholder="Freitext — was noch wichtig ist…"
+        <div className="bg-canvas-alt rounded p-4">
+          <label className="mono-label block mb-2">KOMMENTAR · OPTIONAL</label>
+          <textarea
+            rows={4}
+            className="input-brutalist resize-y w-full"
+            placeholder="Was sollten andere Assistenzärzt*innen wissen?"
             value={comment}
             maxLength={2000}
-            onChange={e => onCommentChange(e.target.value)} />
+            onChange={event => onCommentChange(event.target.value)}
+          />
+          <div className="mt-2 text-xs text-ink/60">
+            Bitte keine Namen, Patientendaten oder identifizierbaren Einzelfälle nennen.
+          </div>
         </div>
 
-        <div className="bg-canvas-alt rounded p-3 sm:col-span-2">
+        <div className="bg-canvas-alt rounded p-4">
           <div className="mono-label mb-2">BOT-SCHUTZ</div>
           <TurnstileWidget
             siteKey={turnstileSiteKey}
@@ -132,6 +67,9 @@ export default function StepNiceToHave({ data, comment, onChange, onCommentChang
           />
         </div>
 
+        <div className="text-xs text-ink/65">
+          Deine Bewertung wird anonym veröffentlicht. Eine Anmeldung oder E-Mail-Adresse ist nicht erforderlich.
+        </div>
       </div>
 
       {submitError && (
@@ -141,9 +79,11 @@ export default function StepNiceToHave({ data, comment, onChange, onCommentChang
       )}
 
       <div className="flex border-t border-ink">
-        <button onClick={onBack} disabled={isSubmitting} className="btn-ghost-ink border-r border-ink disabled:opacity-50">&lt;&lt;&lt; ZURÜCK</button>
-        <button onClick={onSubmit} disabled={isSubmitting || !turnstileToken} className="btn-hazard disabled:opacity-50">
-          {isSubmitting ? 'WIRD GESPEICHERT ...' : 'ABSENDEN >>>'}
+        <button type="button" onClick={onBack} disabled={isSubmitting} className="btn-ghost-ink border-r border-ink disabled:opacity-50">
+          &lt;&lt;&lt; ZURÜCK
+        </button>
+        <button type="button" onClick={onSubmit} disabled={!canSubmit} className="btn-hazard disabled:opacity-30">
+          {isSubmitting ? 'WIRD GESPEICHERT ...' : 'ANONYM VERÖFFENTLICHEN >>>'}
         </button>
       </div>
     </div>

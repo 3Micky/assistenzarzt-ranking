@@ -1,7 +1,4 @@
-import { StrictMode, Component } from 'react'
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import { HelmetProvider } from 'react-helmet-async'
+import { ViteReactSSG } from 'vite-react-ssg'
 import '@fontsource/inter/400.css'
 import '@fontsource/inter/600.css'
 import '@fontsource/inter/700.css'
@@ -9,38 +6,17 @@ import '@fontsource/archivo-black/400.css'
 import '@fontsource/jetbrains-mono/400.css'
 import '@fontsource/jetbrains-mono/700.css'
 import './index.css'
-import App from './App.jsx'
+import { routes } from './App.jsx'
+import { fetchAllRatings } from './lib/ratingsData.js'
+import { primeRatingsStore } from './store/ratingsStore.js'
 
-class ErrorBoundary extends Component {
-  constructor(props) {
-    super(props)
-    this.state = { error: null }
-  }
-  static getDerivedStateFromError(error) {
-    return { error }
-  }
-  render() {
-    if (this.state.error) {
-      return (
-        <div style={{ padding: 20, fontFamily: 'monospace', whiteSpace: 'pre-wrap', color: '#E61919' }}>
-          <h2>RENDER ERROR:</h2>
-          <p>{this.state.error.message}</p>
-          <p>{this.state.error.stack}</p>
-        </div>
-      )
+export const createRoot = ViteReactSSG(
+  { routes },
+  async ({ initialState }) => {
+    if (!initialState.ratings) {
+      initialState.ratings = await fetchAllRatings()
     }
-    return this.props.children
-  }
-}
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <HelmetProvider>
-      <BrowserRouter>
-        <ErrorBoundary>
-          <App />
-        </ErrorBoundary>
-      </BrowserRouter>
-    </HelmetProvider>
-  </StrictMode>
+    primeRatingsStore(initialState.ratings)
+  }
 )

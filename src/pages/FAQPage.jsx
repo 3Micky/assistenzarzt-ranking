@@ -1,10 +1,10 @@
-import { Helmet } from 'react-helmet-async'
+import { Head } from 'vite-react-ssg'
 import { Link } from 'react-router-dom'
 
 const FAQS = [
   {
     q: 'Was ist das Assistenz-Ranking?',
-    a: 'Das Assistenz-Ranking ist eine anonyme Bewertungsplattform für Assistenzarztstellen in Deutschland, Österreich und der Schweiz. Ärzt*innen bewerten Kliniken anhand von sechs Kriterien-Dimensionen — für ein ausgewogenes, datenbasiertes Gesamtbild jeder Station.',
+    a: 'Das Assistenz-Ranking ist eine anonyme Bewertungsplattform für Assistenzarztstellen in Deutschland, Österreich und der Schweiz. Sechs kurze Kernfragen ergeben ein verständliches Bild der Weiterbildung — ohne Anmeldung und in etwa zwei Minuten.',
   },
   {
     q: 'Sind die Bewertungen wirklich anonym?',
@@ -12,15 +12,15 @@ const FAQS = [
   },
   {
     q: 'Nach welchen Kriterien werden Kliniken bewertet?',
-    a: 'Jede Bewertung durchläuft sechs Dimensionen, die im Spider-Chart verglichen werden: Weiterbildung (Supervision, Logbuch, Weiterbildungsdauer), Autonomie (Selbstständigkeit im Alltag), Work-Life (Arbeitsbelastung, Dienste, Überstunden), Teamklima (Atmosphäre, Familienfreundlichkeit, Begleitung), Struktur (Rotationspläne, Fortbildung, Mitarbeitergespräche) und Infrastruktur (Parkplatz, Dokumentationsaufwand). Aus diesen sechs Faktoren errechnet sich ein gewichteter Gesamt-Score — dieser wird separat angezeigt, nicht als eigene Radar-Ecke.',
+    a: 'Bewertet werden Weiterbildungsziele, Supervision, passende Selbstständigkeit, Arbeitsbelastung, Team und Führung sowie Ausbildungsstruktur. Jede Kernfrage hat fünf klar beschriftete Antwortstufen und kann mit „nicht beurteilbar“ übersprungen werden.',
   },
   {
     q: 'Warum erscheint der Gesamt-Score nicht als eigene Ecke im Radar?',
-    a: 'Der Gesamt-Score ist eine abgeleitete Variable — die gewichtete Summe der sechs Einzeldimensionen. Ihn als eigene Achse zu plotten würde das Polygon künstlich aufblasen und Schwächen in einzelnen Bereichen überdecken. Wir zeigen den Gesamt-Score deshalb als separate Kennzahl neben dem Chart an, während der Spider das echte Stärken-Schwächen-Profil abbildet.',
+    a: 'Der Gesamt-Score ist der Mittelwert der beantworteten Kernfragen. Ihn als eigene Achse zu plotten würde das Polygon künstlich aufblasen und Schwächen in einzelnen Bereichen überdecken. Wir zeigen ihn deshalb separat neben dem Profil an.',
   },
   {
     q: 'Wie lange dauert eine Bewertung?',
-    a: 'Eine Bewertung dauert etwa 3–5 Minuten. In drei Schritten: Klinik auswählen, Kriterien bewerten, optional einen Erfahrungsbericht schreiben.',
+    a: 'Eine Bewertung dauert etwa 90 bis 120 Sekunden. In drei Schritten: Arbeitsplatz angeben, sechs Kernfragen beantworten und anonym veröffentlichen. Ein Kommentar ist optional.',
   },
   {
     q: 'Was ist der Unterschied zwischen Klinik- und Abteilungsvergleich?',
@@ -36,7 +36,7 @@ const FAQS = [
   },
   {
     q: 'Wie entsteht der Gesamt-Score?',
-    a: 'Der Gesamt-Score (0–10) ist ein gewichteter Composite aus den sechs Dimensionen: Weiterbildung 30%, Work-Life 25%, Struktur 20%, Teamklima 15%, Infrastruktur 10%. Autonomie fließt in die Weiterbildungsdimension mit ein. Jede Dimension wird aus mehreren Einzelkriterien berechnet.',
+    a: 'Der Gesamt-Score ist der gleich gewichtete Mittelwert aus bis zu sechs Kernfragen und wird auf einer Skala von 0 bis 10 dargestellt. Mindestens fünf Fragen müssen beantwortet sein. „Nicht beurteilbar“ wird ausgelassen. Ältere Bewertungen behalten transparent ihre frühere Berechnung.',
   },
   {
     q: 'Ist die Plattform wirklich kostenlos?',
@@ -60,7 +60,7 @@ const faqJsonLd = {
 export default function FAQPage() {
   return (
     <div className="max-w-2xl mx-auto">
-      <Helmet>
+      <Head>
         <title>Häufige Fragen | Assistenzarzt-Ranking</title>
         <meta name="description" content="Antworten auf die häufigsten Fragen zum Assistenzarzt-Ranking: Kriterien, Anonymität, Bewertungsablauf, Klinikvergleich und mehr." />
         <link rel="canonical" href="https://assistenz-ranking.de/faq" />
@@ -68,7 +68,7 @@ export default function FAQPage() {
         <meta property="og:title" content="Häufige Fragen | Assistenzarzt-Ranking" />
         <meta property="og:description" content="Alles über Kriterien, Anonymität, Bewertungsablauf und den Unterschied zwischen Klinik- und Abteilungsvergleich." />
         <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
-      </Helmet>
+      </Head>
 
       <div className="register-strip border-b border-ink">
         <span>/// HÄUFIGE FRAGEN</span>

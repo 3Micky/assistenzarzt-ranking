@@ -1,14 +1,24 @@
 import { useMemo } from 'react'
-import { Helmet } from 'react-helmet-async'
+import { Head } from 'vite-react-ssg'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useRatingsStore } from '../store/ratingsStore.js'
 import { scoreColor, scoreLabel, overallScore, avgByHospital, operativeTrainingScore } from '../utils/calculations.js'
 import { getHospitalBySlug, aggregateHospitalData, hospitalProfileSchema } from '../utils/hospitalProfile.js'
 import { slugify } from '../utils/slugify.js'
-import { CRITERIA_ESSENTIAL, CRITERIA_MEDICAL, CRITERIA_NICE } from '../data/criteria.js'
+import {
+  CRITERIA_CORE_V3,
+  CRITERIA_ESSENTIAL,
+  CRITERIA_MEDICAL,
+  CRITERIA_NICE,
+} from '../data/criteria.js'
 import MiniRadar from '../components/Charts/MiniRadar.jsx'
 
 const COUNTRY_NAMES = { DE: 'Deutschland', AT: 'Österreich', CH: 'Schweiz' }
+
+function appendCityIfMissing(name, city) {
+  if (!city) return name
+  return name.toLowerCase().includes(city.toLowerCase()) ? name : `${name} ${city}`
+}
 
 function CriteriaValue({ type, value }) {
   if (value === null || value === undefined || value === '') {
@@ -33,18 +43,28 @@ function CriteriaValue({ type, value }) {
       </span>
     )
   }
+  if (type === 'scale5') {
+    const scaled = value * 2
+    return (
+      <span className="font-bold" style={{ color: scoreColor(scaled) }}>
+        {value}
+        <span className="text-ink/40 font-normal ml-1 text-xs">/ 5</span>
+      </span>
+    )
+  }
 
   return <span>{value}</span>
 }
 
-function CriteriaBar({ value }) {
+function CriteriaBar({ value, max = 10 }) {
   if (typeof value !== 'number') return null
-  const pct = Math.min(100, Math.max(0, (value / 10) * 100))
+  const pct = Math.min(100, Math.max(0, (value / max) * 100))
+  const colorValue = max === 5 ? value * 2 : value
   return (
     <div className="mt-1.5 h-1 bg-ink/10 w-full">
       <div
         className="h-full transition-all"
-        style={{ width: `${pct}%`, backgroundColor: scoreColor(value) }}
+        style={{ width: `${pct}%`, backgroundColor: scoreColor(colorValue) }}
       />
     </div>
   )
@@ -68,7 +88,9 @@ function CriteriaSection({ title, criteria, averages }) {
                   <CriteriaValue type={avg.type} value={avg.value} />
                 </div>
               </div>
-              {avg.type === 'number' && <CriteriaBar value={avg.value} />}
+              {(avg.type === 'number' || avg.type === 'scale5') && (
+                <CriteriaBar value={avg.value} max={avg.type === 'scale5' ? 5 : 10} />
+              )}
             </div>
           )
         })}
@@ -209,16 +231,16 @@ export default function KlinikProfilePage() {
   const label = scoreLabel(score)
   const countryName = COUNTRY_NAMES[hospital.country] ?? hospital.country
 
-  const metaTitle = `${hospital.name}${hospital.city ? ` ${hospital.city}` : ''} — Assistenzarzt Bewertungen | assistenz-ranking.de`
+  const metaTitle = `${appendCityIfMissing(hospital.name, hospital.city)} — Assistenzarzt Bewertungen | assistenz-ranking.de`
   const metaDesc = hasRatings
-    ? `${hospital.name}${hospital.city ? `, ${hospital.city}` : ''}: Ø-Score ${score}/10 bei ${data.count} Bewertungen. Weiterbildung, Work-Life-Balance, Teamklima — anonyme Assistenzarzt-Erfahrungen auf assistenz-ranking.de.`
+    ? `${hospital.name}${hospital.city ? `, ${hospital.city}` : ''}: Ø-Score ${score}/10 bei ${data.scoreCount} vergleichbaren Bewertungen. Anonyme Assistenzarzt-Erfahrungen auf assistenz-ranking.de.`
     : `${hospital.name}${hospital.city ? `, ${hospital.city}` : ''} — Noch keine Bewertungen. Sei der*die Erste und teile deine Assistenzarzt-Erfahrung.`
 
   const canonical = `https://assistenz-ranking.de/klinik/${slug}`
 
   return (
     <div className="max-w-3xl mx-auto my-6 border border-ink overflow-hidden">
-      <Helmet>
+      <Head>
         <title>{metaTitle}</title>
         <meta name="description" content={metaDesc} />
         <link rel="canonical" href={canonical} />
@@ -236,7 +258,7 @@ export default function KlinikProfilePage() {
             {JSON.stringify(breadcrumbSchema)}
           </script>
         )}
-      </Helmet>
+      </Head>
 
       {/* Register Strip + CTA Bar */}
       <div className="register-strip border-b border-ink flex justify-between items-center">
@@ -294,7 +316,7 @@ export default function KlinikProfilePage() {
                   {score}
                 </div>
                 <div className="mono-label mt-0.5">{label.toUpperCase()}</div>
-                <div className="mono-label text-ink/50 mt-0.5">{data.count} BEW.</div>
+                <div className="mono-label text-ink/50 mt-0.5">{data.scoreCount} SCORE-BEW.</div>
               </>
             ) : (
               <div className="font-mono text-sm font-bold text-ink/40 uppercase tracking-widest">
@@ -329,10 +351,15 @@ export default function KlinikProfilePage() {
             )}
           </div>
           <div className="p-3 text-center">
-            <div className="mono-label text-ink/50 mb-1">LAND</div>
+            <div className="mono-label text-ink/50 mb-1">JA-EMPFEHLUNG</div>
             <div className="font-mono text-lg font-bold text-ink">
-              {hospital.country ?? '—'}
+              {data.recommendation.yesPercent != null
+                ? `${data.recommendation.yesPercent}%`
+                : '—'}
             </div>
+            {data.recommendation.count > 0 && (
+              <div className="mono-label text-ink/40 mt-1">{data.recommendation.count} V3-ANTW.</div>
+            )}
           </div>
         </div>
       )}
@@ -362,10 +389,16 @@ export default function KlinikProfilePage() {
       )}
 
       {/* Criteria Breakdown */}
-      {hasRatings && (
+      {hasRatings && data.scoreVersion === 3 ? (
+        <CriteriaSection
+          title="/// KERNBEWERTUNG V3"
+          criteria={CRITERIA_CORE_V3}
+          averages={data.criteriaAverages}
+        />
+      ) : hasRatings ? (
         <>
           <CriteriaSection
-            title="/// PFLICHT-KRITERIEN"
+            title="/// PFLICHT-KRITERIEN · LEGACY V2"
             criteria={CRITERIA_ESSENTIAL}
             averages={data.criteriaAverages}
           />
@@ -380,7 +413,7 @@ export default function KlinikProfilePage() {
             averages={data.criteriaAverages}
           />
         </>
-      )}
+      ) : null}
 
       {/* Mini Radar */}
       {hasRatings && (

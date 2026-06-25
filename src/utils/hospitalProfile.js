@@ -1,10 +1,32 @@
-import { avgByHospital, hospitalNamesMatch, normalizeCriteria, overallScore, ratingValidity } from './calculations.js'
+import {
+  CRITERIA_SCHEMA_VERSION,
+  avgByHospital,
+  hospitalNamesMatch,
+  isCurrentCriteria,
+  normalizeCriteria,
+  overallScore,
+  ratingValidity,
+  recommendationStats,
+} from './calculations.js'
 import { searchHospitals } from './hospitalSearch.js'
 import { slugify } from './slugify.js'
-import { ALL_CRITERIA_KEYS, CRITERIA_ESSENTIAL, CRITERIA_MEDICAL, CRITERIA_NICE } from '../data/criteria.js'
+import {
+  ALL_CRITERIA_KEYS,
+  CRITERIA_CONTEXT_V3,
+  CRITERIA_CORE_V3,
+  CRITERIA_ESSENTIAL,
+  CRITERIA_MEDICAL,
+  CRITERIA_NICE,
+} from '../data/criteria.js'
 
 const CRITERIA_BY_KEY = new Map(
-  [...CRITERIA_ESSENTIAL, ...CRITERIA_MEDICAL, ...CRITERIA_NICE].map(criteria => [criteria.key, criteria])
+  [
+    ...CRITERIA_ESSENTIAL,
+    ...CRITERIA_MEDICAL,
+    ...CRITERIA_NICE,
+    ...CRITERIA_CORE_V3,
+    ...CRITERIA_CONTEXT_V3,
+  ].map(criteria => [criteria.key, criteria])
 )
 
 /**
@@ -74,15 +96,24 @@ export function aggregateHospitalData(hospitalName, ratings) {
       specialties: [],
       yearRange: [null, null],
       allRatings: [],
+      scoreVersion: null,
+      scoreCount: 0,
+      recommendation: { count: 0, yes: 0, limited: 0, no: 0, yesPercent: null },
       rank: null,
       isOfficialRank: false,
       rankingScore: 0,
     }
   }
 
-  const scores = allRatings
+  const currentScores = allRatings
+    .filter((r) => isCurrentCriteria(r.criteria))
     .filter((r) => ratingValidity(r.criteria).isValid)
     .map((r) => overallScore(r.criteria))
+  const legacyScores = allRatings
+    .filter((r) => !isCurrentCriteria(r.criteria))
+    .filter((r) => ratingValidity(r.criteria).isValid)
+    .map((r) => overallScore(r.criteria))
+  const scores = currentScores.length > 0 ? currentScores : legacyScores
   const avgScore = scores.length > 0
     ? Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10
     : 0
@@ -103,7 +134,9 @@ export function aggregateHospitalData(hospitalName, ratings) {
 
     const type = definition?.type === 'boolean'
       ? 'boolean'
-      : ['number', 'slider'].includes(definition?.type)
+      : definition?.type === 'scale5'
+        ? 'scale5'
+        : ['number', 'slider'].includes(definition?.type)
         ? 'number'
         : 'other'
 
@@ -114,10 +147,10 @@ export function aggregateHospitalData(hospitalName, ratings) {
         value: Math.round((yesCount / rawValues.length) * 100),
         rawValues,
       }
-    } else if (type === 'number') {
+    } else if (type === 'number' || type === 'scale5') {
       const sum = rawValues.reduce((a, b) => a + b, 0)
       criteriaAverages[key] = {
-        type: 'number',
+        type,
         value: Math.round((sum / rawValues.length) * 10) / 10,
         rawValues,
       }
@@ -154,6 +187,9 @@ export function aggregateHospitalData(hospitalName, ratings) {
     specialties,
     yearRange,
     allRatings,
+    scoreVersion: currentScores.length > 0 ? CRITERIA_SCHEMA_VERSION : 2,
+    scoreCount: scores.length,
+    recommendation: recommendationStats(allRatings),
     rank,
     isOfficialRank: rankingEntry?.isOfficial ?? false,
     rankingScore: rankingEntry?.score ?? 0,
@@ -170,11 +206,47 @@ export function aggregateHospitalData(hospitalName, ratings) {
 export function hospitalProfileSchema(hospital, data) {
   const countryMap = { DE: 'DE', AT: 'AT', CH: 'CH' }
   const countryCode = countryMap[hospital.country] ?? 'DE'
+  const slug = slugify(hospital.name)
+  const canonicalUrl = `https://assistenz-ranking.de/klinik/${slug}`
+  const hasCurrentRatings = (data.allRatings ?? []).some(rating => isCurrentCriteria(rating.criteria))
+  const reviewItems = (data.allRatings ?? [])
+    .filter(rating => hasCurrentRatings ? isCurrentCriteria(rating.criteria) : !isCurrentCriteria(rating.criteria))
+    .filter((rating) => ratingValidity(rating.criteria).isValid)
+    .slice(0, 3)
+    .map((rating) => {
+      const review = {
+        '@type': 'Review',
+        author: {
+          '@type': 'Person',
+          name: 'Anonym',
+        },
+        reviewRating: {
+          '@type': 'Rating',
+          ratingValue: overallScore(rating.criteria),
+          bestRating: 10,
+          worstRating: 0,
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: 'Assistenz-Ranking',
+        },
+      }
+
+      if (rating.created_at) review.datePublished = new Date(rating.created_at).toISOString()
+      if (rating.comment) review.reviewBody = rating.comment
+      if (rating.specialty) review.name = `Erfahrungsbericht ${rating.specialty}`
+
+      return review
+    })
 
   const schema = {
     '@context': 'https://schema.org',
-    '@type': 'MedicalOrganization',
+    '@type': 'Hospital',
+    '@id': `${canonicalUrl}#hospital`,
     name: hospital.name,
+    url: canonicalUrl,
+    mainEntityOfPage: canonicalUrl,
+    description: `${hospital.name}${hospital.city ? ` in ${hospital.city}` : ''} mit anonymen Assistenzarzt-Bewertungen zu Weiterbildung, Team, Diensten und Work-Life-Balance auf Assistenz-Ranking.`,
     ...(hospital.city && {
       address: {
         '@type': 'PostalAddress',
@@ -185,15 +257,16 @@ export function hospitalProfileSchema(hospital, data) {
         addressCountry: countryCode,
       },
     }),
-    ...(data.count > 0 && {
+    ...(data.scoreCount > 0 && {
       aggregateRating: {
         '@type': 'AggregateRating',
         ratingValue: data.avgScore,
         bestRating: 10,
         worstRating: 0,
-        reviewCount: data.count,
+        reviewCount: data.scoreCount,
       },
     }),
+    ...(reviewItems.length > 0 && { review: reviewItems }),
   }
 
   return schema
