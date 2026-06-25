@@ -1,73 +1,91 @@
-import { CRITERIA_CORE_V3, SCALE_5_OPTIONS } from '../../data/criteria.js'
+import { CRITERIA_CORE_V3 } from '../../data/criteria.js'
 import { answeredCoreCount, MIN_ANSWERED_CORE_CRITERIA } from '../../utils/calculations.js'
+import { ChoiceGroup, FormSummary, ScaleQuestion } from './FormControls.jsx'
 
-function ScaleQuestion({ criterion, value, onChange }) {
-  return (
-    <fieldset className="bg-canvas-alt rounded p-4">
-      <legend className="sr-only">{criterion.label}</legend>
-      <div className="mono-label-red mb-1">{criterion.label}</div>
-      <p className="text-sm text-ink/85 leading-relaxed mb-3">{criterion.question}</p>
-      <div className="grid grid-cols-5 gap-1">
-        {SCALE_5_OPTIONS.map(option => (
-          <button
-            type="button"
-            key={option.value}
-            onClick={() => onChange(option.value)}
-            aria-pressed={value === option.value}
-            className={
-              value === option.value
-                ? 'bg-hazard text-white border border-hazard min-h-12 px-1 py-2 font-mono text-[9px] sm:text-[11px] uppercase leading-tight'
-                : 'bg-canvas text-ink/75 border border-ink/20 hover:border-ink min-h-12 px-1 py-2 font-mono text-[9px] sm:text-[11px] uppercase leading-tight'
-            }
-          >
-            {option.shortLabel}
-          </button>
-        ))}
-      </div>
-      <button
-        type="button"
-        onClick={() => onChange(null)}
-        className={`mt-2 font-mono text-[10px] uppercase tracking-wider ${
-          value == null ? 'text-hazard' : 'text-ink/45 hover:text-ink'
-        }`}
-      >
-        {value == null ? '○ Nicht beurteilt' : 'Antwort löschen / nicht beurteilbar'}
-      </button>
-    </fieldset>
-  )
-}
+const FREQUENCY_OPTIONS = [
+  { value: 1, shortLabel: 'Nie' },
+  { value: 2, shortLabel: 'Selten' },
+  { value: 3, shortLabel: 'Teils' },
+  { value: 4, shortLabel: 'Meistens' },
+  { value: 5, shortLabel: 'Immer' },
+]
 
-export default function StepCore({ data, onChange, onBack, onNext }) {
+const AGREEMENT_OPTIONS = [
+  { value: 1, shortLabel: 'Gar nicht' },
+  { value: 2, shortLabel: 'Eher nicht' },
+  { value: 3, shortLabel: 'Teils' },
+  { value: 4, shortLabel: 'Eher ja' },
+  { value: 5, shortLabel: 'Vollständig' },
+]
+
+export default function StepCore({ data, context, onChange, onBack, onNext }) {
+  const set = (key, value) => onChange({ ...data, [key]: value })
   const answered = answeredCoreCount(data)
   const canProceed = answered >= MIN_ANSWERED_CORE_CRITERIA
 
   return (
     <div>
-      <div className="register-strip border-b border-ink flex justify-between">
-        <span>SCHRITT 2 VON 3 /// DEINE ERFAHRUNG</span>
+      <div className="register-strip border-b border-ink">
+        <span>SCHRITT 3 VON 4 /// QUALITÄT &amp; ZUSAMMENARBEIT</span>
         <span className={canProceed ? 'text-score-high' : 'text-canvas/60'}>
-          {answered}/6 BEANTWORTET
+          {answered}/6 KERNFRAGEN
         </span>
       </div>
+      <FormSummary {...context} />
 
-      <div className="p-4 space-y-3">
-        <p className="text-sm text-ink/70">
-          Fünf Antworten reichen. Wähle „nicht beurteilbar“, wenn du etwas nicht sicher einschätzen kannst.
+      <div className="px-4 pt-4">
+        <div className="form-section-title">KERNBEWERTUNG</div>
+        <p className="form-help mt-1 mb-3">
+          Fünf der sechs Kernfragen sind erforderlich. Diese sechs Antworten bilden den Hauptscore.
         </p>
+      </div>
+      <div className="form-step-grid pt-0">
         {CRITERIA_CORE_V3.map(criterion => (
           <ScaleQuestion
             key={criterion.key}
-            criterion={criterion}
+            title={criterion.label}
+            question={criterion.question}
             value={data[criterion.key]}
-            onChange={value => onChange({ ...data, [criterion.key]: value })}
+            onChange={value => set(criterion.key, value)}
+            optional
           />
         ))}
       </div>
 
-      <div className="flex border-t border-ink">
-        <button type="button" onClick={onBack} className="btn-ghost-ink border-r border-ink">
-          &lt;&lt;&lt; ZURÜCK
-        </button>
+      <div className="px-4 pt-2">
+        <div className="form-section-title">WEITERBILDUNG &amp; LEHRE</div>
+        <p className="form-help mt-1 mb-3">Zusatzinformationen; sie verändern den Hauptscore nicht.</p>
+      </div>
+      <div className="form-step-grid pt-0">
+        <ScaleQuestion
+          title="Hintergrund nachts erreichbar"
+          question="War fachärztliche oder oberärztliche Hilfe nachts zuverlässig erreichbar?"
+          value={data.hintergrundErreichbarkeit}
+          onChange={value => set('hintergrundErreichbarkeit', value)}
+          options={FREQUENCY_OPTIONS}
+        />
+        <ChoiceGroup label="Fortbildungsfreistellung" value={data.fortbildungFreistellung} options={[{ value: true, label: 'Ja' }, { value: false, label: 'Nein' }]} onChange={value => set('fortbildungFreistellung', value)} />
+        <ChoiceGroup label="Fortbildungskosten übernommen" value={data.fortbildungBezahlt} options={[{ value: true, label: 'Ja' }, { value: false, label: 'Nein' }]} onChange={value => set('fortbildungBezahlt', value)} />
+        <ChoiceGroup label="Lehrtätigkeit vorhanden" value={data.lehreTaetig} options={[{ value: true, label: 'Ja' }, { value: false, label: 'Nein' }]} onChange={value => set('lehreTaetig', value)} />
+        {data.lehreTaetig === true && (
+          <ChoiceGroup label="Freistellung für Lehrtätigkeit" value={data.lehreFreistellung} options={[{ value: true, label: 'Ja' }, { value: false, label: 'Nein' }]} onChange={value => set('lehreFreistellung', value)} />
+        )}
+      </div>
+
+      <div className="px-4 pt-2">
+        <div className="form-section-title">ALLTAG &amp; ZUSAMMENARBEIT</div>
+      </div>
+      <div className="form-step-grid pt-3">
+        <ScaleQuestion title="Urlaubsgenehmigung" question="Wie unkompliziert wurde Urlaub genehmigt?" value={data.urlaub} onChange={value => set('urlaub', value)} />
+        <ScaleQuestion title="Dokumentationsaufwand" question="Wie gut war der Dokumentationsaufwand im Alltag beherrschbar?" value={data.dokumentation} onChange={value => set('dokumentation', value)} />
+        <ScaleQuestion title="Fehlerkultur" question="Konnten Fehler offen und ohne Angst angesprochen werden?" value={data.fehlerkultur} onChange={value => set('fehlerkultur', value)} options={AGREEMENT_OPTIONS} />
+        <ScaleQuestion title="Respektvolle Führung" question="Kommunizierten die Vorgesetzten respektvoll und fair?" value={data.fuehrungRespekt} onChange={value => set('fuehrungRespekt', value)} options={AGREEMENT_OPTIONS} />
+        <ScaleQuestion title="Zusammenarbeit mit der Pflege" question="Wie gut funktionierte die Zusammenarbeit mit der Pflege?" value={data.pflegeZusammenarbeit} onChange={value => set('pflegeZusammenarbeit', value)} />
+        <ScaleQuestion title="Strukturierte Einarbeitung" question="Wie gut war die Einarbeitung in den ersten Wochen organisiert?" value={data.einarbeitung} onChange={value => set('einarbeitung', value)} />
+      </div>
+
+      <div className="form-nav">
+        <button type="button" onClick={onBack} className="btn-ghost-ink">&lt;&lt;&lt; ZURÜCK</button>
         <button type="button" onClick={onNext} disabled={!canProceed} className="btn-hazard disabled:opacity-30">
           WEITER &gt;&gt;&gt;
         </button>

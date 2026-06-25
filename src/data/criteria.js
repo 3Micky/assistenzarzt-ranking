@@ -8,7 +8,7 @@ export const CRITERIA_ESSENTIAL = [
   { key: 'diensteProMonat',          label: 'Dienste / Monat',             type: 'number', min: 0, max: 15 },
   { key: 'schichtsystem',            label: 'Schichtsystem',               type: 'enum', options: ['2-Schicht', '3-Schicht', '24h-Dienste'] },
   { key: 'ueberstundenAufschreiben', label: 'Überstunden aufschreiben',    type: 'boolean' },
-  { key: 'ueberstundenAusgleich',    label: 'Überstunden-Ausgleich',       type: 'enum', options: ['Bezahlt', 'Freizeitausgleich'] },
+  { key: 'ueberstundenAusgleich',    label: 'Überstunden-Ausgleich',       type: 'enum', options: ['Bezahlt', 'Freizeitausgleich', 'Kein Ausgleich'] },
   { key: 'abteilungsgroesse',        label: 'Abteilungsgröße (Ärzt*innen)', type: 'number', min: 1, max: 500 },
   { key: 'personalschluessel',       label: 'Betten pro Arzt',              type: 'number', min: 1, max: 100 },
 ]
@@ -127,12 +127,54 @@ export const CRITERIA_CONTEXT_V3 = [
   },
 ]
 
+/**
+ * Zusätzliche, freiwillige Detailangaben für v3.
+ * Sie werden angezeigt und aggregiert, fließen aber nicht in den Hauptscore ein.
+ */
+export const CRITERIA_DETAILS_V3 = [
+  { key: 'ueberstundenErfassung', label: 'Überstunden erfasst', type: 'enum', options: ['Vollständig', 'Teilweise', 'Nein'] },
+  { key: 'nachtdiensteProMonat', label: 'Nachtdienste / Monat', type: 'number', min: 0, max: 31 },
+  { key: 'hintergrundErreichbarkeit', label: 'Hintergrund nachts erreichbar', type: 'scale5', min: 1, max: 5 },
+  { key: 'hauptoperateurKategorie', label: 'Anteil selbst durchgeführt', type: 'enum', options: ['Unter 10 %', '10–25 %', '26–50 %', 'Über 50 %'] },
+  { key: 'urlaub', label: 'Urlaubsgenehmigung', type: 'scale5', min: 1, max: 5 },
+  { key: 'dokumentation', label: 'Dokumentationsaufwand', type: 'scale5', min: 1, max: 5 },
+  { key: 'fehlerkultur', label: 'Fehlerkultur', type: 'scale5', min: 1, max: 5 },
+  { key: 'fuehrungRespekt', label: 'Respektvolle Führung', type: 'scale5', min: 1, max: 5 },
+  { key: 'pflegeZusammenarbeit', label: 'Zusammenarbeit mit der Pflege', type: 'scale5', min: 1, max: 5 },
+  { key: 'einarbeitung', label: 'Strukturierte Einarbeitung', type: 'scale5', min: 1, max: 5 },
+  { key: 'diskriminierung', label: 'Diskriminierung erlebt', type: 'enum', options: ['Nein', 'Unsicher', 'Ja'] },
+]
+
+const V3_REUSED_DETAIL_KEYS = new Set([
+  'arbeitszeitenVon',
+  'arbeitszeitenBis',
+  'diensteProMonat',
+  'ueberstundenAusgleich',
+  'abteilungsgroesse',
+  'opsProMonat',
+  'fortbildungFreistellung',
+  'fortbildungBezahlt',
+  'lehreTaetig',
+  'lehreFreistellung',
+  'schwangerschaft',
+  'schwangerschaftFamilienfreundlich',
+  'parkplatz',
+  'benefits',
+])
+
+export const CRITERIA_DISPLAY_V3 = [
+  ...[...CRITERIA_ESSENTIAL, ...CRITERIA_MEDICAL, ...CRITERIA_NICE]
+    .filter(criterion => V3_REUSED_DETAIL_KEYS.has(criterion.key)),
+  ...CRITERIA_DETAILS_V3,
+]
+
 export const ALL_CRITERIA_KEYS = [
   ...CRITERIA_ESSENTIAL.map(c => c.key),
   ...CRITERIA_MEDICAL.map(c => c.key),
   ...CRITERIA_NICE.map(c => c.key),
   ...CRITERIA_CORE_V3.map(c => c.key),
   ...CRITERIA_CONTEXT_V3.map(c => c.key),
+  ...CRITERIA_DETAILS_V3.map(c => c.key),
 ]
 
 /** Erlaubte JSON-Schlüssel inklusive Schema-Metadatum. */
@@ -149,6 +191,31 @@ export const DEFAULT_CRITERIA = {
   teamFuehrung: null,
   ausbildungsstruktur: null,
   weiterempfehlung: null,
+  arbeitszeitenVon: null,
+  arbeitszeitenBis: null,
+  diensteProMonat: null,
+  ueberstundenErfassung: null,
+  ueberstundenAusgleich: null,
+  nachtdiensteProMonat: null,
+  abteilungsgroesse: null,
+  hintergrundErreichbarkeit: null,
+  fortbildungFreistellung: null,
+  fortbildungBezahlt: null,
+  lehreTaetig: null,
+  lehreFreistellung: null,
+  opsProMonat: null,
+  hauptoperateurKategorie: null,
+  urlaub: null,
+  dokumentation: null,
+  fehlerkultur: null,
+  fuehrungRespekt: null,
+  pflegeZusammenarbeit: null,
+  einarbeitung: null,
+  schwangerschaft: null,
+  schwangerschaftFamilienfreundlich: null,
+  parkplatz: null,
+  benefits: '',
+  diskriminierung: null,
 }
 
 export const SPECIALTIES = [

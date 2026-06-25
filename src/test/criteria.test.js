@@ -4,6 +4,7 @@ import {
   ALLOWED_CRITERIA_KEYS,
   CRITERIA_CONTEXT_V3,
   CRITERIA_CORE_V3,
+  CRITERIA_DETAILS_V3,
   CRITERIA_ESSENTIAL,
   CRITERIA_MEDICAL,
   CRITERIA_NICE,
@@ -43,11 +44,20 @@ describe('criteria', () => {
       ...CRITERIA_NICE.map(c => c.key),
       ...CRITERIA_CORE_V3.map(c => c.key),
       ...CRITERIA_CONTEXT_V3.map(c => c.key),
+      ...CRITERIA_DETAILS_V3.map(c => c.key),
     ]
     expect(ALL_CRITERIA_KEYS).toEqual(expected)
-    expect(ALL_CRITERIA_KEYS).toHaveLength(38)
-    expect(new Set(ALL_CRITERIA_KEYS).size).toBe(38)
+    expect(ALL_CRITERIA_KEYS).toHaveLength(49)
+    expect(new Set(ALL_CRITERIA_KEYS).size).toBe(49)
     expect(ALLOWED_CRITERIA_KEYS).toContain('schemaVersion')
+  })
+
+  it('defines the selected quantitative and qualitative v3 details', () => {
+    const keys = CRITERIA_DETAILS_V3.map(criterion => criterion.key)
+    expect(keys).toContain('nachtdiensteProMonat')
+    expect(keys).toContain('hintergrundErreichbarkeit')
+    expect(keys).toContain('fehlerkultur')
+    expect(keys).toContain('diskriminierung')
   })
 
   it('defines exactly six v3 core questions on a five-point scale', () => {

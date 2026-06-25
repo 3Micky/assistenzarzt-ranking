@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 const FAQS = [
   {
     q: 'Was ist das Assistenz-Ranking?',
-    a: 'Das Assistenz-Ranking ist eine anonyme Bewertungsplattform für Assistenzarztstellen in Deutschland, Österreich und der Schweiz. Sechs kurze Kernfragen ergeben ein verständliches Bild der Weiterbildung — ohne Anmeldung und in etwa zwei Minuten.',
+    a: 'Das Assistenz-Ranking ist eine anonyme Bewertungsplattform für Assistenzarztstellen in Deutschland, Österreich und der Schweiz. Sechs Kernfragen und freiwillige quantitative Angaben ergeben ein vergleichbares Bild der Weiterbildung und Arbeitsbedingungen.',
   },
   {
     q: 'Sind die Bewertungen wirklich anonym?',
@@ -12,7 +12,7 @@ const FAQS = [
   },
   {
     q: 'Nach welchen Kriterien werden Kliniken bewertet?',
-    a: 'Bewertet werden Weiterbildungsziele, Supervision, passende Selbstständigkeit, Arbeitsbelastung, Team und Führung sowie Ausbildungsstruktur. Jede Kernfrage hat fünf klar beschriftete Antwortstufen und kann mit „nicht beurteilbar“ übersprungen werden.',
+    a: 'Der Hauptscore umfasst Weiterbildungsziele, Supervision, passende Selbstständigkeit, Arbeitsbelastung, Team und Führung sowie Ausbildungsstruktur. Zusätzlich können Arbeitszeiten, Dienste, OP-Zahlen, Fortbildung, Teamkultur und weitere praktische Angaben erfasst werden.',
   },
   {
     q: 'Warum erscheint der Gesamt-Score nicht als eigene Ecke im Radar?',
@@ -20,7 +20,7 @@ const FAQS = [
   },
   {
     q: 'Wie lange dauert eine Bewertung?',
-    a: 'Eine Bewertung dauert etwa 90 bis 120 Sekunden. In drei Schritten: Arbeitsplatz angeben, sechs Kernfragen beantworten und anonym veröffentlichen. Ein Kommentar ist optional.',
+    a: 'Eine Bewertung dauert ungefähr drei bis vier Minuten. In vier Schritten werden Klinik und Zeitraum, Zahlen und Fakten, Qualitätsfragen sowie der optionale Kommentar erfasst.',
   },
   {
     q: 'Was ist der Unterschied zwischen Klinik- und Abteilungsvergleich?',

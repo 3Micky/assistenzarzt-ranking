@@ -1,5 +1,6 @@
--- Schnellformular v3 migration.
--- Run once in the Supabase SQL Editor immediately before deploying the v3 form.
+-- Bewertungsformular v3 migration.
+-- Idempotent: nach Änderungen an den erlaubten Detailfeldern erneut ausführbar.
+-- Run in the Supabase SQL Editor immediately before deploying the matching form.
 -- Existing v2 rows remain valid and readable.
 
 BEGIN;
@@ -17,6 +18,10 @@ ALTER TABLE public.ratings
         'weiterbildungsjahr', 'weiterbildungsziele', 'supervision',
         'selbststaendigkeit', 'arbeitsbelastung', 'teamFuehrung',
         'ausbildungsstruktur', 'weiterempfehlung',
+        'ueberstundenErfassung', 'nachtdiensteProMonat',
+        'hintergrundErreichbarkeit', 'hauptoperateurKategorie',
+        'urlaub', 'dokumentation', 'fehlerkultur', 'fuehrungRespekt',
+        'pflegeZusammenarbeit', 'einarbeitung', 'diskriminierung',
         'arbeitszeitenVon', 'arbeitszeitenBis', 'diensteProMonat', 'schichtsystem',
         'ueberstundenAufschreiben', 'ueberstundenAusgleich', 'abteilungsgroesse',
         'personalschluessel', 'wbeJahre', 'opsProMonat', 'rotationsplaene',
@@ -37,6 +42,14 @@ ALTER TABLE public.ratings
       AND public.rating_number_in_range(criteria, 'arbeitsbelastung', 1, 5)
       AND public.rating_number_in_range(criteria, 'teamFuehrung', 1, 5)
       AND public.rating_number_in_range(criteria, 'ausbildungsstruktur', 1, 5)
+      AND public.rating_number_in_range(criteria, 'nachtdiensteProMonat', 0, 31)
+      AND public.rating_number_in_range(criteria, 'hintergrundErreichbarkeit', 1, 5)
+      AND public.rating_number_in_range(criteria, 'urlaub', 1, 5)
+      AND public.rating_number_in_range(criteria, 'dokumentation', 1, 5)
+      AND public.rating_number_in_range(criteria, 'fehlerkultur', 1, 5)
+      AND public.rating_number_in_range(criteria, 'fuehrungRespekt', 1, 5)
+      AND public.rating_number_in_range(criteria, 'pflegeZusammenarbeit', 1, 5)
+      AND public.rating_number_in_range(criteria, 'einarbeitung', 1, 5)
       AND public.rating_number_in_range(criteria, 'diensteProMonat', 0, 15)
       AND public.rating_number_in_range(criteria, 'abteilungsgroesse', 1, 500)
       AND public.rating_number_in_range(criteria, 'personalschluessel', 1, 100)

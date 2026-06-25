@@ -7,6 +7,7 @@ import { slugify } from '../utils/slugify.js'
 import {
   CRITERIA_CONTEXT_V3,
   CRITERIA_CORE_V3,
+  CRITERIA_DISPLAY_V3,
   CRITERIA_ESSENTIAL,
   CRITERIA_MEDICAL,
   CRITERIA_NICE,
@@ -45,7 +46,8 @@ function renderValue(type, value, key) {
 }
 
 function CriteriaSection({ title, criteria, values }) {
-  const items = criteria.filter(c => c.type !== 'text' || values[c.key])
+  const items = criteria.filter(c => values[c.key] !== null && values[c.key] !== undefined && values[c.key] !== '')
+  if (items.length === 0) return null
   return (
     <div className="border-b border-ink">
       <div className="register-strip border-b border-ink">{title}</div>
@@ -146,6 +148,11 @@ export default function BerichteDetailPage() {
           <CriteriaSection
             title="/// KONTEXT"
             criteria={CRITERIA_CONTEXT_V3}
+            values={rating.criteria}
+          />
+          <CriteriaSection
+            title="/// ZAHLEN & ZUSATZANGABEN"
+            criteria={CRITERIA_DISPLAY_V3}
             values={rating.criteria}
           />
         </>

@@ -337,4 +337,16 @@ describe('operativeTrainingScore', () => {
     expect(serviceJob).toBeLessThan(realTraining)
     expect(serviceJob).toBeLessThanOrEqual(5)
   })
+
+  it('supports the v3 percentage category for operative training', () => {
+    const low = operativeTrainingScore(
+      { ...opCriteria({ hauptoperateurAnteil: null }), hauptoperateurKategorie: 'Unter 10 %' },
+      'Chirurgie (Viszeral)'
+    )
+    const high = operativeTrainingScore(
+      { ...opCriteria({ hauptoperateurAnteil: null }), hauptoperateurKategorie: 'Über 50 %' },
+      'Chirurgie (Viszeral)'
+    )
+    expect(low).toBeLessThan(high)
+  })
 })

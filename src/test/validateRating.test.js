@@ -20,6 +20,21 @@ function validPayload(overrides = {}) {
       teamFuehrung: 5,
       ausbildungsstruktur: 4,
       weiterempfehlung: 'Ja',
+      arbeitszeitenVon: '07:30',
+      arbeitszeitenBis: '17:00',
+      diensteProMonat: 5,
+      ueberstundenErfassung: 'Teilweise',
+      ueberstundenAusgleich: 'Freizeitausgleich',
+      nachtdiensteProMonat: 3,
+      abteilungsgroesse: 24,
+      hintergrundErreichbarkeit: 4,
+      urlaub: 4,
+      dokumentation: 2,
+      fehlerkultur: 4,
+      fuehrungRespekt: 3,
+      pflegeZusammenarbeit: 5,
+      einarbeitung: 4,
+      diskriminierung: 'Nein',
     },
     comment: 'Sachlicher Erfahrungsbericht.',
     ...overrides,
@@ -31,6 +46,21 @@ describe('validateRatingPayload', () => {
     const result = validateRatingPayload(validPayload(), { currentYear: 2026 })
     expect(result.valid).toBe(true)
     expect(result.data.yearTo).toBe('fortlaufend')
+  })
+
+  it('rejects invalid selected v3 detail values', () => {
+    const result = validateRatingPayload(validPayload({
+      criteria: {
+        ...validPayload().criteria,
+        nachtdiensteProMonat: 40,
+        fehlerkultur: 9,
+        diskriminierung: 'Vielleicht',
+      },
+    }))
+    expect(result.valid).toBe(false)
+    expect(result.errors.join(' ')).toContain('nachtdiensteProMonat')
+    expect(result.errors.join(' ')).toContain('fehlerkultur')
+    expect(result.errors.join(' ')).toContain('diskriminierung')
   })
 
   it('rejects unknown criteria keys', () => {

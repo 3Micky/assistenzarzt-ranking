@@ -2,6 +2,7 @@ import {
   ALLOWED_CRITERIA_KEYS,
   CRITERIA_CONTEXT_V3,
   CRITERIA_CORE_V3,
+  CRITERIA_DETAILS_V3,
   CRITERIA_ESSENTIAL,
   CRITERIA_MEDICAL,
   CRITERIA_NICE,
@@ -33,6 +34,7 @@ const CRITERIA_DEFINITIONS = new Map(
     ...CRITERIA_NICE,
     ...CRITERIA_CORE_V3,
     ...CRITERIA_CONTEXT_V3,
+    ...CRITERIA_DETAILS_V3,
   ]
     .map(criterion => [criterion.key, criterion])
 )

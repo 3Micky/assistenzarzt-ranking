@@ -55,7 +55,7 @@ export default function HomePage() {
           <div>
             <dt className="font-semibold text-ink mb-1">Was ist das Assistenz-Ranking?</dt>
             <dd className="text-sm text-ink/80 leading-relaxed">
-              Das Assistenz-Ranking ist eine anonyme Bewertungsplattform für Assistenzarztstellen in Deutschland, Österreich und der Schweiz. Sechs kurze Kernfragen ergeben ein verständliches Bild der Weiterbildung — ohne Anmeldung und in etwa zwei Minuten.
+              Das Assistenz-Ranking ist eine anonyme Bewertungsplattform für Assistenzarztstellen in Deutschland, Österreich und der Schweiz. Sechs Kernfragen und freiwillige quantitative Angaben ergeben ein vergleichbares Bild der Weiterbildung und Arbeitsbedingungen.
             </dd>
           </div>
           <div>
@@ -67,7 +67,7 @@ export default function HomePage() {
           <div>
             <dt className="font-semibold text-ink mb-1">Nach welchen Kriterien werden Kliniken bewertet?</dt>
             <dd className="text-sm text-ink/80 leading-relaxed">
-              Bewertet werden Weiterbildungsziele, Supervision, passende Selbstständigkeit, Arbeitsbelastung, Team und Führung sowie Ausbildungsstruktur. Die sechs Antworten zählen gleich stark; „nicht beurteilbar“ wird nicht als schlechte Antwort gewertet.
+              Bewertet werden Weiterbildungsziele, Supervision, passende Selbstständigkeit, Arbeitsbelastung, Team und Führung sowie Ausbildungsstruktur. Ergänzend können unter anderem Arbeitszeiten, Dienste, OP-Zahlen, Fortbildung und Teamkultur angegeben werden.
             </dd>
           </div>
         </dl>

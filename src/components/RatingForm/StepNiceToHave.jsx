@@ -1,9 +1,11 @@
 import TurnstileWidget from '../TurnstileWidget.jsx'
+import { ChoiceGroup, FormCard, FormSummary } from './FormControls.jsx'
 
 const RECOMMENDATIONS = ['Ja', 'Mit Einschränkungen', 'Nein']
 
 export default function StepNiceToHave({
   data,
+  context,
   comment,
   onChange,
   onCommentChange,
@@ -16,60 +18,89 @@ export default function StepNiceToHave({
   turnstileResetKey = 0,
 }) {
   const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY
+  const set = (key, value) => onChange({ ...data, [key]: value })
   const canSubmit = Boolean(data.weiterempfehlung && turnstileToken && !isSubmitting)
 
   return (
     <div>
       <div className="register-strip border-b border-ink">
-        SCHRITT 3 VON 3 /// VERÖFFENTLICHEN
+        <span>SCHRITT 4 VON 4 /// ABSCHLUSS</span>
+        <span className="text-canvas/60">ANONYM</span>
+      </div>
+      <FormSummary {...context} />
+
+      <div className="px-4 pt-4">
+        <div className="form-section-title">FAMILIE &amp; EXTRAS</div>
+        <p className="form-help mt-1 mb-3">Alle Angaben in diesem Abschnitt sind freiwillig.</p>
+      </div>
+      <div className="form-step-grid pt-0">
+        <ChoiceGroup
+          label="Umgang mit Schwangerschaft"
+          value={data.schwangerschaft}
+          options={['Sofortiges Arbeitsverbot', 'Individuelle Lösung', 'Normal weiterarbeiten']}
+          onChange={value => set('schwangerschaft', value)}
+        />
+        <ChoiceGroup
+          label="Familienfreundlichkeit / Elternzeit"
+          value={data.schwangerschaftFamilienfreundlich}
+          options={[{ value: true, label: 'Familienfreundlich' }, { value: false, label: 'Problematisch' }]}
+          onChange={value => set('schwangerschaftFamilienfreundlich', value)}
+        />
+        <ChoiceGroup
+          label="Parkplatz vorhanden"
+          value={data.parkplatz}
+          options={[{ value: true, label: 'Ja' }, { value: false, label: 'Nein' }]}
+          onChange={value => set('parkplatz', value)}
+        />
+        <ChoiceGroup
+          label="Diskriminierung erlebt"
+          hint="Freiwillig und ohne Details. Diese Antwort fließt nicht in den Score ein."
+          value={data.diskriminierung}
+          options={['Nein', 'Unsicher', 'Ja']}
+          onChange={value => set('diskriminierung', value)}
+        />
+        <FormCard title="Benefits" hint="Zum Beispiel Jobticket, Kantine oder Kinderbetreuung." className="sm:col-span-2">
+          <input
+            className="input-brutalist"
+            value={data.benefits ?? ''}
+            maxLength={500}
+            placeholder="Benefits kurz beschreiben …"
+            onChange={event => set('benefits', event.target.value)}
+          />
+        </FormCard>
       </div>
 
-      <div className="p-4 space-y-4">
-        <fieldset className="bg-canvas-alt rounded p-4">
-          <legend className="mono-label-red mb-2">
-            WÜRDEST DU DIESE ABTEILUNG FÜR DIE WEITERBILDUNG EMPFEHLEN?
-          </legend>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-1">
-            {RECOMMENDATIONS.map(option => (
-              <button
-                type="button"
-                key={option}
-                onClick={() => onChange({ ...data, weiterempfehlung: option })}
-                className={data.weiterempfehlung === option ? 'tab-active min-h-11' : 'tab-inactive min-h-11'}
-              >
-                {option.toUpperCase()}
-              </button>
-            ))}
-          </div>
-        </fieldset>
+      <div className="px-4 pt-2">
+        <div className="form-section-title">EMPFEHLUNG &amp; KOMMENTAR</div>
+      </div>
+      <div className="form-step-grid pt-3">
+        <ChoiceGroup
+          label="Würdest du diese Abteilung für die Weiterbildung empfehlen?"
+          value={data.weiterempfehlung}
+          options={RECOMMENDATIONS}
+          onChange={value => set('weiterempfehlung', value)}
+          optional={false}
+          className="sm:col-span-2"
+        />
 
-        <div className="bg-canvas-alt rounded p-4">
-          <label className="mono-label block mb-2">KOMMENTAR · OPTIONAL</label>
+        <FormCard title="Kommentar" hint="Keine Namen, Patientendaten oder identifizierbaren Einzelfälle nennen." className="sm:col-span-2">
           <textarea
             rows={4}
-            className="input-brutalist resize-y w-full"
+            className="input-brutalist resize-y"
             placeholder="Was sollten andere Assistenzärzt*innen wissen?"
             value={comment}
             maxLength={2000}
             onChange={event => onCommentChange(event.target.value)}
           />
-          <div className="mt-2 text-xs text-ink/60">
-            Bitte keine Namen, Patientendaten oder identifizierbaren Einzelfälle nennen.
-          </div>
-        </div>
+        </FormCard>
 
-        <div className="bg-canvas-alt rounded p-4">
-          <div className="mono-label mb-2">BOT-SCHUTZ</div>
+        <FormCard title="Bot-Schutz" optional={false} className="sm:col-span-2">
           <TurnstileWidget
             siteKey={turnstileSiteKey}
             onTokenChange={onTurnstileTokenChange}
             resetKey={turnstileResetKey}
           />
-        </div>
-
-        <div className="text-xs text-ink/65">
-          Deine Bewertung wird anonym veröffentlicht. Eine Anmeldung oder E-Mail-Adresse ist nicht erforderlich.
-        </div>
+        </FormCard>
       </div>
 
       {submitError && (
@@ -78,8 +109,8 @@ export default function StepNiceToHave({
         </div>
       )}
 
-      <div className="flex border-t border-ink">
-        <button type="button" onClick={onBack} disabled={isSubmitting} className="btn-ghost-ink border-r border-ink disabled:opacity-50">
+      <div className="form-nav">
+        <button type="button" onClick={onBack} disabled={isSubmitting} className="btn-ghost-ink disabled:opacity-50">
           &lt;&lt;&lt; ZURÜCK
         </button>
         <button type="button" onClick={onSubmit} disabled={!canSubmit} className="btn-hazard disabled:opacity-30">

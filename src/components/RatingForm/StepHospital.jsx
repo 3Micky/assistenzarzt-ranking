@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { COUNTRY_FLAGS, REGIONS, SPECIALTIES } from '../../data/criteria.js'
+import { COUNTRY_FLAGS, SPECIALTIES } from '../../data/criteria.js'
 import { useRatingsStore } from '../../store/ratingsStore.js'
-import { getCitiesForFilters, searchHospitals } from '../../utils/hospitalSearch.js'
+import { searchHospitals } from '../../utils/hospitalSearch.js'
 
 function useClickOutside(ref, onClose) {
   useEffect(() => {
@@ -44,7 +44,6 @@ export default function StepHospital({
   const currentYear = new Date().getFullYear()
   const [query, setQuery] = useState(data.hospital || '')
   const [open, setOpen] = useState(false)
-  const [manualOpen, setManualOpen] = useState(false)
   const searchRef = useRef(null)
   useClickOutside(searchRef, () => setOpen(false))
 
@@ -54,17 +53,7 @@ export default function StepHospital({
     ? searchHospitals(query, ratedSet, {}, 8)
     : []
 
-  const period = data.yearTo === 'fortlaufend'
-    ? 'aktuell'
-    : data.yearFrom === currentYear - 1 && Number(data.yearTo) === currentYear - 1
-      ? 'letztes-jahr'
-      : 'frueher'
-  const earlierYears = Array.from({ length: currentYear - 1999 }, (_, index) => currentYear - index)
-
-  const availableCities = getCitiesForFilters({
-    country: data.country || undefined,
-    region: data.region || undefined,
-  })
+  const years = Array.from({ length: currentYear - 1999 }, (_, index) => currentYear - index)
 
   function selectHospital(hospital) {
     setQuery(hospital.name)
@@ -78,19 +67,6 @@ export default function StepHospital({
     })
   }
 
-  function setPeriod(value) {
-    if (value === 'aktuell') {
-      onChange({ ...data, yearFrom: currentYear, yearTo: 'fortlaufend' })
-      return
-    }
-    if (value === 'letztes-jahr') {
-      onChange({ ...data, yearFrom: currentYear - 1, yearTo: currentYear - 1 })
-      return
-    }
-    const year = data.yearTo === 'fortlaufend' ? currentYear - 2 : Number(data.yearFrom || currentYear - 2)
-    onChange({ ...data, yearFrom: year, yearTo: year })
-  }
-
   const canProceed = Boolean(
     data.hospital?.trim()
     && data.city?.trim()
@@ -102,12 +78,12 @@ export default function StepHospital({
 
   return (
     <div>
-      <div className="register-strip border-b border-ink flex justify-between">
-        <span>SCHRITT 1 VON 3 /// ARBEITSPLATZ</span>
-        <span className="text-canvas/60">CA. 2 MINUTEN GESAMT</span>
+      <div className="register-strip border-b border-ink">
+        <span>SCHRITT 1 VON 4 /// KLINIK &amp; ZEITRAUM</span>
+        <span className="text-canvas/60">CA. 3–4 MINUTEN</span>
       </div>
 
-      <div className="p-5 space-y-4">
+      <div className="p-4 sm:p-5 space-y-4">
         <div ref={searchRef} className="relative">
           <label className="mono-label block mb-2">KLINIK · PFLICHT</label>
           <input
@@ -144,66 +120,14 @@ export default function StepHospital({
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={() => setManualOpen(value => !value)}
-          className="font-mono text-[11.5px] uppercase tracking-widest text-ink/60 hover:text-hazard"
-        >
-          {manualOpen ? '− ORTSEINGABE SCHLIESSEN' : '+ KLINIK NICHT GEFUNDEN? ORT MANUELL ANGEBEN'}
-        </button>
-
-        {manualOpen && (
-          <div className="ink-grid grid-cols-1 sm:grid-cols-3">
-            <div className="bg-canvas p-3">
-              <label className="mono-label block mb-1">LAND</label>
-              <select
-                className="select-brutalist"
-                value={data.country || ''}
-                onChange={(event) => onChange({
-                  ...data,
-                  country: event.target.value,
-                  region: '',
-                  city: '',
-                })}
-              >
-                <option value="">— Wählen —</option>
-                <option value="DE">Deutschland</option>
-                <option value="AT">Österreich</option>
-                <option value="CH">Schweiz</option>
-              </select>
-            </div>
-            <div className="bg-canvas p-3">
-              <label className="mono-label block mb-1">REGION</label>
-              <select
-                className="select-brutalist"
-                value={data.region || ''}
-                disabled={!data.country}
-                onChange={(event) => onChange({ ...data, region: event.target.value, city: '' })}
-              >
-                <option value="">— Wählen —</option>
-                {(REGIONS[data.country] || []).map(region => (
-                  <option key={region} value={region}>{region}</option>
-                ))}
-              </select>
-            </div>
-            <div className="bg-canvas p-3">
-              <label className="mono-label block mb-1">STADT</label>
-              <input
-                className="input-brutalist"
-                list="rating-city-options"
-                value={data.city || ''}
-                disabled={!data.country}
-                onChange={(event) => onChange({ ...data, city: event.target.value })}
-              />
-              <datalist id="rating-city-options">
-                {availableCities.slice(0, 300).map(city => <option key={city} value={city} />)}
-              </datalist>
-            </div>
+        {!data.city && query.trim().length >= 2 && !open && (
+          <div className="form-help text-hazard">
+            Bitte eine Klinik aus der Ergebnisliste auswählen.
           </div>
         )}
 
-        <div className="ink-grid grid-cols-1 sm:grid-cols-2">
-          <div className="bg-canvas p-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="form-card">
             <label className="mono-label block mb-1">FACHRICHTUNG · PFLICHT</label>
             <select
               className="select-brutalist"
@@ -216,7 +140,7 @@ export default function StepHospital({
               ))}
             </select>
           </div>
-          <div className="bg-canvas p-3">
+          <div className="form-card">
             <label className="mono-label block mb-1">WEITERBILDUNGSJAHR · PFLICHT</label>
             <select
               className="select-brutalist"
@@ -235,36 +159,50 @@ export default function StepHospital({
           </div>
         </div>
 
-        <div>
-          <div className="mono-label mb-2">ZEITRAUM · PFLICHT</div>
-          <div className="grid grid-cols-3 gap-1">
-            {[
-              ['aktuell', 'Aktuell'],
-              ['letztes-jahr', String(currentYear - 1)],
-              ['frueher', 'Früher'],
-            ].map(([value, label]) => (
-              <button
-                type="button"
-                key={value}
-                onClick={() => setPeriod(value)}
-                className={period === value ? 'tab-active' : 'tab-inactive'}
-              >
-                {label.toUpperCase()}
-              </button>
-            ))}
+        <div className="form-card">
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div>
+              <div className="form-card-title">Beschäftigungszeitraum</div>
+              <div className="form-help mt-1">Wann hast du in dieser Abteilung gearbeitet?</div>
+            </div>
+            <span className="form-badge form-badge-required">PFLICHT</span>
           </div>
-          {period === 'frueher' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label>
+              <span className="mono-label block mb-1">VON JAHR</span>
+              <select
+                className="select-brutalist"
+                value={data.yearFrom}
+                onChange={event => {
+                  const yearFrom = Number(event.target.value)
+                  const yearTo = data.yearTo !== 'fortlaufend' && Number(data.yearTo) < yearFrom
+                    ? yearFrom
+                    : data.yearTo
+                  onChange({ ...data, yearFrom, yearTo })
+                }}
+              >
+                {years.map(year => <option key={year} value={year}>{year}</option>)}
+              </select>
+            </label>
+            <label>
+              <span className="mono-label block mb-1">BIS JAHR</span>
             <select
-              className="select-brutalist mt-2"
-              value={data.yearFrom}
-              onChange={(event) => {
-                const year = Number(event.target.value)
-                onChange({ ...data, yearFrom: year, yearTo: year })
-              }}
+              className="select-brutalist"
+              value={data.yearTo}
+              onChange={event => onChange({
+                ...data,
+                yearTo: event.target.value === 'fortlaufend'
+                  ? 'fortlaufend'
+                  : Number(event.target.value),
+              })}
             >
-              {earlierYears.map(year => <option key={year} value={year}>{year}</option>)}
+              <option value="fortlaufend">FORTLAUFEND / AKTUELL</option>
+              {years.filter(year => year >= data.yearFrom).map(year => (
+                <option key={year} value={year}>{year}</option>
+              ))}
             </select>
-          )}
+            </label>
+          </div>
         </div>
 
         <div className="text-xs text-ink/65">
@@ -272,8 +210,8 @@ export default function StepHospital({
         </div>
       </div>
 
-      <div className="flex border-t border-ink">
-        <div className="flex-1 bg-canvas" />
+      <div className="form-nav">
+        <div />
         <button type="button" onClick={onNext} disabled={!canProceed} className="btn-hazard disabled:opacity-30">
           WEITER &gt;&gt;&gt;
         </button>

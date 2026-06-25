@@ -15,6 +15,17 @@
   Editor ausführen. Danach Anwendung deployen.
 - Lokaler Stand: 34/34 Tests grün, Production-Build erfolgreich.
 
+### Formular-Erweiterung nach Nutzerfeedback
+
+- Vier Schritte: Klinik/Zeitraum → Zahlen/Fakten → Qualität → Abschluss.
+- Quantitative Zusatzangaben wieder ergänzt, bleiben aber außerhalb des Hauptscores.
+- Zeitraum wieder als „von Jahr / bis Jahr oder fortlaufend“ umgesetzt.
+- Formulardesign vereinheitlicht: eckige Karten, saubere interne Titel, größere
+  Klickflächen, mobile Antwortstufen, sichtbare Pflicht-/Optional-Kennzeichnung.
+- Vor dem nächsten Deploy `scripts/migrate-rating-v3.sql` erneut in Supabase ausführen,
+  da zusätzliche JSON-Kriterien erlaubt werden.
+- Lokaler Stand: 38/38 Tests grün, Production-Build erfolgreich.
+
 > Letzte Session: 2026-06-24
 > Branch: `main` | Commit: `19a3a50`
 > Deploy: Vercel auto-deploy (assistenz-ranking.de) — **aktuell passwortgeschützt (Private Beta)**

@@ -14,6 +14,7 @@ import {
   ALL_CRITERIA_KEYS,
   CRITERIA_CONTEXT_V3,
   CRITERIA_CORE_V3,
+  CRITERIA_DETAILS_V3,
   CRITERIA_ESSENTIAL,
   CRITERIA_MEDICAL,
   CRITERIA_NICE,
@@ -26,6 +27,7 @@ const CRITERIA_BY_KEY = new Map(
     ...CRITERIA_NICE,
     ...CRITERIA_CORE_V3,
     ...CRITERIA_CONTEXT_V3,
+    ...CRITERIA_DETAILS_V3,
   ].map(criteria => [criteria.key, criteria])
 )
 
@@ -136,7 +138,9 @@ export function aggregateHospitalData(hospitalName, ratings) {
       ? 'boolean'
       : definition?.type === 'scale5'
         ? 'scale5'
-        : ['number', 'slider'].includes(definition?.type)
+        : definition?.type === 'slider'
+          ? 'score10'
+          : definition?.type === 'number'
         ? 'number'
         : 'other'
 
@@ -147,7 +151,7 @@ export function aggregateHospitalData(hospitalName, ratings) {
         value: Math.round((yesCount / rawValues.length) * 100),
         rawValues,
       }
-    } else if (type === 'number' || type === 'scale5') {
+    } else if (type === 'number' || type === 'score10' || type === 'scale5') {
       const sum = rawValues.reduce((a, b) => a + b, 0)
       criteriaAverages[key] = {
         type,

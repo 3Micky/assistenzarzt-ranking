@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import StepHospital    from './StepHospital.jsx'
+import StepFacts       from './StepFacts.jsx'
 import StepCore        from './StepCore.jsx'
 import StepNiceToHave  from './StepNiceToHave.jsx'
 import StepDone        from './StepDone.jsx'
@@ -8,7 +9,7 @@ import { DEFAULT_CRITERIA } from '../../data/criteria.js'
 import { normalizeCriteria, ratingValidity } from '../../utils/calculations.js'
 
 const DEFAULT_HOSPITAL = { hospital: '', city: '', country: 'DE', region: '', specialty: '', year: new Date().getFullYear(), yearFrom: new Date().getFullYear(), yearTo: 'fortlaufend' }
-const TOTAL_STEPS = 4
+const TOTAL_STEPS = 5
 
 export default function RatingForm({ prefill = null }) {
   const [step, setStep]           = useState(1)
@@ -78,6 +79,12 @@ export default function RatingForm({ prefill = null }) {
   }
 
   const pct = step === TOTAL_STEPS ? 100 : Math.round((step - 1) / (TOTAL_STEPS - 1) * 100)
+  const summary = {
+    hospital: hospitalData.hospital,
+    specialty: hospitalData.specialty,
+    yearFrom: hospitalData.yearFrom,
+    yearTo: hospitalData.yearTo,
+  }
 
   return (
     <div className="border border-ink max-w-3xl mx-auto my-6">
@@ -97,20 +104,31 @@ export default function RatingForm({ prefill = null }) {
         />
       )}
       {step === 2 && (
-        <StepCore
+        <StepFacts
           data={criteriaData}
+          context={summary}
           onChange={setCrit}
           onBack={() => setStep(1)}
           onNext={() => setStep(3)}
         />
       )}
       {step === 3 && (
+        <StepCore
+          data={criteriaData}
+          context={summary}
+          onChange={setCrit}
+          onBack={() => setStep(2)}
+          onNext={() => setStep(4)}
+        />
+      )}
+      {step === 4 && (
         <StepNiceToHave
           data={criteriaData}
+          context={summary}
           comment={comment}
           onChange={setCrit}
           onCommentChange={setComment}
-          onBack={() => setStep(2)}
+          onBack={() => setStep(3)}
           onSubmit={handleSubmit}
           submitError={submitError}
           isSubmitting={isSubmitting}

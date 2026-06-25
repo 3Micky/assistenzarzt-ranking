@@ -7,6 +7,7 @@ import { getHospitalBySlug, aggregateHospitalData, hospitalProfileSchema } from 
 import { slugify } from '../utils/slugify.js'
 import {
   CRITERIA_CORE_V3,
+  CRITERIA_DISPLAY_V3,
   CRITERIA_ESSENTIAL,
   CRITERIA_MEDICAL,
   CRITERIA_NICE,
@@ -34,7 +35,7 @@ function CriteriaValue({ type, value }) {
     )
   }
 
-  if (type === 'number') {
+  if (type === 'score10') {
     const color = value >= 7.5 ? 'text-score-high' : value >= 5 ? 'text-score-mid' : 'text-score-low'
     return (
       <span className={`font-bold ${color}`}>
@@ -43,6 +44,7 @@ function CriteriaValue({ type, value }) {
       </span>
     )
   }
+  if (type === 'number') return <span className="font-bold">{value}</span>
   if (type === 'scale5') {
     const scaled = value * 2
     return (
@@ -88,7 +90,7 @@ function CriteriaSection({ title, criteria, averages }) {
                   <CriteriaValue type={avg.type} value={avg.value} />
                 </div>
               </div>
-              {(avg.type === 'number' || avg.type === 'scale5') && (
+              {(avg.type === 'score10' || avg.type === 'scale5') && (
                 <CriteriaBar value={avg.value} max={avg.type === 'scale5' ? 5 : 10} />
               )}
             </div>
@@ -390,11 +392,18 @@ export default function KlinikProfilePage() {
 
       {/* Criteria Breakdown */}
       {hasRatings && data.scoreVersion === 3 ? (
-        <CriteriaSection
-          title="/// KERNBEWERTUNG V3"
-          criteria={CRITERIA_CORE_V3}
-          averages={data.criteriaAverages}
-        />
+        <>
+          <CriteriaSection
+            title="/// KERNBEWERTUNG V3"
+            criteria={CRITERIA_CORE_V3}
+            averages={data.criteriaAverages}
+          />
+          <CriteriaSection
+            title="/// QUANTITATIVE & ZUSÄTZLICHE ANGABEN"
+            criteria={CRITERIA_DISPLAY_V3}
+            averages={data.criteriaAverages}
+          />
+        </>
       ) : hasRatings ? (
         <>
           <CriteriaSection

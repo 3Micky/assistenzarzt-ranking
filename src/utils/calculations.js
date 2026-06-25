@@ -260,12 +260,23 @@ export function normalizeCriteria(criteria = {}) {
     teamFuehrung: normalizeScale5(c.teamFuehrung),
     ausbildungsstruktur: normalizeScale5(c.ausbildungsstruktur),
     weiterempfehlung: validEnum(c.weiterempfehlung, ['Ja', 'Mit Einschränkungen', 'Nein']),
+    ueberstundenErfassung: validEnum(c.ueberstundenErfassung, ['Vollständig', 'Teilweise', 'Nein']),
+    nachtdiensteProMonat: normalizeNumber(c.nachtdiensteProMonat, 0, 31),
+    hintergrundErreichbarkeit: normalizeScale5(c.hintergrundErreichbarkeit),
+    hauptoperateurKategorie: validEnum(c.hauptoperateurKategorie, ['Unter 10 %', '10–25 %', '26–50 %', 'Über 50 %']),
+    urlaub: normalizeScale5(c.urlaub),
+    dokumentation: normalizeScale5(c.dokumentation),
+    fehlerkultur: normalizeScale5(c.fehlerkultur),
+    fuehrungRespekt: normalizeScale5(c.fuehrungRespekt),
+    pflegeZusammenarbeit: normalizeScale5(c.pflegeZusammenarbeit),
+    einarbeitung: normalizeScale5(c.einarbeitung),
+    diskriminierung: validEnum(c.diskriminierung, ['Nein', 'Unsicher', 'Ja']),
     arbeitszeitenVon: nullableTextValue(c.arbeitszeitenVon),
     arbeitszeitenBis: nullableTextValue(c.arbeitszeitenBis),
     diensteProMonat: normalizeNumber(c.diensteProMonat, 0, 31),
     schichtsystem,
     ueberstundenAufschreiben: boolOrNull(c.ueberstundenAufschreiben),
-    ueberstundenAusgleich: validEnum(c.ueberstundenAusgleich, ['Bezahlt', 'Freizeitausgleich']),
+    ueberstundenAusgleich: validEnum(c.ueberstundenAusgleich, ['Bezahlt', 'Freizeitausgleich', 'Kein Ausgleich']),
     abteilungsgroesse: normalizeNumber(c.abteilungsgroesse, 1, 500),
     personalschluessel: normalizeNumber(c.personalschluessel, 1, 100),
     wbeJahre: normalizeNumber(c.wbeJahre, 0, 12),
@@ -440,7 +451,13 @@ export function operativeTrainingScore(criteria, specialty) {
   const logbuch = sliderScore(c.logbuchErfuellbarkeit)
   const autonomie = sliderScore(c.autonomie)
   const supervision = sliderScore(c.supervisionQualitaet)
-  const hauptOp = sliderScore(c.hauptoperateurAnteil)
+  const categoryScore = {
+    'Unter 10 %': 1.5,
+    '10–25 %': 3,
+    '26–50 %': 6,
+    'Über 50 %': 9,
+  }[c.hauptoperateurKategorie] ?? null
+  const hauptOp = sliderScore(c.hauptoperateurAnteil ?? categoryScore)
 
   // Mindestens 3 beantwortete OP-relevante Felder, sonst N/A
   const answered = [logbuch, autonomie, supervision, hauptOp].filter(v => v != null).length
