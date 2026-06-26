@@ -22,6 +22,7 @@ ALTER TABLE public.ratings
         'hintergrundErreichbarkeit', 'hauptoperateurKategorie',
         'urlaub', 'dokumentation', 'fehlerkultur', 'fuehrungRespekt',
         'pflegeZusammenarbeit', 'einarbeitung', 'diskriminierung',
+        'diskriminierungAnsprechperson', 'diskriminierungKlaerung',
         'arbeitszeitenVon', 'arbeitszeitenBis', 'diensteProMonat', 'schichtsystem',
         'ueberstundenAufschreiben', 'ueberstundenAusgleich', 'abteilungsgroesse',
         'personalschluessel', 'wbeJahre', 'opsProMonat', 'rotationsplaene',

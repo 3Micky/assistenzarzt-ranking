@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { applyCors, enforceRateLimits, getClientIp, getRequestBodySize, hasUpstashConfig, verifyTurnstileToken } from './_lib/security.js'
+import { applyCors, enforceRateLimits, getClientIp, getRequestBodySize, hasUpstashConfig, verifyTurnstileOrPassiveFallback } from './_lib/security.js'
 import { MAX_BODY_BYTES, validateRatingPayload } from './_lib/validateRating.js'
 
 export default async function handler(req, res) {
@@ -12,9 +12,6 @@ export default async function handler(req, res) {
   if (!process.env.VITE_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return res.status(500).json({ error: 'Serverkonfiguration für Supabase fehlt' })
   }
-  if (!process.env.TURNSTILE_SECRET_KEY) {
-    return res.status(500).json({ error: 'Serverkonfiguration für Turnstile fehlt' })
-  }
   if (!hasUpstashConfig()) {
     return res.status(500).json({ error: 'Serverkonfiguration für Rate-Limiting fehlt' })
   }
@@ -24,7 +21,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Anfrage ist größer als 20 KB' })
   }
 
-  const { turnstileToken, ...ratingPayload } = req.body ?? {}
+  const { turnstileToken, antiBot, ...ratingPayload } = req.body ?? {}
   const validation = validateRatingPayload(ratingPayload, {
     rawBodySize: bodySize,
   })
@@ -47,8 +44,13 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Rate-Limiting ist derzeit nicht verfügbar' })
   }
 
-  const turnstile = await verifyTurnstileToken(turnstileToken, ip)
-  if (!turnstile.success) return res.status(400).json({ error: turnstile.error })
+  const humanCheck = await verifyTurnstileOrPassiveFallback({
+    token: turnstileToken,
+    remoteIp: ip,
+    passivePayload: antiBot,
+    minRuntimeMs: 4000,
+  })
+  if (!humanCheck.success) return res.status(400).json({ error: humanCheck.error })
 
   const rating = validation.data
   const supabase = createClient(

@@ -36,7 +36,7 @@ function loadTurnstile() {
   return scriptPromise
 }
 
-export default function TurnstileWidget({ siteKey, onTokenChange, resetKey = 0 }) {
+export default function TurnstileWidget({ siteKey, onTokenChange, onStatusChange, resetKey = 0 }) {
   const containerRef = useRef(null)
   const [loadError, setLoadError] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -44,31 +44,46 @@ export default function TurnstileWidget({ siteKey, onTokenChange, resetKey = 0 }
 
   useEffect(() => {
     onTokenChange('')
-    if (!siteKey || !containerRef.current) return undefined
+    if (!siteKey || !containerRef.current) {
+      onStatusChange?.('missing-config')
+      return undefined
+    }
 
     let active = true
     let widgetId
     setLoadError(false)
     setIsLoading(true)
+    onStatusChange?.('loading')
 
     loadTurnstile()
       .then((turnstile) => {
         if (!active || !turnstile || !containerRef.current) return
         setIsLoading(false)
+        onStatusChange?.('ready')
         widgetId = turnstile.render(containerRef.current, {
           sitekey: siteKey,
           language: 'de',
           appearance: 'always',
           theme: 'light',
-          callback: token => onTokenChange(token),
-          'expired-callback': () => onTokenChange(''),
+          callback: (token) => {
+            onTokenChange(token)
+            onStatusChange?.('verified')
+          },
+          'expired-callback': () => {
+            onTokenChange('')
+            onStatusChange?.('ready')
+          },
           'error-callback': () => {
             onTokenChange('')
             setLoadError(true)
+            setIsLoading(false)
+            onStatusChange?.('error')
           },
           'unsupported-callback': () => {
             onTokenChange('')
             setLoadError(true)
+            setIsLoading(false)
+            onStatusChange?.('error')
           },
         })
       })
@@ -76,6 +91,7 @@ export default function TurnstileWidget({ siteKey, onTokenChange, resetKey = 0 }
         if (active) {
           setIsLoading(false)
           setLoadError(true)
+          onStatusChange?.('error')
         }
       })
 
@@ -83,7 +99,7 @@ export default function TurnstileWidget({ siteKey, onTokenChange, resetKey = 0 }
       active = false
       if (widgetId != null && window.turnstile) window.turnstile.remove(widgetId)
     }
-  }, [siteKey, onTokenChange, resetKey, retryKey])
+  }, [siteKey, onTokenChange, onStatusChange, resetKey, retryKey])
 
   if (!siteKey) {
     return (

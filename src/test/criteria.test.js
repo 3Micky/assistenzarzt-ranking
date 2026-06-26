@@ -47,8 +47,8 @@ describe('criteria', () => {
       ...CRITERIA_DETAILS_V3.map(c => c.key),
     ]
     expect(ALL_CRITERIA_KEYS).toEqual(expected)
-    expect(ALL_CRITERIA_KEYS).toHaveLength(49)
-    expect(new Set(ALL_CRITERIA_KEYS).size).toBe(49)
+    expect(ALL_CRITERIA_KEYS).toHaveLength(51)
+    expect(new Set(ALL_CRITERIA_KEYS).size).toBe(51)
     expect(ALLOWED_CRITERIA_KEYS).toContain('schemaVersion')
   })
 
@@ -58,6 +58,8 @@ describe('criteria', () => {
     expect(keys).toContain('hintergrundErreichbarkeit')
     expect(keys).toContain('fehlerkultur')
     expect(keys).toContain('diskriminierung')
+    expect(keys).toContain('diskriminierungAnsprechperson')
+    expect(keys).toContain('diskriminierungKlaerung')
   })
 
   it('defines exactly six v3 core questions on a five-point scale', () => {

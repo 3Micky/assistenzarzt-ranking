@@ -35,6 +35,8 @@ function validPayload(overrides = {}) {
       pflegeZusammenarbeit: 5,
       einarbeitung: 4,
       diskriminierung: 'Nein',
+      diskriminierungAnsprechperson: 'Ja',
+      diskriminierungKlaerung: 'Teilweise',
     },
     comment: 'Sachlicher Erfahrungsbericht.',
     ...overrides,
@@ -55,12 +57,16 @@ describe('validateRatingPayload', () => {
         nachtdiensteProMonat: 40,
         fehlerkultur: 9,
         diskriminierung: 'Vielleicht',
+        diskriminierungAnsprechperson: 'Vielleicht',
+        diskriminierungKlaerung: 'Unklar',
       },
     }))
     expect(result.valid).toBe(false)
     expect(result.errors.join(' ')).toContain('nachtdiensteProMonat')
     expect(result.errors.join(' ')).toContain('fehlerkultur')
     expect(result.errors.join(' ')).toContain('diskriminierung')
+    expect(result.errors.join(' ')).toContain('diskriminierungAnsprechperson')
+    expect(result.errors.join(' ')).toContain('diskriminierungKlaerung')
   })
 
   it('rejects unknown criteria keys', () => {

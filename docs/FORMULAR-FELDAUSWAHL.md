@@ -84,6 +84,8 @@
 - [ ] Stationsassistenz oder administrative Entlastung
 - [ ] Psychologische Unterstützung nach belastenden Ereignissen
 - [x] Diskriminierungserfahrungen
+- [x] Sichere Ansprechperson / Meldestelle bei Diskriminierung
+- [x] Schritte zur Klärung eingeleitet
 
 ## 7. Abschluss
 

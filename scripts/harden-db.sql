@@ -98,7 +98,8 @@ ALTER TABLE public.ratings
         'logbuchErfuellbarkeit', 'supervisionQualitaet', 'autonomie',
         'hauptoperateurAnteil', 'mitarbeitergespraeche', 'dokumentationsaufwand',
         'urlaubsgenehmigung', 'workLifeBalance', 'teamAtmosphaere',
-        'schwangerschaft', 'schwangerschaftFamilienfreundlich', 'parkplatz', 'benefits'
+        'schwangerschaft', 'schwangerschaftFamilienfreundlich', 'parkplatz', 'benefits',
+        'diskriminierung', 'diskriminierungAnsprechperson', 'diskriminierungKlaerung'
       ]::text[] = '{}'::jsonb
     ) NOT VALID,
   ADD CONSTRAINT ratings_criteria_numeric_ranges_check

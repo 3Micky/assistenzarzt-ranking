@@ -15,11 +15,13 @@ export default function StepNiceToHave({
   isSubmitting = false,
   turnstileToken = '',
   onTurnstileTokenChange,
+  onTurnstileStatusChange,
   turnstileResetKey = 0,
 }) {
   const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY
   const set = (key, value) => onChange({ ...data, [key]: value })
-  const canSubmit = Boolean(data.weiterempfehlung && turnstileToken && !isSubmitting)
+  const canSubmit = Boolean(data.weiterempfehlung && !isSubmitting)
+  const showDiskriminierungFollowUp = data.diskriminierung === 'Ja' || data.diskriminierung === 'Unsicher'
 
   return (
     <div>
@@ -57,8 +59,31 @@ export default function StepNiceToHave({
           hint="Freiwillig und ohne Details. Diese Antwort fließt nicht in den Score ein."
           value={data.diskriminierung}
           options={['Nein', 'Unsicher', 'Ja']}
-          onChange={value => set('diskriminierung', value)}
+          onChange={(value) => onChange({
+            ...data,
+            diskriminierung: value,
+            diskriminierungAnsprechperson: value === 'Nein' ? null : data.diskriminierungAnsprechperson,
+            diskriminierungKlaerung: value === 'Nein' ? null : data.diskriminierungKlaerung,
+          })}
         />
+        {showDiskriminierungFollowUp && (
+          <ChoiceGroup
+            label="Gab es eine sichere, erreichbare Ansprechperson oder Meldestelle?"
+            hint="Nur wenn du das einschätzen kannst."
+            value={data.diskriminierungAnsprechperson}
+            options={['Ja', 'Unsicher', 'Nein']}
+            onChange={value => set('diskriminierungAnsprechperson', value)}
+          />
+        )}
+        {showDiskriminierungFollowUp && (
+          <ChoiceGroup
+            label="Wurden Vorfälle ernst genommen und Schritte zur Klärung eingeleitet?"
+            hint="Es geht um den Eindruck, ob etwas passiert ist, nicht um Details."
+            value={data.diskriminierungKlaerung}
+            options={['Ja', 'Teilweise', 'Nein']}
+            onChange={value => set('diskriminierungKlaerung', value)}
+          />
+        )}
       </div>
 
       <div className="px-4 pt-2">
@@ -106,10 +131,16 @@ export default function StepNiceToHave({
           />
         </FormCard>
 
-        <FormCard title="Bot-Schutz" optional={false} className="sm:col-span-2">
+        <FormCard
+          title="Bot-Schutz"
+          hint="Wenn der Check nicht lädt, kannst du trotzdem absenden. Dann greifen unsere stillen Server-Prüfungen."
+          optional={false}
+          className="sm:col-span-2"
+        >
           <TurnstileWidget
             siteKey={turnstileSiteKey}
             onTokenChange={onTurnstileTokenChange}
+            onStatusChange={onTurnstileStatusChange}
             resetKey={turnstileResetKey}
           />
         </FormCard>

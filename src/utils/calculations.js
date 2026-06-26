@@ -271,6 +271,8 @@ export function normalizeCriteria(criteria = {}) {
     pflegeZusammenarbeit: normalizeScale5(c.pflegeZusammenarbeit),
     einarbeitung: normalizeScale5(c.einarbeitung),
     diskriminierung: validEnum(c.diskriminierung, ['Nein', 'Unsicher', 'Ja']),
+    diskriminierungAnsprechperson: validEnum(c.diskriminierungAnsprechperson, ['Ja', 'Unsicher', 'Nein']),
+    diskriminierungKlaerung: validEnum(c.diskriminierungKlaerung, ['Ja', 'Teilweise', 'Nein']),
     arbeitszeitenVon: nullableTextValue(c.arbeitszeitenVon),
     arbeitszeitenBis: nullableTextValue(c.arbeitszeitenBis),
     diensteProMonat: normalizeNumber(c.diensteProMonat, 0, 31),

@@ -1,10 +1,16 @@
 import { useState } from 'react'
+import TurnstileWidget from '../TurnstileWidget.jsx'
 
 export default function MeldeModal({ rating, onClose }) {
   const [begruendung, setBegruendung] = useState('')
   const [kontakt, setKontakt]         = useState('')
   const [typ, setTyp]                 = useState('falsch')
   const [status, setStatus]           = useState('idle') // idle | sending | success | error
+  const [turnstileToken, setTurnstileToken] = useState('')
+  const [turnstileStatus, setTurnstileStatus] = useState('idle')
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0)
+  const [startedAt] = useState(() => Date.now())
+  const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY
 
   const typLabels = {
     falsch:     'Unwahre Tatsachenbehauptung',
@@ -20,16 +26,39 @@ export default function MeldeModal({ rating, onClose }) {
       const res = await fetch('/api/melde', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ rating, typ, begruendung, kontakt }),
+        body:    JSON.stringify({
+          ratingId: rating.id,
+          typ,
+          begruendung,
+          kontakt,
+          turnstileToken,
+          antiBot: {
+            website: '',
+            formRuntimeMs: Date.now() - startedAt,
+            turnstileBypassReason: turnstileToken
+              ? null
+              : turnstileStatus === 'missing-config'
+                ? 'missing-config'
+                : turnstileStatus === 'error'
+                  ? 'widget_load_error'
+                  : null,
+          },
+        }),
       })
       const data = await res.json()
       if (res.ok && data.success) {
         setStatus('success')
       } else {
         setStatus('error')
+        setTurnstileToken('')
+        setTurnstileStatus('idle')
+        setTurnstileResetKey(key => key + 1)
       }
     } catch {
       setStatus('error')
+      setTurnstileToken('')
+      setTurnstileStatus('idle')
+      setTurnstileResetKey(key => key + 1)
     }
   }
 
@@ -95,6 +124,7 @@ export default function MeldeModal({ rating, onClose }) {
               className="input-brutalist resize-y text-xs w-full"
               placeholder="Bitte beschreiben Sie konkret, welche Aussage unzutreffend oder problematisch ist…"
               value={begruendung}
+              maxLength={2000}
               onChange={e => setBegruendung(e.target.value)}
             />
             {begruendung.trim().length > 0 && begruendung.trim().length < 20 && (
@@ -109,10 +139,25 @@ export default function MeldeModal({ rating, onClose }) {
             <div className="mono-label mb-1">IHR KONTAKT (OPTIONAL)</div>
             <input
               className="input-brutalist text-xs w-full"
-              placeholder="E-Mail oder Telefon für Rückfragen…"
+              type="email"
+              placeholder="E-Mail für Rückfragen…"
               value={kontakt}
+              maxLength={254}
               onChange={e => setKontakt(e.target.value)}
             />
+          </div>
+
+          <div>
+            <div className="mono-label mb-2">BOT-SCHUTZ</div>
+            <TurnstileWidget
+              siteKey={turnstileSiteKey}
+              onTokenChange={setTurnstileToken}
+              onStatusChange={setTurnstileStatus}
+              resetKey={turnstileResetKey}
+            />
+            <p className="font-mono text-[10px] text-ink/50 mt-2">
+              Wenn der Check nicht lädt, kannst du trotzdem absenden. Dann greifen unsere stillen Server-Prüfungen.
+            </p>
           </div>
 
           {status === 'error' && (

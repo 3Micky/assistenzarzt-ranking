@@ -143,6 +143,8 @@ export const CRITERIA_DETAILS_V3 = [
   { key: 'pflegeZusammenarbeit', label: 'Zusammenarbeit mit der Pflege', type: 'scale5', min: 1, max: 5 },
   { key: 'einarbeitung', label: 'Strukturierte Einarbeitung', type: 'scale5', min: 1, max: 5 },
   { key: 'diskriminierung', label: 'Diskriminierung erlebt', type: 'enum', options: ['Nein', 'Unsicher', 'Ja'] },
+  { key: 'diskriminierungAnsprechperson', label: 'Sichere Ansprechperson / Meldestelle', type: 'enum', options: ['Ja', 'Unsicher', 'Nein'] },
+  { key: 'diskriminierungKlaerung', label: 'Schritte zur Klärung unternommen', type: 'enum', options: ['Ja', 'Teilweise', 'Nein'] },
 ]
 
 const V3_REUSED_DETAIL_KEYS = new Set([
@@ -216,6 +218,8 @@ export const DEFAULT_CRITERIA = {
   parkplatz: null,
   benefits: '',
   diskriminierung: null,
+  diskriminierungAnsprechperson: null,
+  diskriminierungKlaerung: null,
 }
 
 export const SPECIALTIES = [
