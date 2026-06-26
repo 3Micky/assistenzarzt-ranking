@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { COUNTRY_FLAGS, SPECIALTIES } from '../../data/criteria.js'
 import { useRatingsStore } from '../../store/ratingsStore.js'
-import { searchHospitals } from '../../utils/hospitalSearch.js'
+import { findHospitalByExactName, searchHospitals } from '../../utils/hospitalSearch.js'
 
 function useClickOutside(ref, onClose) {
   useEffect(() => {
@@ -44,6 +44,7 @@ export default function StepHospital({
   const currentYear = new Date().getFullYear()
   const [query, setQuery] = useState(data.hospital || '')
   const [open, setOpen] = useState(false)
+  const [showMissingFields, setShowMissingFields] = useState(false)
   const searchRef = useRef(null)
   useClickOutside(searchRef, () => setOpen(false))
 
@@ -58,6 +59,7 @@ export default function StepHospital({
   function selectHospital(hospital) {
     setQuery(hospital.name)
     setOpen(false)
+    setShowMissingFields(false)
     onChange({
       ...data,
       hospital: hospital.name,
@@ -67,14 +69,54 @@ export default function StepHospital({
     })
   }
 
-  const canProceed = Boolean(
-    data.hospital?.trim()
-    && data.city?.trim()
-    && data.country
-    && data.region
-    && data.specialty
-    && criteria.weiterbildungsjahr
-  )
+  function resolvedHospitalData(baseData = data) {
+    if (baseData.city?.trim() && baseData.region && baseData.country) return baseData
+
+    const exactHospital = findHospitalByExactName(query || baseData.hospital)
+    if (!exactHospital) return baseData
+
+    return {
+      ...baseData,
+      hospital: exactHospital.name,
+      city: exactHospital.city || '',
+      region: exactHospital.region || '',
+      country: exactHospital.country || 'DE',
+    }
+  }
+
+  function missingFields(baseData = data) {
+    const resolved = resolvedHospitalData(baseData)
+    return [
+      !resolved.hospital?.trim() || !resolved.city?.trim() || !resolved.country || !resolved.region
+        ? 'Klinik aus der Liste auswählen'
+        : null,
+      !resolved.specialty ? 'Fachrichtung wählen' : null,
+      !criteria.weiterbildungsjahr ? 'Weiterbildungsjahr wählen' : null,
+      !resolved.yearFrom || !resolved.yearTo ? 'Beschäftigungszeitraum wählen' : null,
+    ].filter(Boolean)
+  }
+
+  function handleNext() {
+    const resolved = resolvedHospitalData()
+    const missing = missingFields(resolved)
+
+    if (missing.length > 0) {
+      setShowMissingFields(true)
+      setOpen(true)
+      if (resolved !== data) onChange(resolved)
+      return
+    }
+
+    if (resolved !== data) {
+      setQuery(resolved.hospital)
+      onChange(resolved)
+    }
+    setShowMissingFields(false)
+    setOpen(false)
+    onNext()
+  }
+
+  const missing = showMissingFields ? missingFields() : []
 
   return (
     <div>
@@ -94,6 +136,7 @@ export default function StepHospital({
               const hospital = event.target.value
               setQuery(hospital)
               setOpen(true)
+              setShowMissingFields(false)
               onChange({ ...data, hospital, city: '', region: '' })
             }}
             onFocus={() => setOpen(true)}
@@ -132,7 +175,10 @@ export default function StepHospital({
             <select
               className="select-brutalist"
               value={data.specialty || ''}
-              onChange={(event) => onChange({ ...data, specialty: event.target.value })}
+              onChange={(event) => {
+                setShowMissingFields(false)
+                onChange({ ...data, specialty: event.target.value })
+              }}
             >
               <option value="">— Wählen —</option>
               {SPECIALTIES.map(specialty => (
@@ -145,10 +191,13 @@ export default function StepHospital({
             <select
               className="select-brutalist"
               value={criteria.weiterbildungsjahr ?? ''}
-              onChange={(event) => onCriteriaChange({
-                ...criteria,
-                weiterbildungsjahr: event.target.value ? Number(event.target.value) : null,
-              })}
+              onChange={(event) => {
+                setShowMissingFields(false)
+                onCriteriaChange({
+                  ...criteria,
+                  weiterbildungsjahr: event.target.value ? Number(event.target.value) : null,
+                })
+              }}
             >
               <option value="">— Wählen —</option>
               {Array.from({ length: 10 }, (_, index) => index + 1).map(year => (
@@ -178,6 +227,7 @@ export default function StepHospital({
                   const yearTo = data.yearTo !== 'fortlaufend' && Number(data.yearTo) < yearFrom
                     ? yearFrom
                     : data.yearTo
+                  setShowMissingFields(false)
                   onChange({ ...data, yearFrom, yearTo })
                 }}
               >
@@ -189,12 +239,15 @@ export default function StepHospital({
             <select
               className="select-brutalist"
               value={data.yearTo}
-              onChange={event => onChange({
-                ...data,
-                yearTo: event.target.value === 'fortlaufend'
-                  ? 'fortlaufend'
-                  : Number(event.target.value),
-              })}
+              onChange={event => {
+                setShowMissingFields(false)
+                onChange({
+                  ...data,
+                  yearTo: event.target.value === 'fortlaufend'
+                    ? 'fortlaufend'
+                    : Number(event.target.value),
+                })
+              }}
             >
               <option value="fortlaufend">FORTLAUFEND / AKTUELL</option>
               {years.filter(year => year >= data.yearFrom).map(year => (
@@ -211,8 +264,10 @@ export default function StepHospital({
       </div>
 
       <div className="form-nav">
-        <div />
-        <button type="button" onClick={onNext} disabled={!canProceed} className="btn-hazard disabled:opacity-30">
+        <div className="form-help text-hazard">
+          {missing.length > 0 && <>Noch offen: {missing.join(' · ')}</>}
+        </div>
+        <button type="button" onClick={handleNext} className="btn-hazard">
           WEITER &gt;&gt;&gt;
         </button>
       </div>

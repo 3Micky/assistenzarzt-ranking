@@ -131,6 +131,41 @@
   .form-clear {
     @apply mt-2 font-mono text-[9px] tracking-wider uppercase text-ink/45 hover:text-hazard;
   }
+  .scale-slider {
+    @apply relative grid grid-cols-5 gap-1 pt-1;
+  }
+  .scale-slider::before {
+    content: '';
+    @apply absolute left-[10%] right-[10%] top-[1.05rem] h-0.5 bg-ink/20;
+  }
+  .scale-option {
+    @apply relative z-10 flex min-w-0 flex-col items-center gap-1
+           text-center font-mono uppercase tracking-wider text-ink/55
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hazard focus-visible:ring-offset-2;
+  }
+  .scale-dot {
+    @apply flex h-7 w-7 items-center justify-center border border-ink/25 bg-canvas
+           text-[11px] font-bold transition-colors;
+  }
+  .scale-label {
+    @apply max-w-[4.75rem] text-[8.5px] leading-tight sm:text-[9px];
+  }
+  .scale-option:hover .scale-dot {
+    @apply border-ink text-ink;
+  }
+  .scale-option-active {
+    @apply text-hazard;
+  }
+  .scale-option-active .scale-dot {
+    @apply border-hazard bg-hazard text-white;
+  }
+  .scale-status {
+    @apply mt-3 border border-dashed border-ink/20 bg-white px-2 py-1
+           font-mono text-[9px] uppercase tracking-wider text-ink/45;
+  }
+  .scale-status-active {
+    @apply border-hazard/40 text-ink;
+  }
   .form-section-title {
     @apply border-l-4 border-hazard pl-3 font-mono text-[11.5px] font-bold tracking-widest uppercase text-ink;
   }

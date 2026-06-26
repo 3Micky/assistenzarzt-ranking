@@ -86,9 +86,16 @@ export default function StepCore({ data, context, onChange, onBack, onNext }) {
 
       <div className="form-nav">
         <button type="button" onClick={onBack} className="btn-ghost-ink">&lt;&lt;&lt; ZURÜCK</button>
-        <button type="button" onClick={onNext} disabled={!canProceed} className="btn-hazard disabled:opacity-30">
-          WEITER &gt;&gt;&gt;
-        </button>
+        <div className="grid grid-cols-1">
+          {!canProceed && (
+            <div className="flex items-center justify-center border-b border-ink/20 px-3 py-1 text-center font-mono text-[9px] uppercase tracking-wider text-hazard">
+              Bitte mindestens 5 von 6 Kernfragen bewerten
+            </div>
+          )}
+          <button type="button" onClick={onNext} disabled={!canProceed} className="btn-hazard disabled:opacity-30">
+            WEITER &gt;&gt;&gt;
+          </button>
+        </div>
       </div>
     </div>
   )

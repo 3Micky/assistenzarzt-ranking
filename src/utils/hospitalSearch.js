@@ -285,6 +285,20 @@ export function searchHospitals(query, ratedSet = new Set(), filters = {}, limit
 }
 
 /**
+ * Löst einen exakt eingegebenen Kliniknamen auf Stammdaten auf.
+ * Hilft Formularen, wenn Nutzer*innen den Namen tippen und nicht aktiv
+ * aus der Dropdown-Liste auswählen.
+ *
+ * @param {string} query
+ * @returns {{ name:string, city:string, region:string, country:string, plz:string, carrier:string } | null}
+ */
+export function findHospitalByExactName(query) {
+  const normalizedQuery = normalize(query)
+  if (!normalizedQuery) return null
+  return ALL_HOSPITALS.find(hospital => normalize(hospital.name) === normalizedQuery) || null
+}
+
+/**
  * Gibt alle eindeutigen Städte für ein bestimmtes Land / Bundesland zurück.
  * Wird für die Genaue Suche Kaskadierung verwendet.
  * @param {{ country?: string, region?: string }} filters

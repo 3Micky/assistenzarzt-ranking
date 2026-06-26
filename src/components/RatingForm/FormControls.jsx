@@ -47,21 +47,30 @@ export function ChoiceGroup({ label, value, options, onChange, optional = true, 
 }
 
 export function ScaleQuestion({ title, question, value, onChange, optional = true, options = SCALE_5_OPTIONS }) {
+  const selectedOption = options.find(option => option.value === value)
+
   return (
     <FormCard title={title} hint={question} optional={optional}>
-      <div className="grid grid-cols-1 sm:grid-cols-5 gap-1" role="radiogroup" aria-label={title}>
+      <div className="scale-slider" role="radiogroup" aria-label={title}>
         {options.map(option => (
           <button
             type="button"
             key={option.value}
             onClick={() => onChange(option.value)}
-            aria-pressed={value === option.value}
-            className={value === option.value ? 'form-choice form-choice-active' : 'form-choice'}
+            role="radio"
+            aria-checked={value === option.value}
+            aria-label={`${option.value}: ${option.shortLabel}`}
+            className={value === option.value ? 'scale-option scale-option-active' : 'scale-option'}
           >
-            <span className="block text-sm font-bold mb-0.5">{option.value}</span>
-            <span className="block text-[10px]">{option.shortLabel}</span>
+            <span className="scale-dot">{option.value}</span>
+            <span className="scale-label">{option.shortLabel}</span>
           </button>
         ))}
+      </div>
+      <div className={value == null ? 'scale-status' : 'scale-status scale-status-active'}>
+        {value == null
+          ? 'Noch nicht bewertet'
+          : `Ausgewählt: ${value} · ${selectedOption?.shortLabel ?? ''}`}
       </div>
       {optional && (
         <button type="button" onClick={() => onChange(null)} className="form-clear">
