@@ -11,7 +11,11 @@ function loadTurnstile() {
     const existing = document.getElementById(SCRIPT_ID)
     if (existing) {
       existing.addEventListener('load', () => resolve(window.turnstile), { once: true })
-      existing.addEventListener('error', reject, { once: true })
+      existing.addEventListener('error', (error) => {
+        scriptPromise = undefined
+        existing.remove()
+        reject(error)
+      }, { once: true })
       return
     }
 
@@ -21,7 +25,11 @@ function loadTurnstile() {
     script.async = true
     script.defer = true
     script.onload = () => resolve(window.turnstile)
-    script.onerror = reject
+    script.onerror = (error) => {
+      scriptPromise = undefined
+      script.remove()
+      reject(error)
+    }
     document.head.appendChild(script)
   })
 
@@ -31,6 +39,8 @@ function loadTurnstile() {
 export default function TurnstileWidget({ siteKey, onTokenChange, resetKey = 0 }) {
   const containerRef = useRef(null)
   const [loadError, setLoadError] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [retryKey, setRetryKey] = useState(0)
 
   useEffect(() => {
     onTokenChange('')
@@ -39,30 +49,41 @@ export default function TurnstileWidget({ siteKey, onTokenChange, resetKey = 0 }
     let active = true
     let widgetId
     setLoadError(false)
+    setIsLoading(true)
 
     loadTurnstile()
       .then((turnstile) => {
         if (!active || !turnstile || !containerRef.current) return
+        setIsLoading(false)
         widgetId = turnstile.render(containerRef.current, {
           sitekey: siteKey,
           language: 'de',
+          appearance: 'always',
+          theme: 'light',
           callback: token => onTokenChange(token),
           'expired-callback': () => onTokenChange(''),
           'error-callback': () => {
             onTokenChange('')
             setLoadError(true)
           },
+          'unsupported-callback': () => {
+            onTokenChange('')
+            setLoadError(true)
+          },
         })
       })
       .catch(() => {
-        if (active) setLoadError(true)
+        if (active) {
+          setIsLoading(false)
+          setLoadError(true)
+        }
       })
 
     return () => {
       active = false
       if (widgetId != null && window.turnstile) window.turnstile.remove(widgetId)
     }
-  }, [siteKey, onTokenChange, resetKey])
+  }, [siteKey, onTokenChange, resetKey, retryKey])
 
   if (!siteKey) {
     return (
@@ -74,11 +95,25 @@ export default function TurnstileWidget({ siteKey, onTokenChange, resetKey = 0 }
 
   return (
     <div>
-      <div ref={containerRef} />
-      {loadError && (
-        <p className="font-mono text-[11.5px] text-hazard mt-2">
-          CAPTCHA konnte nicht geladen werden. Bitte Seite neu laden.
+      <div ref={containerRef} className="min-h-[65px]" />
+      {isLoading && !loadError && (
+        <p className="font-mono text-[11.5px] text-ink/60 mt-2">
+          Bot-Schutz lädt …
         </p>
+      )}
+      {loadError && (
+        <div className="mt-2 space-y-2">
+          <p className="font-mono text-[11.5px] text-hazard">
+            Bot-Schutz konnte nicht geladen werden. Bitte Adblocker/Tracking-Schutz prüfen oder erneut versuchen.
+          </p>
+          <button
+            type="button"
+            className="btn-ghost-ink"
+            onClick={() => setRetryKey(key => key + 1)}
+          >
+            Bot-Schutz neu laden
+          </button>
+        </div>
       )}
     </div>
   )

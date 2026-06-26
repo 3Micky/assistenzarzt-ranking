@@ -18,9 +18,19 @@ export function FormCard({ title, hint, optional = true, children, className = '
 }
 
 export function ChoiceGroup({ label, value, options, onChange, optional = true, hint, className = '' }) {
+  const hasLongOptions = options.some(option => {
+    const optionLabel = typeof option === 'string' ? option : option.label
+    return String(optionLabel).length > 18
+  })
+  const gridClass = options.length <= 2
+    ? 'grid-cols-2'
+    : hasLongOptions
+      ? 'grid-cols-1'
+      : 'grid-cols-1 sm:grid-cols-3'
+
   return (
     <FormCard title={label} hint={hint} optional={optional} className={className}>
-      <div className={`grid gap-1 ${options.length <= 2 ? 'grid-cols-2' : 'grid-cols-1 sm:grid-cols-3'}`} role="radiogroup" aria-label={label}>
+      <div className={`grid gap-1 ${gridClass}`} role="radiogroup" aria-label={label}>
         {options.map(option => {
           const optionValue = typeof option === 'string' ? option : option.value
           const optionLabel = typeof option === 'string' ? option : option.label

@@ -30,7 +30,7 @@ export default function StepNiceToHave({
       <FormSummary {...context} />
 
       <div className="px-4 pt-4">
-        <div className="form-section-title">FAMILIE &amp; EXTRAS</div>
+        <div className="form-section-title">FAMILIE &amp; UMGANG</div>
         <p className="form-help mt-1 mb-3">Alle Angaben in diesem Abschnitt sind freiwillig.</p>
       </div>
       <div className="form-step-grid pt-0">
@@ -46,18 +46,30 @@ export default function StepNiceToHave({
           options={[{ value: true, label: 'Familienfreundlich' }, { value: false, label: 'Problematisch' }]}
           onChange={value => set('schwangerschaftFamilienfreundlich', value)}
         />
-        <ChoiceGroup
-          label="Parkplatz vorhanden"
-          value={data.parkplatz}
-          options={[{ value: true, label: 'Ja' }, { value: false, label: 'Nein' }]}
-          onChange={value => set('parkplatz', value)}
-        />
+      </div>
+
+      <div className="px-4 pt-2">
+        <div className="form-section-title">RESPEKT &amp; SICHERHEIT</div>
+      </div>
+      <div className="form-step-grid pt-3">
         <ChoiceGroup
           label="Diskriminierung erlebt"
           hint="Freiwillig und ohne Details. Diese Antwort fließt nicht in den Score ein."
           value={data.diskriminierung}
           options={['Nein', 'Unsicher', 'Ja']}
           onChange={value => set('diskriminierung', value)}
+        />
+      </div>
+
+      <div className="px-4 pt-2">
+        <div className="form-section-title">PRAKTISCHES</div>
+      </div>
+      <div className="form-step-grid pt-3">
+        <ChoiceGroup
+          label="Parkplatz vorhanden"
+          value={data.parkplatz}
+          options={[{ value: true, label: 'Ja' }, { value: false, label: 'Nein' }]}
+          onChange={value => set('parkplatz', value)}
         />
         <FormCard title="Benefits" hint="Zum Beispiel Jobticket, Kantine oder Kinderbetreuung." className="sm:col-span-2">
           <input

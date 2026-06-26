@@ -67,9 +67,6 @@ export default function StepCore({ data, context, onChange, onBack, onNext }) {
         <ChoiceGroup label="Fortbildungsfreistellung" value={data.fortbildungFreistellung} options={[{ value: true, label: 'Ja' }, { value: false, label: 'Nein' }]} onChange={value => set('fortbildungFreistellung', value)} />
         <ChoiceGroup label="Fortbildungskosten übernommen" value={data.fortbildungBezahlt} options={[{ value: true, label: 'Ja' }, { value: false, label: 'Nein' }]} onChange={value => set('fortbildungBezahlt', value)} />
         <ChoiceGroup label="Lehrtätigkeit vorhanden" value={data.lehreTaetig} options={[{ value: true, label: 'Ja' }, { value: false, label: 'Nein' }]} onChange={value => set('lehreTaetig', value)} />
-        {data.lehreTaetig === true && (
-          <ChoiceGroup label="Freistellung für Lehrtätigkeit" value={data.lehreFreistellung} options={[{ value: true, label: 'Ja' }, { value: false, label: 'Nein' }]} onChange={value => set('lehreFreistellung', value)} />
-        )}
       </div>
 
       <div className="px-4 pt-2">

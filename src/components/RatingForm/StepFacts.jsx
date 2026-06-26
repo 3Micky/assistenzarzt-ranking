@@ -40,8 +40,24 @@ export default function StepFacts({ data, context, onChange, onBack, onNext }) {
           </div>
         </FormCard>
 
-        <NumberField label="Dienste pro Monat" value={data.diensteProMonat} min={0} max={15} unit="DIENSTE" onChange={value => set('diensteProMonat', value)} />
-        <NumberField label="Nachtdienste pro Monat" value={data.nachtdiensteProMonat} min={0} max={31} unit="NÄCHTE" onChange={value => set('nachtdiensteProMonat', value)} />
+        <NumberField
+          label="Dienste insgesamt pro Monat"
+          hint="Alle Bereitschafts-, Wochenend-, Feiertags- oder Schichtdienste zusätzlich zum Regelarbeitstag."
+          value={data.diensteProMonat}
+          min={0}
+          max={15}
+          unit="DIENSTE"
+          onChange={value => set('diensteProMonat', value)}
+        />
+        <NumberField
+          label="Davon Nachtdienste pro Monat"
+          hint="Nur Dienste mit Nachtanteil. 24h-Dienste bitte hier mitzählen."
+          value={data.nachtdiensteProMonat}
+          min={0}
+          max={31}
+          unit="NÄCHTE"
+          onChange={value => set('nachtdiensteProMonat', value)}
+        />
         <NumberField label="Abteilungsgröße" hint="Ungefähre Zahl der Ärzt*innen." value={data.abteilungsgroesse} min={1} max={500} unit="ÄRZT*INNEN" onChange={value => set('abteilungsgroesse', value)} />
 
         <ChoiceGroup

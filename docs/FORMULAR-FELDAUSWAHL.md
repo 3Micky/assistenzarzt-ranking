@@ -20,11 +20,11 @@
 
 - [x] Tatsächlicher Arbeitsbeginn an einem typischen Arbeitstag
 - [x] Tatsächliches Arbeitsende an einem typischen Arbeitstag
-- [x] Dienste pro Monat
+- [x] Dienste insgesamt pro Monat
 - [x] Überstunden werden vollständig erfasst: Ja/Teilweise/Nein
 - [x] Überstundenausgleich: bezahlt/Freizeit/kein Ausgleich
 - [ ] Schichtsystem: 2-Schicht/3-Schicht/24-Stunden-Dienste
-- [x] Nachtdienste pro Monat
+- [x] Davon Nachtdienste pro Monat
 - [ ] 24-Stunden-Dienste pro Monat
 - [ ] Wochenendtage pro Monat
 - [ ] Rufbereitschaften pro Monat
@@ -49,7 +49,7 @@
 - [x] Fortbildungsfreistellung
 - [x] Fortbildungskosten werden übernommen
 - [x] Lehrtätigkeit vorhanden
-- [x] Freistellung für Lehrtätigkeit
+- [ ] Freistellung für Lehrtätigkeit
 - [ ] Freitext zu Rotationen
 
 ## 4. Operative und interventionelle Fächer
