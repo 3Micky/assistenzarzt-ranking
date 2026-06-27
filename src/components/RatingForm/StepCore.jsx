@@ -1,5 +1,6 @@
 import { CRITERIA_CORE_V3 } from '../../data/criteria.js'
 import { answeredCoreCount, MIN_ANSWERED_CORE_CRITERIA } from '../../utils/calculations.js'
+import { Link } from 'react-router-dom'
 import { ChoiceGroup, FormSummary, ScaleQuestion } from './FormControls.jsx'
 
 const FREQUENCY_OPTIONS = [
@@ -35,9 +36,12 @@ export default function StepCore({ data, context, onChange, onBack, onNext }) {
 
       <div className="px-4 pt-4">
         <div className="form-section-title">KERNBEWERTUNG</div>
-        <p className="form-help mt-1 mb-3">
-          Fünf der sechs Kernfragen sind erforderlich. Diese sechs Antworten bilden den Hauptscore.
-        </p>
+        <div className="mt-1 mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <p className="form-help">Bewerte hier nur, was du sicher einschätzen kannst.</p>
+          <Link to="/score" className="font-mono text-[10px] uppercase tracking-wider text-hazard hover:text-ink">
+            Score-Berechnung ansehen →
+          </Link>
+        </div>
       </div>
       <div className="form-step-grid pt-0">
         {CRITERIA_CORE_V3.map(criterion => (
@@ -54,7 +58,7 @@ export default function StepCore({ data, context, onChange, onBack, onNext }) {
 
       <div className="px-4 pt-2">
         <div className="form-section-title">WEITERBILDUNG &amp; LEHRE</div>
-        <p className="form-help mt-1 mb-3">Zusatzinformationen; sie verändern den Hauptscore nicht.</p>
+        <p className="form-help mt-1 mb-3">Wenn du magst, ergänze noch ein paar Details.</p>
       </div>
       <div className="form-step-grid pt-0">
         <ScaleQuestion

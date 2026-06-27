@@ -84,6 +84,16 @@ export default function FAQPage() {
         ))}
       </dl>
 
+      <div className="border-b border-ink px-6 py-6">
+        <div className="form-section-title mb-3">Score im Detail</div>
+        <p className="text-sm leading-relaxed text-ink/80 mb-4">
+          Wenn du genau wissen willst, welche Fragen in den öffentlichen Score eingehen und wie daraus der Wert entsteht, findest du hier die einfache Erklärung.
+        </p>
+        <Link to="/score" className="btn-ghost-ink inline-block text-center">
+          SCORE-BERECHNUNG →
+        </Link>
+      </div>
+
       <div className="px-6 py-6">
         <Link to="/" className="btn-ghost-ink inline-block text-center">
           &#8249;&#8249;&#8249; ZURÜCK ZUR STARTSEITE

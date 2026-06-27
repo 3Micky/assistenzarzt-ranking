@@ -22,6 +22,7 @@ export default function Footer() {
               { to: '/vergleich', label: 'Vergleich' },
               { to: '/karte',     label: 'Karte'     },
               { to: '/bewerten',  label: 'Bewerten'  },
+              { to: '/score',     label: 'Score'     },
               { to: '/faq',       label: 'FAQ'       },
               { to: '/ueber-uns', label: 'Über uns'  },
             ].map(({ to, label }) => (

@@ -12,6 +12,7 @@ import BewertungPage from './pages/BewertungPage.jsx'
 import DatenschutzPage from './pages/DatenschutzPage.jsx'
 import AGBPage from './pages/AGBPage.jsx'
 import FAQPage from './pages/FAQPage.jsx'
+import ScorePage from './pages/ScorePage.jsx'
 import UeberUnsPage from './pages/UeberUnsPage.jsx'
 import BerichteDetailPage from './pages/BerichteDetailPage.jsx'
 import KlinikProfilePage from './pages/KlinikProfilePage.jsx'
@@ -140,6 +141,7 @@ export const routes = [
       { path: 'datenschutz', element: <DatenschutzPage /> },
       { path: 'agb', element: <AGBPage /> },
       { path: 'faq', element: <FAQPage /> },
+      { path: 'score', element: <ScorePage /> },
     ],
   },
 ]
@@ -164,6 +166,7 @@ export default function App() {
         <Route path="datenschutz" element={<DatenschutzPage />} />
         <Route path="agb" element={<AGBPage />} />
         <Route path="faq" element={<FAQPage />} />
+        <Route path="score" element={<ScorePage />} />
       </Route>
     </Routes>
   )

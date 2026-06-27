@@ -33,7 +33,6 @@ export default function StepNiceToHave({
 
       <div className="px-4 pt-4">
         <div className="form-section-title">FAMILIE &amp; UMGANG</div>
-        <p className="form-help mt-1 mb-3">Alle Angaben in diesem Abschnitt sind freiwillig.</p>
       </div>
       <div className="form-step-grid pt-0">
         <ChoiceGroup
@@ -56,7 +55,7 @@ export default function StepNiceToHave({
       <div className="form-step-grid pt-3">
         <ChoiceGroup
           label="Diskriminierung erlebt"
-          hint="Freiwillig und ohne Details. Diese Antwort fließt nicht in den Score ein."
+          hint="Ohne Details, nur dein Eindruck."
           value={data.diskriminierung}
           options={['Nein', 'Unsicher', 'Ja']}
           onChange={(value) => onChange({

@@ -1,6 +1,6 @@
 import { SCALE_5_OPTIONS } from '../../data/criteria.js'
 
-export function FormCard({ title, hint, optional = true, children, className = '' }) {
+export function FormCard({ title, hint, optional = true, showBadge = !optional, children, className = '' }) {
   return (
     <section className={`form-card ${className}`}>
       <div className="flex items-start justify-between gap-3 mb-3">
@@ -8,9 +8,11 @@ export function FormCard({ title, hint, optional = true, children, className = '
           <div className="form-card-title">{title}</div>
           {hint && <div className="form-help mt-1">{hint}</div>}
         </div>
-        <span className={optional ? 'form-badge' : 'form-badge form-badge-required'}>
-          {optional ? 'OPTIONAL' : 'PFLICHT'}
-        </span>
+        {showBadge && (
+          <span className={optional ? 'form-badge' : 'form-badge form-badge-required'}>
+            {optional ? 'OPTIONAL' : 'PFLICHT'}
+          </span>
+        )}
       </div>
       {children}
     </section>
@@ -18,18 +20,22 @@ export function FormCard({ title, hint, optional = true, children, className = '
 }
 
 export function ChoiceGroup({ label, value, options, onChange, optional = true, hint, className = '' }) {
+  const hasLongLabel = String(label).length > 28
   const hasLongOptions = options.some(option => {
     const optionLabel = typeof option === 'string' ? option : option.label
-    return String(optionLabel).length > 18
+    return String(optionLabel).length > 16 || String(optionLabel).trim().split(/\s+/).length > 2
   })
   const gridClass = options.length <= 2
-    ? 'grid-cols-2'
+    ? hasLongOptions
+      ? 'grid-cols-1'
+      : 'grid-cols-2'
     : hasLongOptions
       ? 'grid-cols-1'
       : 'grid-cols-1 sm:grid-cols-3'
+  const wideClass = hasLongLabel || hasLongOptions ? 'sm:col-span-2' : ''
 
   return (
-    <FormCard title={label} hint={hint} optional={optional} className={className}>
+    <FormCard title={label} hint={hint} optional={optional} className={`${wideClass} ${className}`.trim()}>
       <div className={`grid gap-1 ${gridClass}`} role="radiogroup" aria-label={label}>
         {options.map(option => {
           const optionValue = typeof option === 'string' ? option : option.value

@@ -12,7 +12,7 @@ export default function StepFacts({ data, context, onChange, onBack, onNext }) {
     <div>
       <div className="register-strip border-b border-ink">
         <span>SCHRITT 2 VON 4 /// ZAHLEN &amp; FAKTEN</span>
-        <span className="text-canvas/60">OPTIONALE DETAILS</span>
+        <span className="text-canvas/60">FREIWILLIGE ANGABEN</span>
       </div>
       <FormSummary {...context} />
 

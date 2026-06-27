@@ -105,7 +105,7 @@
     @apply grid grid-cols-1 sm:grid-cols-2 gap-3 p-4;
   }
   .form-card {
-    @apply bg-canvas-alt border border-ink/20 p-4 min-w-0;
+    @apply bg-canvas-alt border border-ink/20 p-4 min-w-0 overflow-hidden;
   }
   .form-card-title {
     @apply font-mono text-[11.5px] font-semibold tracking-widest uppercase text-ink;
@@ -120,11 +120,13 @@
     @apply border-hazard text-hazard;
   }
   .form-choice {
-    @apply min-h-11 border border-ink/20 bg-canvas px-3 py-2 text-center
-           font-mono text-[10px] sm:text-[11px] leading-tight tracking-wider uppercase text-ink/70
-           whitespace-normal break-words
+    @apply min-h-12 border border-ink/20 bg-canvas px-3 py-2.5 text-center
+           font-mono text-[10px] sm:text-[11px] leading-snug tracking-wider uppercase text-ink/70
+           whitespace-normal break-normal
            hover:border-ink hover:text-ink transition-colors
            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hazard;
+    text-wrap: pretty;
+    hyphens: none;
   }
   .form-choice-active {
     @apply border-hazard bg-hazard text-white hover:border-hazard hover:text-white;
