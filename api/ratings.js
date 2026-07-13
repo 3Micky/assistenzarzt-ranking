@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { applyCors, enforceRateLimits, getClientIp, getRequestBodySize, hasUpstashConfig } from './_lib/security.js'
+import { applyCors, getRequestBodySize } from './_lib/security.js'
 import { MAX_BODY_BYTES, validateRatingPayload } from './_lib/validateRating.js'
 
 export default async function handler(req, res) {
@@ -12,10 +12,6 @@ export default async function handler(req, res) {
   if (!process.env.VITE_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return res.status(500).json({ error: 'Serverkonfiguration für Supabase fehlt' })
   }
-  if (!hasUpstashConfig()) {
-    return res.status(500).json({ error: 'Serverkonfiguration für Rate-Limiting fehlt' })
-  }
-
   const bodySize = getRequestBodySize(req)
   if (bodySize > MAX_BODY_BYTES) {
     return res.status(400).json({ error: 'Anfrage ist größer als 20 KB' })
@@ -27,21 +23,6 @@ export default async function handler(req, res) {
   })
   if (!validation.valid) {
     return res.status(400).json({ error: 'Ungültige Bewertung', details: validation.errors })
-  }
-
-  const ip = getClientIp(req)
-  try {
-    const rateLimit = await enforceRateLimits(ip, [
-      { limit: 10, window: '1 h', prefix: 'ratings-hour' },
-      { limit: 30, window: '1 d', prefix: 'ratings-day' },
-    ])
-    if (!rateLimit.success) {
-      res.setHeader('Retry-After', String(Math.max(1, Math.ceil((rateLimit.reset - Date.now()) / 1000))))
-      return res.status(429).json({ error: 'Zu viele Bewertungen. Bitte später erneut versuchen.' })
-    }
-  } catch (error) {
-    console.error('Ratings Rate-Limit fehlgeschlagen:', error)
-    return res.status(500).json({ error: 'Rate-Limiting ist derzeit nicht verfügbar' })
   }
 
   const rating = validation.data

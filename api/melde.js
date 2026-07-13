@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
-import { applyCors, enforceRateLimits, getClientIp, getRequestBodySize, hasUpstashConfig, verifyTurnstileOrPassiveFallback } from './_lib/security.js'
+import { applyCors, getRequestBodySize } from './_lib/security.js'
 import { MAX_BODY_BYTES, validateReportPayload } from './_lib/validateRating.js'
 
 const EMPFAENGER = process.env.MELDE_EMPFAENGER || 'hbartels22@gmail.com'
@@ -36,41 +36,16 @@ export default async function handler(req, res) {
   if (!process.env.RESEND_API_KEY) {
     return res.status(500).json({ error: 'Serverkonfiguration für E-Mail-Versand fehlt' })
   }
-  if (!hasUpstashConfig()) {
-    return res.status(500).json({ error: 'Serverkonfiguration für Rate-Limiting fehlt' })
-  }
 
   if (getRequestBodySize(req) > MAX_BODY_BYTES) {
     return res.status(400).json({ error: 'Anfrage ist größer als 20 KB' })
   }
 
-  const { turnstileToken, antiBot, ...reportPayload } = req.body ?? {}
+  const { turnstileToken: _t, antiBot: _a, ...reportPayload } = req.body ?? {}
   const validation = validateReportPayload(reportPayload)
   if (!validation.valid) {
     return res.status(400).json({ error: 'Ungültige Eingabe', details: validation.errors })
   }
-
-  const ip = getClientIp(req)
-  try {
-    const rateLimit = await enforceRateLimits(ip, [
-      { limit: 5, window: '1 h', prefix: 'reports-hour' },
-    ])
-    if (!rateLimit.success) {
-      res.setHeader('Retry-After', String(Math.max(1, Math.ceil((rateLimit.reset - Date.now()) / 1000))))
-      return res.status(429).json({ error: 'Zu viele Meldungen. Bitte später erneut versuchen.' })
-    }
-  } catch (error) {
-    console.error('Melde-Rate-Limit fehlgeschlagen:', error)
-    return res.status(500).json({ error: 'Rate-Limiting ist derzeit nicht verfügbar' })
-  }
-
-  const humanCheck = await verifyTurnstileOrPassiveFallback({
-    token: turnstileToken,
-    remoteIp: ip,
-    passivePayload: antiBot,
-    minRuntimeMs: 2500,
-  })
-  if (!humanCheck.success) return res.status(400).json({ error: humanCheck.error })
 
   const { ratingId, typ, begruendung, kontakt } = validation.data
   const supabase = createClient(
