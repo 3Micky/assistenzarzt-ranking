@@ -1,4 +1,3 @@
-import TurnstileWidget from '../TurnstileWidget.jsx'
 import { ChoiceGroup, FormCard, FormSummary } from './FormControls.jsx'
 
 const RECOMMENDATIONS = ['Ja', 'Mit Einschränkungen', 'Nein']
@@ -13,12 +12,7 @@ export default function StepNiceToHave({
   onSubmit,
   submitError = '',
   isSubmitting = false,
-  turnstileToken = '',
-  onTurnstileTokenChange,
-  onTurnstileStatusChange,
-  turnstileResetKey = 0,
 }) {
-  const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY
   const set = (key, value) => onChange({ ...data, [key]: value })
   const canSubmit = Boolean(data.weiterempfehlung && !isSubmitting)
   const showDiskriminierungFollowUp = data.diskriminierung === 'Ja' || data.diskriminierung === 'Unsicher'
@@ -130,19 +124,6 @@ export default function StepNiceToHave({
           />
         </FormCard>
 
-        <FormCard
-          title="Bot-Schutz"
-          hint="Wenn der Check nicht lädt, kannst du trotzdem absenden. Dann greifen unsere stillen Server-Prüfungen."
-          optional={false}
-          className="sm:col-span-2"
-        >
-          <TurnstileWidget
-            siteKey={turnstileSiteKey}
-            onTokenChange={onTurnstileTokenChange}
-            onStatusChange={onTurnstileStatusChange}
-            resetKey={turnstileResetKey}
-          />
-        </FormCard>
       </div>
 
       {submitError && (

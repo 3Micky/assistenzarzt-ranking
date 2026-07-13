@@ -25,12 +25,12 @@ const baseRatingsStore = create((set, get) => ({
   },
 
   /** Add a new rating through the protected server route */
-  async addRating(rating, turnstileToken, antiBot = null) {
+  async addRating(rating) {
     try {
       const response = await fetch('/api/ratings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...rating, turnstileToken, antiBot }),
+        body: JSON.stringify(rating),
       })
       const result = await response.json()
 

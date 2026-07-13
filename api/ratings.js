@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { applyCors, enforceRateLimits, getClientIp, getRequestBodySize, hasUpstashConfig, verifyTurnstileOrPassiveFallback } from './_lib/security.js'
+import { applyCors, enforceRateLimits, getClientIp, getRequestBodySize, hasUpstashConfig } from './_lib/security.js'
 import { MAX_BODY_BYTES, validateRatingPayload } from './_lib/validateRating.js'
 
 export default async function handler(req, res) {
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Anfrage ist größer als 20 KB' })
   }
 
-  const { turnstileToken, antiBot, ...ratingPayload } = req.body ?? {}
+  const { turnstileToken: _t, antiBot: _a, ...ratingPayload } = req.body ?? {}
   const validation = validateRatingPayload(ratingPayload, {
     rawBodySize: bodySize,
   })
@@ -32,8 +32,8 @@ export default async function handler(req, res) {
   const ip = getClientIp(req)
   try {
     const rateLimit = await enforceRateLimits(ip, [
-      { limit: 3, window: '1 h', prefix: 'ratings-hour' },
-      { limit: 10, window: '1 d', prefix: 'ratings-day' },
+      { limit: 10, window: '1 h', prefix: 'ratings-hour' },
+      { limit: 30, window: '1 d', prefix: 'ratings-day' },
     ])
     if (!rateLimit.success) {
       res.setHeader('Retry-After', String(Math.max(1, Math.ceil((rateLimit.reset - Date.now()) / 1000))))
@@ -43,14 +43,6 @@ export default async function handler(req, res) {
     console.error('Ratings Rate-Limit fehlgeschlagen:', error)
     return res.status(500).json({ error: 'Rate-Limiting ist derzeit nicht verfügbar' })
   }
-
-  const humanCheck = await verifyTurnstileOrPassiveFallback({
-    token: turnstileToken,
-    remoteIp: ip,
-    passivePayload: antiBot,
-    minRuntimeMs: 4000,
-  })
-  if (!humanCheck.success) return res.status(400).json({ error: humanCheck.error })
 
   const rating = validation.data
   const supabase = createClient(

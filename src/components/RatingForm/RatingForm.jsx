@@ -21,10 +21,6 @@ export default function RatingForm({ prefill = null }) {
   const [comment, setComment]     = useState('')
   const [submitError, setSubmitError] = useState('')
   const [isSubmitting, setSubmitting] = useState(false)
-  const [turnstileToken, setTurnstileToken] = useState('')
-  const [turnstileStatus, setTurnstileStatus] = useState('idle')
-  const [turnstileResetKey, setTurnstileResetKey] = useState(0)
-  const [startedAt, setStartedAt] = useState(() => Date.now())
   const addRating = useRatingsStore((s) => s.addRating)
 
   async function handleSubmit() {
@@ -49,25 +45,10 @@ export default function RatingForm({ prefill = null }) {
         yearTo: hospitalData.yearTo,
         criteria,
         comment,
-      }, turnstileToken, {
-        website: '',
-        formRuntimeMs: Date.now() - startedAt,
-        turnstileBypassReason: turnstileToken
-          ? null
-          : turnstileStatus === 'missing-config'
-            ? 'missing-config'
-            : turnstileStatus === 'error'
-              ? 'widget_load_error'
-              : null,
       })
 
       if (!result) {
-        setSubmitError(turnstileStatus === 'error'
-          ? 'Die Bewertung konnte nicht gespeichert werden. Wenn der Bot-Schutz nicht lädt, bitte Seite kurz neu laden und erneut versuchen.'
-          : 'Die Bewertung konnte nicht gespeichert werden. Bitte später erneut versuchen.')
-        setTurnstileToken('')
-        setTurnstileStatus('idle')
-        setTurnstileResetKey(key => key + 1)
+        setSubmitError('Die Bewertung konnte nicht gespeichert werden. Bitte später erneut versuchen.')
         return
       }
 
@@ -83,11 +64,6 @@ export default function RatingForm({ prefill = null }) {
   function reset() {
     setStep(1); setHosp(DEFAULT_HOSPITAL); setCrit({ ...DEFAULT_CRITERIA }); setComment('')
     setSubmitError('')
-    setTurnstileToken('')
-    setTurnstileStatus('idle')
-    setTurnstileResetKey(key => key + 1)
-    setStartedAt(Date.now())
-    // Nach dem Zurücksetzen URL-Params entfernen damit kein altes Prefill erneut greift
     window.history.replaceState(null, '', window.location.pathname)
   }
 
@@ -145,10 +121,6 @@ export default function RatingForm({ prefill = null }) {
           onSubmit={handleSubmit}
           submitError={submitError}
           isSubmitting={isSubmitting}
-          turnstileToken={turnstileToken}
-          onTurnstileTokenChange={setTurnstileToken}
-          onTurnstileStatusChange={setTurnstileStatus}
-          turnstileResetKey={turnstileResetKey}
         />
       )}
       {step === TOTAL_STEPS && <StepDone hospital={hospitalData.hospital} onNew={reset} />}
