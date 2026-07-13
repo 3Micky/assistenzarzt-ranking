@@ -1,5 +1,4 @@
 import { create } from 'zustand'
-import { useRouteLoaderData } from 'react-router-dom'
 import { fetchAllRatings } from '../lib/ratingsData.js'
 import { normalizeRating } from '../utils/calculations.js'
 
@@ -55,18 +54,7 @@ const baseRatingsStore = create((set, get) => ({
 }))
 
 export function useRatingsStore(selector) {
-  const stateFromStore = baseRatingsStore(selector)
-  const loaderData = useRouteLoaderData('root')
-
-  if (!loaderData?.ratings) {
-    return stateFromStore
-  }
-
-  return selector({
-    ...baseRatingsStore.getState(),
-    ratings: loaderData.ratings,
-    isLoading: false,
-  })
+  return baseRatingsStore(selector)
 }
 
 useRatingsStore.getState = baseRatingsStore.getState

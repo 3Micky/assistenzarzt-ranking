@@ -70,12 +70,9 @@ function AppShell() {
   const loadedRatings = loaderData?.ratings ?? []
   const hydrate = useRatingsStore((state) => state.hydrate)
 
-  primeRatingsStore(loadedRatings)
-
   useEffect(() => {
-    if (loadedRatings.length === 0) {
-      hydrate()
-    }
+    primeRatingsStore(loadedRatings)
+    hydrate()
   }, [hydrate, loadedRatings.length])
 
   return (
